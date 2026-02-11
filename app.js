@@ -786,13 +786,43 @@ function speakCurrentWord() {
     
     // Позиционируем аквалайзер слева от слова
     visualizer.style.position = 'absolute';
-    visualizer.style.left = '-90px';
+    visualizer.style.left = '0';
     visualizer.style.top = '50%';
     visualizer.style.transform = 'translateY(-50%)';
     visualizer.style.display = 'flex';
     
-    // Используем улучшенную функцию озвучивания
-    speakText(word, true);
+    // Create a callback when speech ends
+    currentUtterance = new SpeechSynthesisUtterance(word);
+    
+    // Try to get the best Russian voice
+    const bestVoice = getBestRussianVoice();
+    
+    if (bestVoice) {
+        currentUtterance.voice = bestVoice;
+    }
+    
+    // Adjust settings
+    currentUtterance.rate = 0.8;
+    currentUtterance.pitch = 1.1;
+    currentUtterance.volume = 0.8;
+    currentUtterance.lang = 'ru-RU';
+    
+    // Set flag that speech is playing
+    isSpeaking = true;
+    
+    // When speech ends, hide the visualizer
+    currentUtterance.onend = function() {
+        isSpeaking = false;
+        hideVisualizer();
+    };
+    
+    // Error handler in case speech fails
+    currentUtterance.onerror = function() {
+        isSpeaking = false;
+        hideVisualizer();
+    };
+    
+    window.speechSynthesis.speak(currentUtterance);
 }
 
 // Скрыть визуализатор
