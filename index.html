@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ярик.Уроки - Обучающая платформа</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Loader -->
+    <div id="loader">
+        <div class="loader-logo">Ярик<span>.Уроки</span></div>
+        <div class="loader-spinner"></div>
+    </div>
+
+    <!-- Главная страница -->
+    <div id="home-page" class="page active">
+        <div class="home-top">
+            <div class="logo" id="mainLogo">Ярик<span>.Уроки</span></div>
+        </div>
+        <div class="home-content">
+            <h1 class="home-title">Привет, Ярослав!</h1>
+            <div class="home-line"></div>
+            <p class="home-description">Я - твоя личная обучающая платформа. Давай по-занимаемся!</p>
+            <div class="home-controls">
+                <div class="dropdown-container">
+                    <div class="dropdown-label">Выберите уровень</div>
+                    <div class="dropdown">
+                        <button class="dropdown-btn" id="levelDropdownBtn">
+                            Легкий
+                            <svg width="15" height="9" viewBox="0 0 15 9" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M6.6668 8.64216L4.57807e-07 1.72819L1.6664 0L7.5 6.04988L13.3336 0L15 1.72819L8.3332 8.64216C8.1122 8.87128 7.8125 9 7.5 9C7.1875 9 6.8878 8.87128 6.6668 8.64216Z" fill="#F0F0F0"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-content" id="levelDropdownContent">
+                            <div class="dropdown-item" data-level="1">Легкий</div>
+                            <div class="dropdown-item" data-level="2">Средний</div>
+                            <div class="dropdown-item" data-level="3">Сложный</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" id="startLessons">Начать уроки</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Страница занятий (чтение/математика) -->
+    <div id="lessons-page" class="page">
+        <!-- Боковое меню -->
+        <div class="sidebar">
+            <div class="sidebar-logo logo" id="sidebarLogo">Ярик<span>.Уроки</span></div>
+            <h2 class="sidebar-title">Занятия</h2>
+            <div class="sidebar-line"></div>
+            
+            <div class="sidebar-level-container">
+                <div class="sidebar-subtitle">Уровень сложности:</div>
+                <div class="sidebar-level" id="currentLevelDisplay">Легкий</div>
+            </div>
+            
+            <div class="menu-item active" id="menu-math">
+                <svg width="15" height="9" viewBox="0 0 15 9" fill="none">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.6668 8.65075L4.57807e-07 1.72991L1.6664 0L7.5 6.0559L13.3336 0L15 1.72991L8.3332 8.65075C8.1122 8.88011 7.8125 9.00895 7.5 9.00895C7.1875 9.00895 6.8878 8.88011 6.6668 8.65075Z" fill="#F0F0F0"/>
+                </svg>
+                Математика
+            </div>
+            
+            <!-- Подменю математики -->
+            <div class="submenu show" id="math-submenu">
+                <div class="submenu-item" data-category="addition">Сложение</div>
+                <div class="submenu-item active" data-category="subtraction">Вычитание</div>
+                <div class="submenu-item" data-category="multiplication">Умножение</div>
+                <div class="submenu-item" data-category="division">Деление</div>
+            </div>
+
+            <div class="menu-item" id="menu-reading">
+                <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.64216 8.34149L1.72819 15.0149L0 13.3469L6.04988 7.50746L0 1.66806L1.72819 0L8.64216 6.67343C8.87128 6.89465 9 7.19465 9 7.50746C9 7.82027 8.87128 8.12027 8.64216 8.34149Z" fill="#F0F0F0"/>
+                </svg>
+                Чтение
+            </div>
+
+            <div class="menu-item" id="menu-writing">
+                <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.64216 8.34149L1.72819 15.0149L0 13.3469L6.04988 7.50746L0 1.66806L1.72819 0L8.64216 6.67343C8.87128 6.89465 9 7.19465 9 7.50746C9 7.82027 8.87128 8.12027 8.64216 8.34149Z" fill="#F0F0F0"/>
+                </svg>
+                Письмо
+            </div>
+
+            <div class="menu-item" id="menu-puzzles">
+                <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.64216 8.34149L1.72819 15.0149L0 13.3469L6.04988 7.50746L0 1.66806L1.72819 0L8.64216 6.67343C8.87128 6.89465 9 7.19465 9 7.50746C9 7.82027 8.87128 8.12027 8.64216 8.34149Z" fill="#F0F0F0"/>
+                </svg>
+                Головоломки
+            </div>
+        </div>
+
+        <!-- Контентная область -->
+        <div class="content-area">
+            <!-- Верхняя панель -->
+            <div class="top-bar">
+                <div class="timer">
+                    <div class="timer-label">Таймер</div>
+                    <div class="timer-value" id="timer">00:00:00</div>
+                </div>
+                <button class="btn" id="voiceToggleBtn">Голос: Вкл</button>
+            </div>
+
+            <!-- Прогресс бар -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Область задания -->
+            <div class="task-area">
+                <!-- Контейнер для математического примера и сообщения об окончании -->
+                <div class="icon-container" id="iconContainer">
+                    <div class="audio-visualizer" id="audioVisualizer">
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                    </div>
+                    <div class="reload-icon" id="reloadIcon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Контент для математики -->
+                <div id="math-content">
+                    <div class="math-problem" id="mathProblem">
+                        <span class="number" id="mathNum1">3</span>
+                        <span class="operator" id="mathOperator">+</span>
+                        <span class="number" id="mathNum2">2</span>
+                        <span class="equals">=</span>
+                        <span class="math-answer" id="mathAnswer">?</span>
+                    </div>
+                    
+                    <div class="completion-message" id="completionMessage">
+                        <div class="completion-title">Твоя оценка</div>
+                        <div class="completion-grade" id="finalGrade">10</div>
+                        <button class="btn" id="restartMathBtn" style="margin-top: 30px;">Начать заново</button>
+                    </div>
+                    
+                    <div class="input-label">Введи ответ</div>
+                    <div class="number-pad" id="numberPad">
+                        <div class="number-key" data-value="1">1</div>
+                        <div class="number-key" data-value="2">2</div>
+                        <div class="number-key" data-value="3">3</div>
+                        <div class="number-key" data-value="4">4</div>
+                        <div class="number-key" data-value="5">5</div>
+                        <div class="number-key" data-value="6">6</div>
+                        <div class="number-key" data-value="7">7</div>
+                        <div class="number-key" data-value="8">8</div>
+                        <div class="number-key" data-value="9">9</div>
+                        <div class="number-key" data-value="0">0</div>
+                    </div>
+                </div>
+
+                <!-- Контент для чтения -->
+                <div id="reading-content" style="display: none;">
+                    <div class="word-container">
+                        <div class="word" id="wordDisplay">
+                            <!-- Буквы будут добавлены через JS -->
+                        </div>
+                    </div>
+                    <div class="reading-completion" id="readingCompletion">
+                        <div class="reading-completion-title">Задание завершено!</div>
+                        <button class="btn" id="restartReadingBtn" style="margin-top: 30px;">Начать заново</button>
+                    </div>
+                    <div class="word-info" id="wordInfo">
+                        <div class="word-info-top">
+                            <div class="word-text" id="wordText">Каша</div>
+                            <div class="word-transcription" id="wordTranscription">[ˈkaʂə]</div>
+                        </div>
+                        <div class="word-description" id="wordDescription">вкусная, горячая, молочная, рассыпчатая</div>
+                    </div>
+                    <div class="word-progress" id="wordProgress">
+                        <span class="current-word" id="currentWord">1</span>
+                        <span class="progress-slash">/</span>
+                        <span class="total-words" id="totalWords">50</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Фидбэк сообщение -->
+            <div class="feedback" id="feedback">
+                <div class="feedback-text" id="feedbackText"></div>
+            </div>
+
+            <!-- Навигация заданий (только для чтения) -->
+            <div class="task-nav" id="taskNav">
+                <button class="btn btn-secondary" id="prevBtn">Назад</button>
+                <button class="btn" id="nextBtn">Далее</button>
+            </div>
+
+            <!-- Статистика -->
+            <div class="stats" id="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="solvedCount">0</div>
+                    <div class="stat-label">Решено</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="correctCount" style="color: #8BBCB2;">0</div>
+                    <div class="stat-label">Правильно</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="wrongCount" style="color: #F35C87;">0</div>
+                    <div class="stat-label">Неправильно</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" style="color: #EE9F21;" id="totalCount">0</div>
+                    <div class="stat-label">Всего</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем скрипты -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
