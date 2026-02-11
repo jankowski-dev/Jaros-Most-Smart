@@ -1,6 +1,7 @@
 // Статические данные для приложения "Ярик.Уроки"
 
 // Слова для чтения с фонетической транскрипцией
+// Уровень 1: слова из двух слогов с гласными
 const syllablesLevel1 = [
     {word: "КА-ША", transcription: "[ка'ша]"},
     {word: "НЕ-БО", transcription: "[н'э'бо]"},
@@ -54,6 +55,7 @@ const syllablesLevel1 = [
     {word: "СО-ВА", transcription: "[со'ва]"}
 ];
 
+// Уровень 2: слова из 3 букв
 const syllablesLevel2 = [
     {word: "КОТ", transcription: "[кот]"},
     {word: "ДОМ", transcription: "[дом]"},
@@ -107,6 +109,7 @@ const syllablesLevel2 = [
     {word: "ЛУК", transcription: "[лук]"}
 ];
 
+// Уровень 3: слова из 6 букв с тремя слогами
 const syllablesLevel3 = [
     {word: "КО-РО-ВА", transcription: "[ко'ро'ва]"},
     {word: "МО-ЛО-КО", transcription: "[мо'ло'ко]"},
@@ -117,7 +120,7 @@ const syllablesLevel3 = [
     {word: "РА-КЕ-ТА", transcription: "[ра'к'э'та]"},
     {word: "СА-МО-ЛЁТ", transcription: "[са'ма'л'ёт]"},
     {word: "ВЕ-ЛО-СИП", transcription: "[в'э'ла'с'ип]"},
-    {word: "ТЕ-ЛЕ-ФОН", transcription: "[т'э'л'э'фон]"},
+    {word: "ТЕ-ЛЕ-ФОН", transcription: "[т'э'л'э'fon]"},
     {word: "О-КЕ-АН", transcription: "[а'к'э'ан]"},
     {word: "Я-ГО-ДА", transcription: "[я'го'да]"},
     {word: "МА-ЛИ-НА", transcription: "[ма'л'и'на]"},

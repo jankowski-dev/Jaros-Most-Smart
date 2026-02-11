@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>Ярик.Уроки - Обучающая платформа</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -14,90 +14,87 @@
         <div class="loader-spinner"></div>
     </div>
 
-    <!-- Главная страница -->
+    <!-- Home Page -->
     <div id="home-page" class="page active">
         <div class="home-top">
             <div class="logo" id="mainLogo">Ярик<span>.Уроки</span></div>
         </div>
+        
         <div class="home-content">
-            <h1 class="home-title">Привет, Ярослав!</h1>
-            <div class="home-line"></div>
-            <p class="home-description">Я - твоя личная обучающая платформа. Давай по-занимаемся!</p>
-            <div class="home-controls">
-                <div class="dropdown-container">
-                    <div class="dropdown-label">Выберите уровень</div>
-                    <div class="dropdown">
-                        <button class="dropdown-btn" id="levelDropdownBtn">
-                            Легкий
-                            <svg width="15" height="9" viewBox="0 0 15 9" fill="none">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M6.6668 8.64216L4.57807e-07 1.72819L1.6664 0L7.5 6.04988L13.3336 0L15 1.72819L8.3332 8.64216C8.1122 8.87128 7.8125 9 7.5 9C7.1875 9 6.8878 8.87128 6.6668 8.64216Z" fill="#F0F0F0"/>
-                            </svg>
-                        </button>
-                        <div class="dropdown-content" id="levelDropdownContent">
-                            <div class="dropdown-item" data-level="1">Легкий</div>
-                            <div class="dropdown-item" data-level="2">Средний</div>
-                            <div class="dropdown-item" data-level="3">Сложный</div>
+            <!-- Левая колонка: Приветствие -->
+            <div class="home-greeting">
+                <h1 class="home-title">Привет, Ярослав!</h1>
+                <div class="home-line"></div>
+                <p class="home-description">Я - твоя личная обучающая платформа. Давай по-занимаемся!</p>
+            </div>
+            
+            <!-- Правая колонка: Выбор урока -->
+            <div class="selection-container">
+                <!-- Step 1: Subject Selection -->
+                <div class="selection-step" id="step1">
+                    <div class="subject-selection">
+                        <h2 class="section-title">Выберите дисциплину</h2>
+                        <div class="subjects-grid">
+                            <div class="subject-card" data-subject="math">
+                                <h3>Математика</h3>
+                                <p>Развивайте логику и навыки счёта</p>
+                            </div>
+                            <div class="subject-card" data-subject="reading">
+                                <h3>Чтение</h3>
+                                <p>Улучшайте навыки чтения и произношения</p>
+                            </div>
+                            <div class="subject-card" data-subject="writing">
+                                <h3>Письмо</h3>
+                                <p>Освойте правильное написание слов</p>
+                            </div>
+                            <div class="subject-card" data-subject="puzzles">
+                                <h3>Головоломки</h3>
+                                <p>Тренируйте мышление и память</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <button class="btn" id="startLessons">Начать уроки</button>
+                
+                <!-- Step 2: Subcategory Selection (Initially Hidden) -->
+                <div class="selection-step" id="step2" style="display: none;">
+                    <div class="settings-section">
+                        <h2 class="section-title">Выберите подкатегорию</h2>
+                        <div class="subcategory-grid" id="subcategoryGrid">
+                            <!-- Categories will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Difficulty Selection (Initially Hidden) -->
+                <div class="selection-step" id="step3" style="display: none;">
+                    <div class="settings-section">
+                        <h2 class="section-title">Выберите сложность</h2>
+                        <div class="difficulty-options">
+                            <div class="difficulty-option" data-difficulty="1">Легкий</div>
+                            <div class="difficulty-option" data-difficulty="2">Средний</div>
+                            <div class="difficulty-option" data-difficulty="3">Сложный</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Start Lesson Button (Initially Hidden) -->
+                <div class="selection-step" id="step4" style="display: none;">
+                    <button class="btn" id="startLessonBtn">Начать занятие</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Страница занятий (чтение/математика) -->
-    <div id="lessons-page" class="page">
-        <!-- Боковое меню -->
-        <div class="sidebar">
-            <div class="sidebar-logo logo" id="sidebarLogo">Ярик<span>.Уроки</span></div>
-            <h2 class="sidebar-title">Занятия</h2>
-            <div class="sidebar-line"></div>
-            
-            <div class="sidebar-level-container">
-                <div class="sidebar-subtitle">Уровень сложности:</div>
-                <div class="sidebar-level" id="currentLevelDisplay">Легкий</div>
-            </div>
-            
-            <div class="menu-item active" id="menu-math">
-                <svg width="15" height="9" viewBox="0 0 15 9" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.6668 8.65075L4.57807e-07 1.72991L1.6664 0L7.5 6.0559L13.3336 0L15 1.72991L8.3332 8.65075C8.1122 8.88011 7.8125 9.00895 7.5 9.00895C7.1875 9.00895 6.8878 8.88011 6.6668 8.65075Z" fill="#F0F0F0"/>
-                </svg>
-                Математика
-            </div>
-            
-            <!-- Подменю математики -->
-            <div class="submenu show" id="math-submenu">
-                <div class="submenu-item" data-category="addition">Сложение</div>
-                <div class="submenu-item active" data-category="subtraction">Вычитание</div>
-                <div class="submenu-item" data-category="multiplication">Умножение</div>
-                <div class="submenu-item" data-category="division">Деление</div>
-            </div>
-
-            <div class="menu-item" id="menu-reading">
-                <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.64216 8.34149L1.72819 15.0149L0 13.3469L6.04988 7.50746L0 1.66806L1.72819 0L8.64216 6.67343C8.87128 6.89465 9 7.19465 9 7.50746C9 7.82027 8.87128 8.12027 8.64216 8.34149Z" fill="#F0F0F0"/>
-                </svg>
-                Чтение
-            </div>
-
-            <div class="menu-item" id="menu-writing">
-                <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.64216 8.34149L1.72819 15.0149L0 13.3469L6.04988 7.50746L0 1.66806L1.72819 0L8.64216 6.67343C8.87128 6.89465 9 7.19465 9 7.50746C9 7.82027 8.87128 8.12027 8.64216 8.34149Z" fill="#F0F0F0"/>
-                </svg>
-                Письмо
-            </div>
-
-            <div class="menu-item" id="menu-puzzles">
-                <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.64216 8.34149L1.72819 15.0149L0 13.3469L6.04988 7.50746L0 1.66806L1.72819 0L8.64216 6.67343C8.87128 6.89465 9 7.19465 9 7.50746C9 7.82027 8.87128 8.12027 8.64216 8.34149Z" fill="#F0F0F0"/>
-                </svg>
-                Головоломки
-            </div>
+    <!-- Lesson Page -->
+    <div id="lesson-page" class="page" style="display: none;">
+        <div class="lesson-header">
+            <div class="logo" id="lessonLogo">Ярик<span>.Уроки</span></div>
+            <div class="lesson-info" id="lessonInfo">Математика: Сложение</div>
         </div>
 
-        <!-- Контентная область -->
+        <!-- Content Area -->
         <div class="content-area">
-            <!-- Верхняя панель -->
+            <!-- Top Bar -->
             <div class="top-bar">
                 <div class="timer">
                     <div class="timer-label">Таймер</div>
@@ -106,16 +103,16 @@
                 <button class="btn" id="voiceToggleBtn">Голос: Вкл</button>
             </div>
 
-            <!-- Прогресс бар -->
+            <!-- Progress Bar -->
             <div class="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
                 </div>
             </div>
 
-            <!-- Область задания -->
+            <!-- Task Area -->
             <div class="task-area">
-                <!-- Контейнер для математического примера и сообщения об окончании -->
+                <!-- Container for math example and completion message -->
                 <div class="icon-container" id="iconContainer">
                     <div class="audio-visualizer" id="audioVisualizer">
                         <div class="visualizer-bar"></div>
@@ -133,7 +130,7 @@
                     </div>
                 </div>
                 
-                <!-- Контент для математики -->
+                <!-- Content for Math -->
                 <div id="math-content">
                     <div class="math-problem" id="mathProblem">
                         <span class="number" id="mathNum1">3</span>
@@ -146,7 +143,10 @@
                     <div class="completion-message" id="completionMessage">
                         <div class="completion-title">Твоя оценка</div>
                         <div class="completion-grade" id="finalGrade">10</div>
-                        <button class="btn" id="restartMathBtn" style="margin-top: 30px;">Начать заново</button>
+                        <div class="completion-buttons">
+                            <button class="btn" id="repeatLessonBtn">Повторить урок</button>
+                            <button class="btn btn-secondary" id="finishLessonBtn">Закончить урок</button>
+                        </div>
                     </div>
                     
                     <div class="input-label">Введи ответ</div>
@@ -164,24 +164,30 @@
                     </div>
                 </div>
 
-                <!-- Контент для чтения -->
+                <!-- Content for Reading -->
                 <div id="reading-content" style="display: none;">
                     <div class="word-container">
                         <div class="word" id="wordDisplay">
-                            <!-- Буквы будут добавлены через JS -->
+                            <!-- Letters will be added via JS -->
                         </div>
                     </div>
+                    
                     <div class="reading-completion" id="readingCompletion">
                         <div class="reading-completion-title">Задание завершено!</div>
-                        <button class="btn" id="restartReadingBtn" style="margin-top: 30px;">Начать заново</button>
+                        <div class="completion-buttons">
+                            <button class="btn" id="repeatReadingBtn">Повторить урок</button>
+                            <button class="btn btn-secondary" id="finishReadingBtn">Закончить урок</button>
+                        </div>
                     </div>
+                    
                     <div class="word-info" id="wordInfo">
                         <div class="word-info-top">
                             <div class="word-text" id="wordText">Каша</div>
-                            <div class="word-transcription" id="wordTranscription">[ˈkaʂə]</div>
+                            <div class="word-transcription" id="wordTranscription">[ка'ша]</div>
                         </div>
                         <div class="word-description" id="wordDescription">вкусная, горячая, молочная, рассыпчатая</div>
                     </div>
+                    
                     <div class="word-progress" id="wordProgress">
                         <span class="current-word" id="currentWord">1</span>
                         <span class="progress-slash">/</span>
@@ -190,18 +196,18 @@
                 </div>
             </div>
 
-            <!-- Фидбэк сообщение -->
+            <!-- Feedback Message -->
             <div class="feedback" id="feedback">
                 <div class="feedback-text" id="feedbackText"></div>
             </div>
 
-            <!-- Навигация заданий (только для чтения) -->
+            <!-- Task Navigation (only for reading) -->
             <div class="task-nav" id="taskNav">
                 <button class="btn btn-secondary" id="prevBtn">Назад</button>
                 <button class="btn" id="nextBtn">Далее</button>
             </div>
 
-            <!-- Статистика -->
+            <!-- Stats -->
             <div class="stats" id="stats">
                 <div class="stat-item">
                     <div class="stat-value" id="solvedCount">0</div>
@@ -223,7 +229,7 @@
         </div>
     </div>
 
-    <!-- Подключаем скрипты -->
+    <!-- Scripts -->
     <script src="data.js"></script>
     <script src="app.js"></script>
 </body>
