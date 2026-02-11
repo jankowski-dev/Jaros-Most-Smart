@@ -119,6 +119,7 @@ body {
     text-decoration: none;
     height: 45px;
     min-width: 180px;
+    gap: 8px; /* Space between icon and text */
 }
 
 .btn:hover {
@@ -139,6 +140,7 @@ body {
     height: 60px; /* Увеличенная высота */
     padding: 12px 40px; /* Увеличенные отступы */
     font-size: 18px; /* Увеличенный шрифт */
+    gap: 8px; /* Space between icon and text */
 }
 
 /* Анимация Material-UI волны */
@@ -156,6 +158,13 @@ body {
         transform: scale(4);
         opacity: 0;
     }
+}
+
+/* Иконки в кнопках */
+.btn-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 /* Главная страница */
@@ -379,6 +388,7 @@ body {
 
 #startLessonBtn {
     margin-top: 20px;
+    gap: 8px; /* Space between icon and text */
 }
 
 /* Страница урока */

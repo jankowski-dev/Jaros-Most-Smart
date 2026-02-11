@@ -75,7 +75,12 @@
               
               <!-- Step 4: Start Lesson Button (Initially Hidden) -->
               <div class="selection-step" id="step4" style="display: none;">
-                  <button class="btn" id="startLessonBtn">Начать занятие</button>
+                  <button class="btn" id="startLessonBtn">
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Начать занятие
+                  </button>
               </div>
             </div>
         </div>
@@ -90,8 +95,19 @@
 
         <!-- Control Panel -->
         <div class="control-panel">
-            <button class="btn" id="pauseBtn">Пауза</button>
-            <button class="btn btn-secondary" id="finishLessonBtn">Закончить урок</button>
+            <button class="btn" id="pauseBtn">
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+              Пауза
+            </button>
+            <button class="btn btn-secondary" id="finishLessonBtn">
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12"></path>
+              </svg>
+              Закончить урок
+            </button>
         </div>
 
         <!-- Content Area -->
@@ -102,7 +118,13 @@
                     <div class="timer-label">Таймер</div>
                     <div class="timer-value" id="timer">00:00:00</div>
                 </div>
-                <button class="btn" id="voiceToggleBtn">Голос: Вкл</button>
+                <button class="btn" id="voiceToggleBtn">
+                  <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  </svg>
+                  Голос: Вкл
+                </button>
             </div>
 
             <!-- Progress Bar -->
@@ -146,8 +168,19 @@
                         <div class="completion-title">Твоя оценка</div>
                         <div class="completion-grade" id="finalGrade">10</div>
                         <div class="completion-buttons">
-                            <button class="btn" id="repeatLessonBtn" style="margin: 0 10px;">Повторить урок</button>
-                            <button class="btn btn-secondary" id="finishLessonBtn2" style="margin: 0 10px;">Закончить урок</button>
+                            <button class="btn" id="repeatLessonBtn" style="margin: 0 10px;">
+                              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="1 4 1 10 7 10"></polyline>
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                              </svg>
+                              Повторить урок
+                            </button>
+                            <button class="btn btn-secondary" id="finishLessonBtn2" style="margin: 0 10px;">
+                              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6L6 18M6 6l12 12"></path>
+                              </svg>
+                              Закончить урок
+                            </button>
                         </div>
                     </div>
                     
@@ -176,8 +209,19 @@
                     <div class="reading-completion" id="readingCompletion">
                         <div class="reading-completion-title">Задание завершено!</div>
                         <div class="completion-buttons">
-                            <button class="btn" id="repeatReadingBtn" style="margin: 0 10px;">Повторить урок</button>
-                            <button class="btn btn-secondary" id="finishReadingBtn2" style="margin: 0 10px;">Закончить урок</button>
+                            <button class="btn" id="repeatReadingBtn" style="margin: 0 10px;">
+                              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="1 4 1 10 7 10"></polyline>
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                              </svg>
+                              Повторить урок
+                            </button>
+                            <button class="btn btn-secondary" id="finishReadingBtn2" style="margin: 0 10px;">
+                              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6L6 18M6 6l12 12"></path>
+                              </svg>
+                              Закончить урок
+                            </button>
                         </div>
                     </div>
                     <div class="word-info" id="wordInfo">
@@ -202,8 +246,18 @@
 
             <!-- Task Navigation (only for reading) -->
             <div class="task-nav" id="taskNav">
-                <button class="btn btn-secondary" id="prevBtn">Назад</button>
-                <button class="btn" id="nextBtn">Далее</button>
+                <button class="btn btn-secondary" id="prevBtn">
+                  <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                  Назад
+                </button>
+                <button class="btn" id="nextBtn">
+                  <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Далее
+                </button>
             </div>
 
             <!-- Stats -->
