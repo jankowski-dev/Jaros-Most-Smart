@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ярик.Уроки - Обучающая платформа</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -19,68 +19,64 @@
         <div class="home-top">
             <div class="logo" id="mainLogo">Ярик<span>.Уроки</span></div>
         </div>
-        
         <div class="home-content">
-            <!-- Левая колонка: Приветствие -->
-            <div class="home-greeting">
-                <h1 class="home-title">Привет, Ярослав!</h1>
-                <div class="home-line"></div>
-                <p class="home-description">Я - твоя личная обучающая платформа. Давай по-занимаемся!</p>
-            </div>
+            <h1 class="home-title">Привет, Ярослав!</h1>
+            <div class="home-line"></div>
+            <p class="home-description">Я - твоя личная обучающая платформа. Давай по-занимаемся!</p>
             
-            <!-- Правая колонка: Выбор урока -->
+            <!-- Selection container that stays in place -->
             <div class="selection-container">
-                <!-- Step 1: Subject Selection -->
-                <div class="selection-step" id="step1">
-                    <div class="subject-selection">
-                        <h2 class="section-title">Выберите дисциплину</h2>
-                        <div class="subjects-grid">
-                            <div class="subject-card" data-subject="math">
-                                <h3>Математика</h3>
-                                <p>Развивайте логику и навыки счёта</p>
-                            </div>
-                            <div class="subject-card" data-subject="reading">
-                                <h3>Чтение</h3>
-                                <p>Улучшайте навыки чтения и произношения</p>
-                            </div>
-                            <div class="subject-card" data-subject="writing">
-                                <h3>Письмо</h3>
-                                <p>Освойте правильное написание слов</p>
-                            </div>
-                            <div class="subject-card" data-subject="puzzles">
-                                <h3>Головоломки</h3>
-                                <p>Тренируйте мышление и память</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Step 2: Subcategory Selection (Initially Hidden) -->
-                <div class="selection-step" id="step2" style="display: none;">
-                    <div class="settings-section">
-                        <h2 class="section-title">Выберите подкатегорию</h2>
-                        <div class="subcategory-grid" id="subcategoryGrid">
-                            <!-- Categories will be populated dynamically -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Step 3: Difficulty Selection (Initially Hidden) -->
-                <div class="selection-step" id="step3" style="display: none;">
-                    <div class="settings-section">
-                        <h2 class="section-title">Выберите сложность</h2>
-                        <div class="difficulty-options">
-                            <div class="difficulty-option" data-difficulty="1">Легкий</div>
-                            <div class="difficulty-option" data-difficulty="2">Средний</div>
-                            <div class="difficulty-option" data-difficulty="3">Сложный</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Step 4: Start Lesson Button (Initially Hidden) -->
-                <div class="selection-step" id="step4" style="display: none;">
-                    <button class="btn" id="startLessonBtn">Начать занятие</button>
-                </div>
+              <!-- Step 1: Subject Selection -->
+              <div class="selection-step" id="step1">
+                  <div class="subject-selection">
+                      <h2 class="section-title">Выберите дисциплину</h2>
+                      <div class="subjects-grid">
+                          <div class="subject-card" data-subject="math">
+                              <h3>Математика</h3>
+                              <p>Развивайте логику и навыки счёта</p>
+                          </div>
+                          <div class="subject-card" data-subject="reading">
+                              <h3>Чтение</h3>
+                              <p>Улучшайте навыки чтения и произношения</p>
+                          </div>
+                          <div class="subject-card" data-subject="writing">
+                              <h3>Письмо</h3>
+                              <p>Освойте правильное написание слов</p>
+                          </div>
+                          <div class="subject-card" data-subject="puzzles">
+                              <h3>Головоломки</h3>
+                              <p>Тренируйте мышление и память</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              
+              <!-- Step 2: Subcategory Selection (Initially Hidden) -->
+              <div class="selection-step" id="step2" style="display: none;">
+                  <div class="settings-section">
+                      <h2 class="section-title">Выберите подкатегорию</h2>
+                      <div class="subcategory-grid" id="subcategoryGrid">
+                          <!-- Categories will be populated dynamically -->
+                      </div>
+                  </div>
+              </div>
+              
+              <!-- Step 3: Difficulty Selection (Initially Hidden) -->
+              <div class="selection-step" id="step3" style="display: none;">
+                  <div class="settings-section">
+                      <h2 class="section-title">Выберите сложность</h2>
+                      <div class="difficulty-options">
+                          <div class="difficulty-option" data-difficulty="1">Легкий</div>
+                          <div class="difficulty-option" data-difficulty="2">Средний</div>
+                          <div class="difficulty-option" data-difficulty="3">Сложный</div>
+                      </div>
+                  </div>
+              </div>
+              
+              <!-- Step 4: Start Lesson Button (Initially Hidden) -->
+              <div class="selection-step" id="step4" style="display: none;">
+                  <button class="btn" id="startLessonBtn">Начать занятие</button>
+              </div>
             </div>
         </div>
     </div>
@@ -90,6 +86,12 @@
         <div class="lesson-header">
             <div class="logo" id="lessonLogo">Ярик<span>.Уроки</span></div>
             <div class="lesson-info" id="lessonInfo">Математика: Сложение</div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <button class="btn" id="pauseBtn">Пауза</button>
+            <button class="btn btn-secondary" id="finishLessonBtn">Закончить урок</button>
         </div>
 
         <!-- Content Area -->
@@ -144,8 +146,8 @@
                         <div class="completion-title">Твоя оценка</div>
                         <div class="completion-grade" id="finalGrade">10</div>
                         <div class="completion-buttons">
-                            <button class="btn" id="repeatLessonBtn">Повторить урок</button>
-                            <button class="btn btn-secondary" id="finishLessonBtn">Закончить урок</button>
+                            <button class="btn" id="repeatLessonBtn" style="margin: 0 10px;">Повторить урок</button>
+                            <button class="btn btn-secondary" id="finishLessonBtn2" style="margin: 0 10px;">Закончить урок</button>
                         </div>
                     </div>
                     
@@ -171,23 +173,20 @@
                             <!-- Letters will be added via JS -->
                         </div>
                     </div>
-                    
                     <div class="reading-completion" id="readingCompletion">
                         <div class="reading-completion-title">Задание завершено!</div>
                         <div class="completion-buttons">
-                            <button class="btn" id="repeatReadingBtn">Повторить урок</button>
-                            <button class="btn btn-secondary" id="finishReadingBtn">Закончить урок</button>
+                            <button class="btn" id="repeatReadingBtn" style="margin: 0 10px;">Повторить урок</button>
+                            <button class="btn btn-secondary" id="finishReadingBtn2" style="margin: 0 10px;">Закончить урок</button>
                         </div>
                     </div>
-                    
                     <div class="word-info" id="wordInfo">
                         <div class="word-info-top">
                             <div class="word-text" id="wordText">Каша</div>
-                            <div class="word-transcription" id="wordTranscription">[ка'ша]</div>
+                            <div class="word-transcription" id="wordTranscription">[ˈkaʂə]</div>
                         </div>
                         <div class="word-description" id="wordDescription">вкусная, горячая, молочная, рассыпчатая</div>
                     </div>
-                    
                     <div class="word-progress" id="wordProgress">
                         <span class="current-word" id="currentWord">1</span>
                         <span class="progress-slash">/</span>

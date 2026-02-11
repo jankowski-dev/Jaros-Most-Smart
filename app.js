@@ -22,6 +22,8 @@ let mathCompleted = false; // Флаг завершения математиче
 let readingCompleted = false; // Флаг завершения заданий по чтению
 let availableVoices = []; // Available voices for speech synthesis
 let audioContext = null; // Audio context for sound effects
+let isTimerPaused = false; // Flag to track timer state
+let pausedSeconds = 0; // Time accumulated while paused
 
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function() {
@@ -120,6 +122,22 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoaderAndNavigateToLesson();
     });
     
+    // Pause button
+    document.getElementById('pauseBtn').addEventListener('click', togglePause);
+    
+    // Finish lesson buttons
+    document.getElementById('finishLessonBtn').addEventListener('click', function() {
+        showLoaderAndNavigateToHome();
+    });
+    
+    document.getElementById('finishLessonBtn2').addEventListener('click', function() {
+        showLoaderAndNavigateToHome();
+    });
+    
+    document.getElementById('finishReadingBtn2').addEventListener('click', function() {
+        showLoaderAndNavigateToHome();
+    });
+    
     // Repeat lesson buttons
     document.getElementById('repeatLessonBtn').addEventListener('click', function() {
         resetLesson();
@@ -127,15 +145,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('repeatReadingBtn').addEventListener('click', function() {
         resetLesson();
-    });
-    
-    // Finish lesson buttons
-    document.getElementById('finishLessonBtn').addEventListener('click', function() {
-        showLoaderAndNavigateToHome();
-    });
-    
-    document.getElementById('finishReadingBtn').addEventListener('click', function() {
-        showLoaderAndNavigateToHome();
     });
     
     // Клавиши калькулятора
@@ -195,6 +204,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обновление статистики
     updateStats();
 });
+
+// Toggle pause state
+function togglePause() {
+    isTimerPaused = !isTimerPaused;
+    const pauseBtn = document.getElementById('pauseBtn');
+    
+    if (isTimerPaused) {
+        pauseBtn.textContent = 'Продолжить';
+        // Stop the timer interval but keep track of elapsed time
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    } else {
+        pauseBtn.textContent = 'Пауза';
+        // Restart the timer from where it was paused
+        startTimer();
+    }
+}
 
 // Populate subcategories based on selected subject
 function populateSubcategories() {
@@ -288,6 +316,14 @@ function getCategoryDisplayName(category) {
         'sentences': 'Предложения'
     };
     return names[category] || category;
+}
+
+// Update lesson info in header
+function updateLessonHeader() {
+    const lessonInfo = document.getElementById('lessonInfo');
+    const subjectName = getSubjectDisplayName(currentSubject);
+    const categoryName = getCategoryDisplayName(currentCategory);
+    lessonInfo.textContent = `${subjectName}: ${categoryName}`;
 }
 
 // Функция подсчета оценки по 10-балльной шкале
@@ -517,6 +553,9 @@ function showLoaderAndNavigateToLesson() {
         
         // Сброс таймера
         resetTimer();
+        
+        // Update lesson header to show the selected subject and category
+        updateLessonHeader();
         
         // Show content based on selected subject
         if (currentSubject === 'math') {
@@ -1004,20 +1043,24 @@ function startTimer() {
     
     // Обновляем каждую секунду
     timerInterval = setInterval(() => {
-        timerSeconds++;
-        
-        const hours = Math.floor(timerSeconds / 3600);
-        const minutes = Math.floor((timerSeconds % 3600) / 60);
-        const seconds = timerSeconds % 60;
-        
-        document.getElementById('timer').textContent = 
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        if (!isTimerPaused) {
+            timerSeconds++;
+            
+            const hours = Math.floor(timerSeconds / 3600);
+            const minutes = Math.floor((timerSeconds % 3600) / 60);
+            const seconds = timerSeconds % 60;
+            
+            document.getElementById('timer').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
     }, 1000);
 }
 
 // Сброс таймера
 function resetTimer() {
     timerSeconds = 0;
+    isTimerPaused = false;
+    document.getElementById('pauseBtn').textContent = 'Пауза';
     document.getElementById('timer').textContent = '00:00:00';
     startTimer(); // Перезапускаем таймер
 }
