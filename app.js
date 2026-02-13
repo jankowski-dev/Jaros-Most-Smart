@@ -299,7 +299,8 @@ function updateLessonHeader() {
     if (!lessonInfo) return;
     const subjectName = getSubjectDisplayName(currentSubject);
     const categoryName = getCategoryDisplayName(currentCategory);
-    lessonInfo.textContent = `${subjectName}: ${categoryName}`;
+    const levelText = levelNames[currentLevel] || '';
+    lessonInfo.textContent = `${subjectName}: ${categoryName} (${levelText})`;
 }
 
 function calculateGrade(correct, total) {
@@ -407,7 +408,7 @@ function resetReadingTest() {
     
     currentWordIndex = 0;
     
-    // Загружаем слова в зависимости от уровня
+    // Загружаем слова в зависимости от уровня и перемешиваем
     loadReadingWords();
     
     resetTimer();
@@ -421,15 +422,49 @@ function resetReadingTest() {
     updateReadingContent();
 }
 
-// Функция для загрузки слов для чтения
+// Функция для загрузки слов для чтения с рандомизацией
 function loadReadingWords() {
-    if (currentLevel === 1) {
-        currentWords = [...syllablesLevel1];
-    } else if (currentLevel === 2) {
-        currentWords = [...syllablesLevel2];
-    } else if (currentLevel === 3) {
-        currentWords = [...syllablesLevel3];
+    let sourceArray = [];
+    
+    // Выбираем источник данных в зависимости от категории и уровня
+    if (currentCategory === 'syllables') {
+        if (currentLevel === 1) {
+            sourceArray = [...syllablesEasy];
+        } else if (currentLevel === 2) {
+            sourceArray = [...syllablesMedium];
+        } else if (currentLevel === 3) {
+            sourceArray = [...syllablesHard];
+        }
+    } else if (currentCategory === 'words') {
+        if (currentLevel === 1) {
+            sourceArray = [...wordsEasy];
+        } else if (currentLevel === 2) {
+            sourceArray = [...wordsMedium];
+        } else if (currentLevel === 3) {
+            sourceArray = [...wordsHard];
+        }
+    } else if (currentCategory === 'sentences') {
+        // Пока пусто
+        sourceArray = [];
     }
+    
+    // Перемешиваем массив
+    currentWords = shuffleArray(sourceArray);
+    
+    // Если слов меньше 30, используем все, если больше - берем первые 30
+    if (currentWords.length > 30) {
+        currentWords = currentWords.slice(0, 30);
+    }
+}
+
+// Функция перемешивания массива (алгоритм Фишера-Йетса)
+function shuffleArray(array) {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
 }
 
 function showLoaderAndNavigateToHome() {
@@ -588,6 +623,35 @@ function showMathProblem() {
     document.getElementById('numberPad').classList.remove('disabled');
 }
 
+// Функция для адаптивного размера текста в зависимости от длины слова
+function adjustWordFontSize(wordLength) {
+    const wordElement = document.getElementById('wordDisplay');
+    if (!wordElement) return;
+    
+    // Базовый размер для коротких слов
+    let fontSize = 96;
+    
+    // Уменьшаем размер в зависимости от количества символов
+    if (wordLength > 10) {
+        fontSize = 48;
+    } else if (wordLength > 8) {
+        fontSize = 60;
+    } else if (wordLength > 6) {
+        fontSize = 72;
+    } else if (wordLength > 4) {
+        fontSize = 84;
+    }
+    
+    // Применяем размер к контейнеру и всем дочерним элементам
+    wordElement.style.fontSize = fontSize + 'px';
+    
+    // Также корректируем размер для разделителей слогов
+    const dividers = wordElement.querySelectorAll('.syllable-divider');
+    dividers.forEach(divider => {
+        divider.style.fontSize = fontSize + 'px';
+    });
+}
+
 function updateReadingContent() {
     if (readingCompleted) return;
     if (!currentWords || currentWords.length === 0) {
@@ -612,17 +676,17 @@ function updateReadingContent() {
         visualizer.style.visibility = 'hidden';
     }
     
-    const syllables = wordData.word.split('-');
+    let displayText = '';
+    let wordLength = 0;
     
-    syllables.forEach((syllable, syllableIndex) => {
-        if (syllableIndex > 0) {
-            const divider = document.createElement('span');
-            divider.className = 'syllable-divider';
-            divider.textContent = '-';
-            wordDisplay.appendChild(divider);
-        }
+    // Определяем, как отображать данные в зависимости от типа
+    if (wordData.phrase) {
+        // Это фраза из двух слов (wordsMedium или wordsHard)
+        displayText = wordData.phrase;
+        wordLength = displayText.length;
         
-        for (let char of syllable) {
+        // Просто показываем фразу целиком
+        for (let char of displayText) {
             const span = document.createElement('span');
             span.className = 'word-letter';
             span.textContent = char;
@@ -636,11 +700,74 @@ function updateReadingContent() {
             
             wordDisplay.appendChild(span);
         }
-    });
+        
+        // Обновляем информацию
+        document.getElementById('wordText').textContent = wordData.phrase;
+        document.getElementById('wordTranscription').textContent = wordData.transcription || '';
+        document.getElementById('wordDescription').textContent = wordData.example || wordData.description || '';
+        
+    } else if (wordData.word.includes('-')) {
+        // Это слово с дефисами (слоги)
+        displayText = wordData.word.replace(/-/g, '');
+        wordLength = displayText.length;
+        
+        const syllables = wordData.word.split('-');
+        
+        syllables.forEach((syllable, syllableIndex) => {
+            if (syllableIndex > 0) {
+                const divider = document.createElement('span');
+                divider.className = 'syllable-divider';
+                divider.textContent = '-';
+                wordDisplay.appendChild(divider);
+            }
+            
+            for (let char of syllable) {
+                const span = document.createElement('span');
+                span.className = 'word-letter';
+                span.textContent = char;
+                
+                const vowels = 'АЕЁИОУЫЭЮЯ';
+                if (vowels.includes(char.toUpperCase())) {
+                    span.classList.add('vowel');
+                } else {
+                    span.classList.add('consonant');
+                }
+                
+                wordDisplay.appendChild(span);
+            }
+        });
+        
+        document.getElementById('wordText').textContent = displayText;
+        document.getElementById('wordTranscription').textContent = wordData.transcription || '';
+        document.getElementById('wordDescription').textContent = wordData.description || '';
+        
+    } else {
+        // Обычное слово
+        displayText = wordData.word;
+        wordLength = displayText.length;
+        
+        for (let char of displayText) {
+            const span = document.createElement('span');
+            span.className = 'word-letter';
+            span.textContent = char;
+            
+            const vowels = 'АЕЁИОУЫЭЮЯ';
+            if (vowels.includes(char.toUpperCase())) {
+                span.classList.add('vowel');
+            } else {
+                span.classList.add('consonant');
+            }
+            
+            wordDisplay.appendChild(span);
+        }
+        
+        document.getElementById('wordText').textContent = wordData.word;
+        document.getElementById('wordTranscription').textContent = wordData.transcription || '';
+        document.getElementById('wordDescription').textContent = wordData.description || '';
+    }
     
-    document.getElementById('wordText').textContent = wordData.word.replace(/-/g, '');
-    document.getElementById('wordTranscription').textContent = wordData.transcription;
-    document.getElementById('wordDescription').textContent = generateDescription(wordData.word);
+    // Адаптируем размер шрифта
+    adjustWordFontSize(wordLength);
     
     document.getElementById('currentWord').textContent = currentWordIndex + 1;
     document.getElementById('totalWords').textContent = currentWords.length;
@@ -655,7 +782,13 @@ function speakCurrentWord() {
     if (currentWords.length === 0 || currentWordIndex >= currentWords.length || !voiceEnabled) return;
     
     const wordData = currentWords[currentWordIndex];
-    const word = wordData.word.replace(/-/g, '');
+    let textToSpeak = '';
+    
+    if (wordData.phrase) {
+        textToSpeak = wordData.phrase;
+    } else {
+        textToSpeak = wordData.word.replace(/-/g, '');
+    }
     
     if (currentUtterance && isSpeaking) {
         window.speechSynthesis.cancel();
@@ -679,7 +812,7 @@ function speakCurrentWord() {
         visualizer.style.display = 'flex';
     }
     
-    currentUtterance = new SpeechSynthesisUtterance(word);
+    currentUtterance = new SpeechSynthesisUtterance(textToSpeak);
     const bestVoice = getBestRussianVoice();
     
     if (bestVoice) {
@@ -713,88 +846,52 @@ function hideVisualizer() {
     }
 }
 
-function generateDescription(word) {
-    const key = word.replace(/-/g, '').toUpperCase();
-    return wordDescriptions[key] || 'интересное, новое, полезное слово';
-}
-
 function generateMathProblems() {
-    mathProblems = [];
-    let count = 10;
-    let maxValue = 10;
+    let sourceArray = [];
+    let operator = '';
     
-    if (currentLevel === 2) maxValue = 20;
-    else if (currentLevel === 3) maxValue = 30;
-    
+    // Выбираем источник данных в зависимости от категории и уровня
     if (currentCategory === 'addition') {
-        for (let i = 0; i < count; i++) {
-            let a = Math.floor(Math.random() * Math.floor(maxValue / 2)) + 1;
-            let b = Math.floor(Math.random() * Math.floor(maxValue / 2)) + 1;
-            
-            if (a + b > maxValue) {
-                a = Math.floor(maxValue / 2);
-                b = maxValue - a;
-            }
-            
-            mathProblems.push({
-                num1: a,
-                num2: b,
-                operator: '+',
-                answer: a + b
-            });
-        }
+        operator = '+';
+        if (currentLevel === 1) sourceArray = [...additionEasy];
+        else if (currentLevel === 2) sourceArray = [...additionMedium];
+        else if (currentLevel === 3) sourceArray = [...additionHard];
     } else if (currentCategory === 'subtraction') {
-        for (let i = 0; i < count; i++) {
-            let a = Math.floor(Math.random() * maxValue) + 1;
-            let b = Math.floor(Math.random() * maxValue) + 1;
-            
-            if (a < b) {
-                [a, b] = [b, a];
-            }
-            
-            if (a > maxValue) {
-                a = maxValue;
-                b = Math.floor(Math.random() * maxValue) + 1;
-                if (a < b) [a, b] = [b, a];
-            }
-            
-            mathProblems.push({
-                num1: a,
-                num2: b,
-                operator: '-',
-                answer: a - b
-            });
-        }
+        operator = '-';
+        if (currentLevel === 1) sourceArray = [...subtractionEasy];
+        else if (currentLevel === 2) sourceArray = [...subtractionMedium];
+        else if (currentLevel === 3) sourceArray = [...subtractionHard];
     } else if (currentCategory === 'multiplication') {
-        for (let i = 0; i < count; i++) {
-            let a = Math.floor(Math.random() * 5) + 1;
-            let b = Math.floor(Math.random() * Math.min(10, Math.floor(maxValue / a))) + 1;
-            
-            mathProblems.push({
-                num1: a,
-                num2: b,
-                operator: '*',
-                answer: a * b
-            });
-        }
+        operator = '*';
+        if (currentLevel === 1) sourceArray = [...multiplicationEasy];
+        else if (currentLevel === 2) sourceArray = [...multiplicationMedium];
+        else if (currentLevel === 3) sourceArray = [...multiplicationHard];
     } else if (currentCategory === 'division') {
-        for (let i = 0; i < count; i++) {
-            let a = Math.floor(Math.random() * 5) + 1;
-            let b = Math.floor(Math.random() * Math.min(10, Math.floor(maxValue / a))) + 1;
-            let product = a * b;
-            
-            mathProblems.push({
-                num1: product,
-                num2: a,
-                operator: '/',
-                answer: b
-            });
-        }
+        // Пока пусто
+        sourceArray = [];
     }
     
-    for (let i = mathProblems.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [mathProblems[i], mathProblems[j]] = [mathProblems[j], mathProblems[i]];
+    // Перемешиваем массив
+    let shuffled = shuffleArray(sourceArray);
+    
+    // Берем первые 10 элементов (или меньше, если их недостаточно)
+    mathProblems = shuffled.slice(0, 10).map(item => ({
+        num1: item.num1,
+        num2: item.num2,
+        operator: operator,
+        answer: item.answer
+    }));
+    
+    // Если примеров меньше 10, дублируем их, но с другими числами
+    while (mathProblems.length < 10 && sourceArray.length > 0) {
+        const randomIndex = Math.floor(Math.random() * sourceArray.length);
+        const item = sourceArray[randomIndex];
+        mathProblems.push({
+            num1: item.num1,
+            num2: item.num2,
+            operator: operator,
+            answer: item.answer
+        });
     }
     
     currentMathIndex = 0;

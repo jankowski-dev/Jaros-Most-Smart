@@ -557,6 +557,12 @@ body {
     font-size: 30px;
     font-weight: 800;
     min-width: 150px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.timer-value:hover {
+    opacity: 0.8;
 }
 
 /* Прогресс бар */
@@ -778,7 +784,6 @@ body {
     justify-content: center;
     position: relative;
     min-height: 120px;
-    padding-top: 100px;
 }
 
 /* Контейнер для слова и аквалайзера */
@@ -800,7 +805,10 @@ body {
     position: relative;
     justify-content: center;
     flex-shrink: 0;
-    margin-top: 0px;
+    transition: font-size 0.3s ease;
+    max-width: 90vw;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .word-letter {
@@ -819,10 +827,10 @@ body {
 
 .syllable-divider {
     color: #EE9F21;
-    font-size: 96px;
     font-weight: 800;
     margin: 0 5px;
     line-height: 1;
+    transition: font-size 0.3s ease;
 }
 
 /* Анимация аквалайзера */
@@ -1174,13 +1182,14 @@ body {
 
     .word {
         font-size: 76px;
-        font-weight: 800;
         display: flex;
         align-items: center;
         cursor: pointer;
         position: relative;
         justify-content: center;
         flex-shrink: 0;
+        max-width: 90vw;
+        flex-wrap: wrap;
     }
 
     .subject-card h3 {
@@ -1332,19 +1341,6 @@ body {
     display: none !important;
 }
 
-/* Стиль для таймера - курсор pointer */
-.timer-value {
-    color: #EE9F21;
-    font-size: 30px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
-}
-
-.timer-value:hover {
-    opacity: 0.8;
-}
-
 /* Скрываем кнопки внутри completion-message и reading-completion */
 .completion-buttons {
     display: none !important;
@@ -1381,14 +1377,14 @@ body {
     }
 
     .word {
-        font-size: 46px;
-        font-weight: 800;
         display: flex;
         align-items: center;
         cursor: pointer;
         position: relative;
         justify-content: center;
         flex-shrink: 0;
+        max-width: 90vw;
+        flex-wrap: wrap;
     }
 
     .lesson-header {
@@ -1489,8 +1485,7 @@ body {
     
     .syllable-divider {
         color: #EE9F21;
-        font-size: 46px;
-        font-weight: 800;
+        font-size: inherit;
         margin: 0 5px;
         line-height: 1;
     }
