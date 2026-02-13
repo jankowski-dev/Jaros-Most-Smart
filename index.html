@@ -93,50 +93,47 @@
 
         <!-- Control Panel -->
         <div class="control-panel">
+            <div class="timer">
+                <div class="timer-label"></div>
+                <div class="timer-value" id="timer">00:00:00</div>
+            </div>
 
-
-
-                <div class="timer">
-                    <div class="timer-label"></div>
-                    <div class="timer-value" id="timer">00:00:00</div>
-                </div>
-
-        <div class="butt-container"> 
+            <div class="butt-container"> 
                 <button class="btn" id="voiceToggleBtn">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                    </svg>
-                    Вкл
+                    <span id="voiceIconOn" style="display: inline-flex; gap: 8px; align-items: center;">
+                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                        Вкл
+                    </span>
+                    <span id="voiceIconOff" style="display: none; gap: 8px; align-items: center;">
+                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <line x1="23" y1="9" x2="17" y2="15"></line>
+                            <line x1="17" y1="9" x2="23" y2="15"></line>
+                        </svg>
+                        Выкл
+                    </span>
                 </button>
 
-            <button class="btn btn-secondary" id="restartBtn">
-                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="1 4 1 10 7 10"></polyline>
-                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                </svg>
-                
-            </button>
+                <button class="btn btn-secondary" id="restartBtn">
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                </button>
 
-
-
-            <button class="btn btn-cancel" id="finishLessonBtn">
-                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6L6 18M6 6l12 12"></path>
-                </svg>
-                
-            </button>
-
-        </div>
-
-
+                <button class="btn btn-cancel" id="finishLessonBtn">
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6L6 18M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <!-- Content Area -->
         <div class="content-area">
-            <!-- Top Bar -->
-            
-
             <!-- Progress Bar -->
             <div class="progress-container">
                 <div class="progress-bar">
@@ -159,7 +156,6 @@
                     <div class="completion-message" id="completionMessage">
                         <div class="completion-title">Твоя оценка</div>
                         <div class="completion-grade" id="finalGrade">10</div>
-                        <!-- Кнопки удалены - используем кнопки вверху -->
                     </div>
                     
                     <div class="input-label">Введи ответ</div>
@@ -193,7 +189,6 @@
                     </div>
                     <div class="reading-completion" id="readingCompletion">
                         <div class="reading-completion-title">Задание завершено!</div>
-                        <!-- Кнопки удалены - используем кнопки вверху -->
                     </div>
                     <div class="word-info" id="wordInfo">
                         <div class="word-info-top">
@@ -230,28 +225,27 @@
                     Далее
                 </button>
             </div>
-
-            <!-- Stats -->
-
         </div>
                 
-            <div class="stats" id="stats">
-                <div class="title-stets">Ответы</div>
-                <div class="stat-item">
-                    <div class="stat-value" id="correctCount" style="color: #8BBCB2;">0</div>
-                    <div class="stat-label"></div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="wrongCount" style="color: #F35C87;">0</div>
-                    <div class="stat-label"></div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" style="color: #EE9F21;" id="totalCount">0</div>
-                    <div class="stat-label"></div>
-                </div>
+        <div class="stats" id="stats">
+            <div class="title-stets">Ответы</div>
+            <div class="stat-item">
+                <div class="stat-value" id="solvedCount" style="color: #8BBCB2;">0</div>
+                <div class="stat-label"></div>
             </div>
-
-
+            <div class="stat-item">
+                <div class="stat-value" id="correctCount" style="color: #8BBCB2;">0</div>
+                <div class="stat-label"></div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="wrongCount" style="color: #F35C87;">0</div>
+                <div class="stat-label"></div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" style="color: #EE9F21;" id="totalCount">0</div>
+                <div class="stat-label"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->

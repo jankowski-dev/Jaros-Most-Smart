@@ -126,11 +126,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Voice toggle button
+    // Voice toggle button (обновленная версия с иконками)
     document.getElementById('voiceToggleBtn').addEventListener('click', function() {
         voiceEnabled = !voiceEnabled;
-        this.textContent = voiceEnabled ? 'Вкл' : 'Выкл';
-        this.style.background = voiceEnabled ? '#EE9F21' : '#757575';
+        
+        const iconOn = document.getElementById('voiceIconOn');
+        const iconOff = document.getElementById('voiceIconOff');
+        
+        if (voiceEnabled) {
+            iconOn.style.display = 'inline-flex';
+            iconOff.style.display = 'none';
+            this.style.background = '#EE9F21';
+        } else {
+            iconOn.style.display = 'none';
+            iconOff.style.display = 'inline-flex';
+            this.style.background = '#757575';
+        }
     });
     
     // Reading navigation buttons
@@ -158,16 +169,21 @@ document.addEventListener('DOMContentLoaded', function() {
 // Функция паузы/продолжения по клику на таймер
 function toggleTimerPause() {
     isTimerPaused = !isTimerPaused;
+    const timerElement = document.getElementById('timer');
     const timerLabel = document.querySelector('.timer-label');
     
     if (isTimerPaused) {
         timerLabel.textContent = '';
+        // Добавляем класс для серого цвета
+        timerElement.classList.add('timer-paused');
         if (timerInterval) {
             clearInterval(timerInterval);
             timerInterval = null;
         }
     } else {
         timerLabel.textContent = '';
+        // Убираем класс, возвращаем оранжевый цвет
+        timerElement.classList.remove('timer-paused');
         startTimer();
     }
 }
@@ -318,6 +334,8 @@ function completeMathTest() {
     
     // Ставим таймер на паузу
     isTimerPaused = true;
+    const timerElement = document.getElementById('timer');
+    timerElement.classList.add('timer-paused');
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
         timerLabel.textContent = '';
@@ -345,6 +363,8 @@ function resetMathTest() {
     
     // Сбрасываем таймер
     resetTimer();
+    const timerElement = document.getElementById('timer');
+    timerElement.classList.remove('timer-paused');
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
         timerLabel.textContent = '';
@@ -364,6 +384,8 @@ function completeReadingTest() {
     
     // Ставим таймер на паузу
     isTimerPaused = true;
+    const timerElement = document.getElementById('timer');
+    timerElement.classList.add('timer-paused');
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
         timerLabel.textContent = '';
@@ -389,6 +411,8 @@ function resetReadingTest() {
     loadReadingWords();
     
     resetTimer();
+    const timerElement = document.getElementById('timer');
+    timerElement.classList.remove('timer-paused');
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
         timerLabel.textContent = '';
@@ -650,8 +674,6 @@ function speakCurrentWord() {
     
     if (visualizer) {
         visualizer.style.position = 'relative';
-        // visualizer.style.left = '0';
-        // visualizer.style.top = '50%';
         visualizer.style.visibility = 'visible';
         visualizer.style.transform = 'translateY(-50%)';
         visualizer.style.display = 'flex';
