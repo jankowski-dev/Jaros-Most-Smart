@@ -1320,4 +1320,16 @@ margin-top: 40px;
 .math-problem .equals {
     margin: 0 10px;
 }
+
+.content-area {
+    padding: 40px 0 0 0;
+    width: 100%;
+    min-height: calc(100vh - 200px);
+    position: relative;
+    background: #FBFBFB;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 }
