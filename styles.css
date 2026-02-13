@@ -971,7 +971,7 @@ display: flex;
     position: absolute;
     bottom: 0;
     left: 0;
-    margin-bottom: 30px;
+    margin-bottom: 0px;
 }
 
 .last-element {
@@ -985,6 +985,7 @@ display: flex;
 
 .stat-item {
     text-align: center;
+    padding: 30px 20px
 }
 
 .stat-value {
