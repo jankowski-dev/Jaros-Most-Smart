@@ -20,68 +20,66 @@
             <div class="logo" id="mainLogo">Ярик<span>.Уроки</span></div>
         </div>
         <div class="home-content">
-            <h1 class="home-title">Привет, Ярослав!</h1>
-            <div class="home-line"></div>
-            <p class="home-description">Я - твоя личная обучающая платформа. Давай по-занимаемся!</p>
+            <div class="home-title2">
+                <h1 class="home-title3">ПРИВЕТ, ЯРОСЛАВ</h1>
+                <div class="home-line"></div>
+            </div>
             
-            <!-- Selection container that stays in place -->
+            <!-- Selection container -->
             <div class="selection-container">
-              <!-- Step 1: Subject Selection -->
-              <div class="selection-step" id="step1">
-                  <div class="subject-selection">
-                      <h2 class="section-title">Выберите дисциплину</h2>
-                      <div class="subjects-grid">
-                          <div class="subject-card" data-subject="math">
-                              <h3>Математика</h3>
-                              <p>Развивайте логику и навыки счёта</p>
-                          </div>
-                          <div class="subject-card" data-subject="reading">
-                              <h3>Чтение</h3>
-                              <p>Улучшайте навыки чтения и произношения</p>
-                          </div>
-                          <div class="subject-card" data-subject="writing">
-                              <h3>Письмо</h3>
-                              <p>Освойте правильное написание слов</p>
-                          </div>
-                          <div class="subject-card" data-subject="puzzles">
-                              <h3>Головоломки</h3>
-                              <p>Тренируйте мышление и память</p>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- Step 2: Subcategory Selection (Initially Hidden) -->
-              <div class="selection-step" id="step2" style="display: none;">
-                  <div class="settings-section">
-                      <h2 class="section-title">Выберите подкатегорию</h2>
-                      <div class="subcategory-grid" id="subcategoryGrid">
-                          <!-- Categories will be populated dynamically -->
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- Step 3: Difficulty Selection (Initially Hidden) -->
-              <div class="selection-step" id="step3" style="display: none;">
-                  <div class="settings-section">
-                      <h2 class="section-title">Выберите сложность</h2>
-                      <div class="difficulty-options">
-                          <div class="difficulty-option" data-difficulty="1">Легкий</div>
-                          <div class="difficulty-option" data-difficulty="2">Средний</div>
-                          <div class="difficulty-option" data-difficulty="3">Сложный</div>
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- Step 4: Start Lesson Button (Initially Hidden) -->
-              <div class="selection-step" id="step4" style="display: none;">
-                  <button class="btn" id="startLessonBtn">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
-                    Начать занятие
-                  </button>
-              </div>
+                <!-- Step 1: Subject Selection -->
+                <div class="selection-step" id="step1">
+                    <div class="subject-selection">
+                        <h2 class="section-title">Выберите дисциплину</h2>
+                        <div class="subjects-grid">
+                            <div class="subject-card" data-subject="math">
+                                <h3>Математика</h3>
+                                <p>Развивайте логику и навыки счёта</p>
+                            </div>
+                            <div class="subject-card" data-subject="reading">
+                                <h3>Чтение</h3>
+                                <p>Улучшайте навыки чтения и произношения</p>
+                            </div>
+                            <div class="subject-card" data-subject="writing">
+                                <h3>Письмо</h3>
+                                <p>Освойте правильное написание слов</p>
+                            </div>
+                            <div class="subject-card" data-subject="puzzles">
+                                <h3>Головоломки</h3>
+                                <p>Тренируйте мышление и память</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Subcategory Selection -->
+                <div class="selection-step" id="step2" style="display: none;">
+                    <div class="subject-selection">
+                        <h2 class="section-title">Выберите подкатегорию</h2>
+                        <div class="subjects-grid" id="subcategoryGrid"></div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Difficulty Selection -->
+                <div class="selection-step" id="step3" style="display: none;">
+                    <div class="subject-selection">
+                        <h2 class="section-title">Выберите сложность</h2>
+                        <div class="difficulty-options">
+                            <div class="difficulty-option" data-difficulty="1">
+                                <h3>Легкий</h3>
+                                <p>Простые задания</p>
+                            </div>
+                            <div class="difficulty-option" data-difficulty="2">
+                                <h3>Средний</h3>
+                                <p>Средние задания</p>
+                            </div>
+                            <div class="difficulty-option" data-difficulty="3">
+                                <h3>Сложный</h3>
+                                <p>Сложные задания</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -95,18 +93,18 @@
 
         <!-- Control Panel -->
         <div class="control-panel">
-            <button class="btn" id="pauseBtn">
-              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="6" y="4" width="4" height="16"></rect>
-                <rect x="14" y="4" width="4" height="16"></rect>
-              </svg>
-              Пауза
+            <button class="btn" id="restartBtn">
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+                Заново
             </button>
             <button class="btn btn-secondary" id="finishLessonBtn">
-              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 6L6 18M6 6l12 12"></path>
-              </svg>
-              Закончить урок
+                <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6L6 18M6 6l12 12"></path>
+                </svg>
+                Закончить урок
             </button>
         </div>
 
@@ -119,11 +117,11 @@
                     <div class="timer-value" id="timer">00:00:00</div>
                 </div>
                 <button class="btn" id="voiceToggleBtn">
-                  <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                  </svg>
-                  Голос: Вкл
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    Голос: Вкл
                 </button>
             </div>
 
@@ -136,25 +134,7 @@
 
             <!-- Task Area -->
             <div class="task-area">
-                <!-- Container for math example and completion message -->
-                <div class="icon-container" id="iconContainer">
-                    <div class="audio-visualizer" id="audioVisualizer">
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                    </div>
-                    <div class="reload-icon" id="reloadIcon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-                        </svg>
-                    </div>
-                </div>
-                
-                <!-- Content for Math -->
+                <!-- Math Content -->
                 <div id="math-content">
                     <div class="math-problem" id="mathProblem">
                         <span class="number" id="mathNum1">3</span>
@@ -167,21 +147,7 @@
                     <div class="completion-message" id="completionMessage">
                         <div class="completion-title">Твоя оценка</div>
                         <div class="completion-grade" id="finalGrade">10</div>
-                        <div class="completion-buttons">
-                            <button class="btn" id="repeatLessonBtn" style="margin: 0 10px;">
-                              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="1 4 1 10 7 10"></polyline>
-                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                              </svg>
-                              Повторить урок
-                            </button>
-                            <button class="btn btn-secondary" id="finishLessonBtn2" style="margin: 0 10px;">
-                              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 6L6 18M6 6l12 12"></path>
-                              </svg>
-                              Закончить урок
-                            </button>
-                        </div>
+                        <!-- Кнопки удалены - используем кнопки вверху -->
                     </div>
                     
                     <div class="input-label">Введи ответ</div>
@@ -199,30 +165,23 @@
                     </div>
                 </div>
 
-                <!-- Content for Reading -->
+                <!-- Reading Content -->
                 <div id="reading-content" style="display: none;">
                     <div class="word-container">
-                        <div class="word" id="wordDisplay">
-                            <!-- Letters will be added via JS -->
+                        <div class="audio-visualizer" id="audioVisualizer">
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
+                            <div class="visualizer-bar"></div>
                         </div>
+                        <div class="word" id="wordDisplay"></div>
                     </div>
                     <div class="reading-completion" id="readingCompletion">
                         <div class="reading-completion-title">Задание завершено!</div>
-                        <div class="completion-buttons">
-                            <button class="btn" id="repeatReadingBtn" style="margin: 0 10px;">
-                              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="1 4 1 10 7 10"></polyline>
-                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                              </svg>
-                              Повторить урок
-                            </button>
-                            <button class="btn btn-secondary" id="finishReadingBtn2" style="margin: 0 10px;">
-                              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 6L6 18M6 6l12 12"></path>
-                              </svg>
-                              Закончить урок
-                            </button>
-                        </div>
+                        <!-- Кнопки удалены - используем кнопки вверху -->
                     </div>
                     <div class="word-info" id="wordInfo">
                         <div class="word-info-top">
@@ -247,16 +206,16 @@
             <!-- Task Navigation (only for reading) -->
             <div class="task-nav" id="taskNav">
                 <button class="btn btn-secondary" id="prevBtn">
-                  <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                  </svg>
-                  Назад
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Назад
                 </button>
                 <button class="btn" id="nextBtn">
-                  <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                  Далее
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                    Далее
                 </button>
             </div>
 

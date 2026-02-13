@@ -27,6 +27,30 @@ body {
     display: block;
 }
 
+#home-page {
+    background: url('background.jpg') center/cover no-repeat;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    padding: 0 10%;
+}
+
+#home-page.active {
+    display: flex;  /* Override .page.active to maintain flex layout */
+}
+
+.home-title2 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* margin-bottom: 100px; */
+}
+
 /* Loader */
 #loader {
     position: fixed;
@@ -173,11 +197,17 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1;
+    padding: 0 10%;
+}
+
+#home-page.active {
+    display: flex;  /* Override .page.active to maintain flex layout */
 }
 
 #home-page::before {
@@ -187,49 +217,58 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(181deg, rgba(91.95, 30.64, 22.54, 0.25) 0%, rgba(91.95, 30.64, 22.54, 0.75) 78%), rgba(0, 50, 69, 0.70);
+    background: linear-gradient(181deg, rgba(91.95, 30.64, 22.54, 0.25) 0%, rgba(91.95, 30.64, 22.54, 0.75) 88%), rgba(0, 50, 69, 0.70);
     z-index: 1;
 }
 
 .home-top {
-    padding: 58px 0 0 194px;
+    padding: 50px 0 0 0;
     position: relative;
     z-index: 10;
 }
 
 .home-content {
-    flex: 1;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 0 0 100px 194px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding-bottom: 8%;
     position: relative;
     z-index: 2;
     color: white;
 }
 
+.home-title3 {
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 63px;
+    margin-right: 40px;
+    margin-bottom: 20px;
+}
+
 .home-title {
     font-size: 42px;
     font-weight: 900;
-    text-transform: uppercase;
     line-height: 63px;
     margin-right: 40px;
+    margin-bottom: 40px;
 }
 
 .home-line {
-    width: 116px;
+    width: 100%;
+    max-width: 150px;
     height: 9px;
     background: #EE9F21;
     border-radius: 24px;
-    margin-bottom: 20px;
+    margin: 0 0 25px 0;
 }
 
 .home-description {
     font-size: 20px;
     font-weight: 800;
     line-height: 30px;
-    max-width: 487px;
-    margin-bottom: 60px;
+    max-width: 500px;
+    margin-bottom: 0px;
 }
 
 .section-title {
@@ -237,18 +276,17 @@ body {
     font-weight: 800;
     color: #F0F0F0;
     margin-bottom: 30px;
-    text-align: center;
 }
 
 .subject-selection {
-    margin-bottom: 40px;
+    margin-bottom: 0px;
 }
 
 .subjects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    max-width: 1200px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    /* max-width: 100%; */
     margin: 0 auto;
 }
 
@@ -256,14 +294,18 @@ body {
     background: rgba(217, 217, 217, 0.15);
     border-radius: 24px;
     padding: 30px;
+    flex: 0 0 calc(25% - 20px); /* Уменьшенная ширина */
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
-    min-height: 180px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin: 0 20px 20px 0;
 }
+
+
+
 
 .subject-card:hover {
     background: rgba(238, 159, 33, 0.2);
@@ -288,8 +330,8 @@ body {
 }
 
 .selection-container {
-    flex: 1;
-    max-width: 600px;
+    width: 100%;
+    margin-top: 40px;
 }
 
 .selection-step {
@@ -365,17 +407,18 @@ body {
 }
 
 .difficulty-option {
-    background: rgba(217, 217, 217, 0.15); /* Changed to semi-transparent like subject cards */
+    background: rgba(217, 217, 217, 0.15);
     border-radius: 24px;
-    padding: 15px 30px;
+    padding: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 18px;
-    font-weight: 600;
-    color: #F0F0F0; /* Changed to white like subject cards */
-    flex: 1;
     text-align: center;
-    /* Removed border */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 140px;
+    font-size: 16px;
+    color: #F0F0F0;
 }
 
 .difficulty-option:hover {
@@ -386,9 +429,34 @@ body {
     background: rgba(238, 159, 33, 0.3);
 }
 
+.difficulty-option h3 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: #F0F0F0;
+}
+
+.difficulty-option p {
+    font-size: 16px;
+    color: #F0F0F0;
+    font-weight: 400;
+}
+
+.difficulty-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 40px;
+    width: 100%;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
 #startLessonBtn {
     margin-top: 20px;
-    gap: 8px; /* Space between icon and text */
+    gap: 8px;
+    min-width: 180px;
 }
 
 /* Страница урока */
@@ -911,18 +979,19 @@ body {
     .home-content {
         flex-direction: column;
         align-items: center;
-        padding: 0 20px 60px;
+        padding: 0 20px 0px;
     }
     
     .home-title {
         margin-right: 0;
-        margin-bottom: 30px;
+        margin-bottom: 40px;
         text-align: center;
     }
     
     .subjects-grid {
-        grid-template-columns: 1fr;
-        max-width: 500px;
+    display: flex;
+    flex-wrap: wrap;      /* разрешаем перенос */
+    width: 100%; 
     }
     
     .subcategory-grid {
@@ -975,7 +1044,7 @@ body {
     .home-description {
         font-size: 16px;
         line-height: 24px;
-        margin-bottom: 40px;
+        margin-bottom: 0px;
     }
     
     .difficulty-options {
@@ -1009,5 +1078,56 @@ body {
     
     .audio-visualizer {
         margin-left: -60px; /* Adjusted for mobile screens */
+    }
+}
+
+
+
+/* Убираем иконку перезагрузки */
+.reload-icon {
+    display: none !important;
+}
+
+.icon-container {
+    display: none !important;
+}
+
+/* Стиль для таймера - курсор pointer */
+.timer-value {
+    color: #EE9F21;
+    font-size: 30px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.timer-value:hover {
+    opacity: 0.8;
+}
+
+/* Скрываем кнопки внутри completion-message и reading-completion */
+.completion-buttons {
+    display: none !important;
+}
+
+/* Убираем padding-top у word-container */
+.word-container {
+    padding-top: 0;
+}
+
+/* Исправляем конфликт стилей для word-container */
+.word-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    justify-content: center;
+    position: relative;
+    min-height: 120px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .word-container {
+        padding-top: 0;
     }
 }
