@@ -1297,4 +1297,15 @@ margin-top: 40px;
 .math-problem .equals {
     margin: 0 20px;
 }
+
+.lesson-header {
+    display: none;
+}
+
+.timer-value {
+    color: #EE9F21;
+    font-size: 30px;
+    font-weight: 800;
+    min-width: 100%;
+}
 }
