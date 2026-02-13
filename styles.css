@@ -1351,6 +1351,27 @@ margin-top: 40px;
     justify-content: flex-start;
 }
 
+.feedback {
+    /* width: 610px; */
+    max-width: 350px;
+    height: 74px;
+    background: #DEF5F1;
+    border-radius: 24px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px; /* Уменьшен отступ */
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: feedbackAppear 0.5s ease forwards;
+}
 
+.feedback-text {
+    color: #8BBCB2;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    padding: 10px 20px;
+}
 
 }
