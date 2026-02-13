@@ -1201,11 +1201,7 @@ margin-bottom: 10px;
 margin-top: 40px;
 }
     
-    .lesson-header {
-        flex-direction: column;
-        gap: 15px;
-        padding: 20px;
-    }
+
     
     .top-bar {
         flex-direction: column;
@@ -1284,6 +1280,13 @@ margin-top: 40px;
         align-items: center;
         margin-top: 20px;
     }
+
+    .lesson-header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+    }
+
     .math-problem {
     font-size:42px;
     font-weight: 800;
