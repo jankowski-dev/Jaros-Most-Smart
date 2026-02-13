@@ -1265,4 +1265,28 @@ margin-top: 40px;
         flex-direction: column;
         align-items: center;
     }
+    .math-problem {
+    font-size: 66px;
+    font-weight: 800;
+    color: #EE9F21;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Центрирование */
+    position: relative;
+    min-height: 180px; /* Фиксированная высота */
+}
+.math-answer {
+    color: #888888;
+    min-width: 80px;
+    text-align: center;
+    font-size: 66px;
+    font-weight: 800;
+    padding: 0 10px;
+    min-height: 120px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
 }
