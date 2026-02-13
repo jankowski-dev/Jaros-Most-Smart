@@ -973,32 +973,19 @@ body {
     display: flex;
 }
 
-/* Статистика */
+/* Статистика - обновленная */
 .stats {
     display: none;
     flex-direction: row;
     align-items: center;
-    justify-content: space-around;
     justify-content: center;
     width: 100%;
     min-width: 380px;
     position: absolute;
     bottom: 0;
     left: 0;
-    margin-bottom: 0px;
-}
-
-.title-stets {
-    font-size: 20px;
-    font-weight: 800;
-    margin-bottom: 10px;
-    margin-right: 10px;
-    color: #888;
-}
-
-.last-element {
-    align-self: flex-end;
-    margin-top: auto;
+    padding: 20px 0;
+    background: transparent;
 }
 
 .stats.show {
@@ -1007,19 +994,46 @@ body {
 
 .stat-item {
     text-align: center;
-    padding: 30px 20px
+    padding: 0 30px;
+    position: relative;
+}
+
+.stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 40px;
+    background: rgba(136, 136, 136, 0.2);
+    border-radius: 2px;
 }
 
 .stat-value {
-    font-size: 30px;
+    font-size: 36px;
     font-weight: 800;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .stat-label {
-    color: #5D5D5D;
-    font-size: 18px;
-    font-weight: 300;
+    color: #888888;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Цвета для значений статистики */
+#totalCount {
+    color: #EE9F21;
+}
+
+#correctCount {
+    color: #8BBCB2;
+}
+
+#wrongCount {
+    color: #F35C87;
 }
 
 /* ========== ИСПРАВЛЕНИЯ ========== */
@@ -1274,6 +1288,39 @@ body {
     .completion-buttons {
         flex-direction: column;
     }
+    
+    /* Адаптивность статистики */
+    .stats {
+        min-width: auto;
+        width: 100%;
+        padding: 15px 0;
+    }
+    
+    .stat-item {
+        padding: 0 15px;
+    }
+    
+    .stat-value {
+        font-size: 28px;
+    }
+    
+    .stat-label {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-item {
+        padding: 0 10px;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+    }
 }
 
 /* Убираем иконку перезагрузки */
@@ -1503,5 +1550,26 @@ body {
         margin-bottom: 30px;
         font-size: 30px;
         font-weight: 800;
+    }
+    
+    /* Адаптивность статистики для очень маленьких экранов */
+    .stats {
+        padding: 10px 0;
+    }
+    
+    .stat-item {
+        padding: 0 8px;
+    }
+    
+    .stat-item:not(:last-child)::after {
+        height: 30px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .stat-label {
+        font-size: 10px;
     }
 }

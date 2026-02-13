@@ -945,10 +945,9 @@ function updateStats() {
     const totalProblems = mathProblems.length;
     const wrongAnswers = totalAnswers - correctAnswers;
     
-    document.getElementById('solvedCount').textContent = totalAnswers;
+    document.getElementById('totalCount').textContent = totalProblems;
     document.getElementById('correctCount').textContent = correctAnswers;
     document.getElementById('wrongCount').textContent = wrongAnswers;
-    document.getElementById('totalCount').textContent = totalProblems;
 }
 
 function loadAvailableVoices() {
