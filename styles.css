@@ -1397,5 +1397,13 @@ margin-top: 40px;
     text-align: center;
     padding: 10px 20px;
 }
+.syllable-divider {
+    /* Изменено на тире */
+    color: #EE9F21;
+    font-size: 46px;
+    font-weight: 800;
+    margin: 0 5px;
+    line-height: 1;
+}
 
 }
