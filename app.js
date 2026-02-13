@@ -440,19 +440,29 @@ function loadReadingWords() {
         } else if (currentLevel === 2) {
             sourceArray = [...syllablesMedium];
         } else if (currentLevel === 3) {
-            sourceArray = [...syllablesHard];
+            // Для тяжелого уровня слогов нет данных
+            sourceArray = [];
         }
     } else if (currentCategory === 'words') {
         if (currentLevel === 1) {
             sourceArray = [...wordsEasy];
         } else if (currentLevel === 2) {
-            sourceArray = [...wordsMedium];
+            // Для среднего уровня слов нет данных
+            sourceArray = [];
         } else if (currentLevel === 3) {
-            sourceArray = [...wordsHard];
+            // Для тяжелого уровня слов нет данных
+            sourceArray = [];
         }
     } else if (currentCategory === 'sentences') {
-        // Пока пусто
+        // Пока пусто для всех уровней
         sourceArray = [];
+    }
+    
+    // Проверяем, есть ли данные
+    if (sourceArray.length === 0) {
+        // Если данных нет, возвращаемся на главную
+        returnToHomeNoData();
+        return;
     }
     
     // Перемешиваем массив
@@ -462,6 +472,29 @@ function loadReadingWords() {
     if (currentWords.length > 30) {
         currentWords = currentWords.slice(0, 30);
     }
+}
+
+// Функция возврата на главную при отсутствии данных
+function returnToHomeNoData() {
+    // Скрываем лоадер
+    const loader = document.getElementById('loader');
+    loader.style.opacity = '0';
+    setTimeout(() => {
+        loader.style.display = 'none';
+    }, 300);
+    
+    // Возвращаемся на главную
+    document.getElementById('lesson-page').style.display = 'none';
+    document.getElementById('lesson-page').classList.remove('active');
+    document.getElementById('home-page').style.display = 'flex';
+    document.getElementById('home-page').classList.add('active');
+    
+    resetTimer();
+    resetHomeSelection();
+    
+    // Сбрасываем цвет таймера
+    const timerElement = document.getElementById('timer');
+    timerElement.classList.remove('timer-paused');
 }
 
 // Функция перемешивания массива (алгоритм Фишера-Йетса)
@@ -645,10 +678,13 @@ function showMathProblem() {
 
 function updateReadingContent() {
     if (readingCompleted) return;
+    
+    // Проверяем, есть ли слова
     if (!currentWords || currentWords.length === 0) {
         completeReadingTest();
         return;
     }
+    
     if (currentWordIndex >= currentWords.length) {
         completeReadingTest();
         return;
@@ -669,8 +705,7 @@ function updateReadingContent() {
     
     // Определяем, как отображать данные в зависимости от типа
     if (wordData.phrase) {
-        // Это фраза из двух слов (wordsMedium или wordsHard)
-        // Разбиваем на отдельные слова и добавляем пробел между ними
+        // Это фраза из двух слов
         const words = wordData.phrase.split(' ');
         
         words.forEach((word, wordIndex) => {
