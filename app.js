@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Voice toggle button
     document.getElementById('voiceToggleBtn').addEventListener('click', function() {
         voiceEnabled = !voiceEnabled;
-        this.textContent = voiceEnabled ? 'Голос: Вкл' : 'Голос: Выкл';
+        this.textContent = voiceEnabled ? 'Вкл' : 'Выкл';
         this.style.background = voiceEnabled ? '#EE9F21' : '#757575';
     });
     
@@ -161,13 +161,13 @@ function toggleTimerPause() {
     const timerLabel = document.querySelector('.timer-label');
     
     if (isTimerPaused) {
-        timerLabel.textContent = 'Пауза';
+        timerLabel.textContent = '';
         if (timerInterval) {
             clearInterval(timerInterval);
             timerInterval = null;
         }
     } else {
-        timerLabel.textContent = 'Таймер';
+        timerLabel.textContent = '';
         startTimer();
     }
 }
@@ -188,7 +188,7 @@ function resetLesson() {
     // Сбрасываем заголовок таймера
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
-        timerLabel.textContent = 'Таймер';
+        timerLabel.textContent = '';
     }
     isTimerPaused = false;
 }
@@ -320,7 +320,7 @@ function completeMathTest() {
     isTimerPaused = true;
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
-        timerLabel.textContent = 'Пауза';
+        timerLabel.textContent = '';
     }
     if (timerInterval) {
         clearInterval(timerInterval);
@@ -347,7 +347,7 @@ function resetMathTest() {
     resetTimer();
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
-        timerLabel.textContent = 'Таймер';
+        timerLabel.textContent = '';
     }
     isTimerPaused = false;
 }
@@ -366,7 +366,7 @@ function completeReadingTest() {
     isTimerPaused = true;
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
-        timerLabel.textContent = 'Пауза';
+        timerLabel.textContent = '';
     }
     if (timerInterval) {
         clearInterval(timerInterval);
@@ -391,7 +391,7 @@ function resetReadingTest() {
     resetTimer();
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
-        timerLabel.textContent = 'Таймер';
+        timerLabel.textContent = '';
     }
     isTimerPaused = false;
     updateReadingContent();

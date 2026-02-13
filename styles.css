@@ -124,7 +124,7 @@ body {
 }
 
 .logo span {
-    color: white;
+    color: #C9C9C9;
 }
 
 .btn {
@@ -142,7 +142,7 @@ body {
     justify-content: center;
     text-decoration: none;
     height: 45px;
-    min-width: 180px;
+    min-width: 100px;
     gap: 8px; /* Space between icon and text */
 }
 
@@ -157,6 +157,16 @@ body {
 
 .btn-secondary:hover {
     background: #E0E0E0;
+}
+
+
+.btn-cancel {
+    background: #D65D47 ;
+    color: #F1F1F1;
+}
+
+.btn-cancel:hover {
+    background: #F07E69;
 }
 
 /* Кнопки навигации в чтении */
@@ -463,7 +473,7 @@ display: flex;
 
 .lesson-info {
     color: #EE9F21;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 800;
 }
 
@@ -473,6 +483,8 @@ display: flex;
     justify-content: center;
     gap: 20px;
     margin: 20px auto;
+
+    margin-top: 40px;
     max-width: 1200px;
     padding: 0 20px;
 }
@@ -495,14 +507,15 @@ display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 40px;
-    padding: 0 40px;
+    padding: 0 110px;
     width: 100%;
     max-width: 1200px;
 }
 
 .timer {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
 }
 
 .timer-label {
@@ -516,6 +529,7 @@ display: flex;
     color: #EE9F21;
     font-size: 30px;
     font-weight: 800;
+    min-width: 150px;
 }
 
 /* Прогресс бар */
@@ -1039,7 +1053,7 @@ display: flex;
 }
     
     .top-bar {
-        padding: 0 20px;
+        padding: 0 40px;
     }
     
     .progress-container {
@@ -1048,7 +1062,7 @@ display: flex;
     }
     
     .control-panel {
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
     }
     
