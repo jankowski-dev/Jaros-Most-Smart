@@ -585,7 +585,7 @@ function updateReadingContent() {
     
     const visualizer = document.getElementById('audioVisualizer');
     if (visualizer) {
-        visualizer.style.display = 'none';
+        visualizer.style.visibility = 'hidden';
     }
     
     const syllables = wordData.word.split('-');
@@ -642,16 +642,17 @@ function speakCurrentWord() {
     const visualizer = document.getElementById('audioVisualizer');
     const wordContainer = document.querySelector('.word-container');
     
-    if (visualizer) visualizer.style.display = 'none';
+    if (visualizer) visualizer.style.visibility = 'hidden';
     
     if (wordContainer && visualizer) {
         wordContainer.insertBefore(visualizer, wordContainer.firstChild);
     }
     
     if (visualizer) {
-        visualizer.style.position = 'absolute';
-        visualizer.style.left = '0';
-        visualizer.style.top = '50%';
+        visualizer.style.position = 'relative';
+        // visualizer.style.left = '0';
+        // visualizer.style.top = '50%';
+        visualizer.style.visibility = 'visible';
         visualizer.style.transform = 'translateY(-50%)';
         visualizer.style.display = 'flex';
     }
@@ -686,7 +687,7 @@ function speakCurrentWord() {
 function hideVisualizer() {
     const visualizer = document.getElementById('audioVisualizer');
     if (visualizer) {
-        visualizer.style.display = 'none';
+        visualizer.style.visibility = 'hidden';
     }
 }
 

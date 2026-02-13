@@ -804,6 +804,7 @@ display: flex;
 /* Стили для страницы чтения */
 .word-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     margin-bottom: 40px;
     justify-content: center;
@@ -831,6 +832,7 @@ display: flex;
     position: relative;
     justify-content: center; /* Центрирование */
     flex-shrink: 0; /* Не сжимать */
+    margin-top: 60px;
 }
 
 .word-letter {
@@ -860,15 +862,11 @@ display: flex;
 .audio-visualizer {
     width: 80px;
     height: 60px;
-    display: none;
+    display: flex;
+    visibility: hidden;
     justify-content: space-between;
     align-items: center;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    margin-right: 10px;
     transform: translateY(-50%);
-    margin-left: -100px; /* Position to the left of the word */
 }
 
 #readingAudioVisualizer {
@@ -1147,7 +1145,6 @@ display: flex;
     }
     
     .audio-visualizer {
-        margin-left: -80px; /* Adjusted for smaller screens */
     }
 }
 
@@ -1159,15 +1156,11 @@ display: flex;
     .audio-visualizer {
     width: 80px;
     height: 60px;
-    display: none;
+    display: flex;
+    visibility: hidden;
     justify-content: space-between;
     align-items: center;
-    position: absolute;
-    left: -30px;
-    top: 50%;
-    margin-right: 10px;
     transform: translateY(-50%);
-    margin-left: -100px; /* Position to the left of the word */
 }
 
 .word {
@@ -1290,7 +1283,6 @@ margin-top: 40px;
     }
     
     .audio-visualizer {
-        margin-left: -60px; /* Adjusted for mobile screens */
     }
 }
 
@@ -1331,6 +1323,7 @@ margin-top: 40px;
 /* Исправляем конфликт стилей для word-container */
 .word-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     margin-bottom: 40px;
     justify-content: center;
@@ -1504,6 +1497,16 @@ margin-top: 40px;
     height: 45px;
     min-width: 90px;
     gap: 8px; /* Space between icon and text */
+}
+
+    .audio-visualizer {
+    width: 80px;
+    height: 60px;
+    display: flex;
+    visibility: hidden;
+    justify-content: space-between;
+    align-items: center;
+    transform: translateY(-50%);
 }
 
 }
