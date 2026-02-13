@@ -503,7 +503,7 @@ display: flex;
 .content-area {
     padding: 40px 0 0 0;
     width: 100%;
-    min-height: calc(100vh - 100px);
+    /* min-height: calc(100vh - 100px); */
     position: relative;
     background: #FBFBFB;
     display: flex;
@@ -1317,6 +1317,7 @@ margin-top: 40px;
     margin-bottom: 30px;
     justify-content: center; /* Центрирование */
 }
+
 .math-problem .equals {
     margin: 0 10px;
 }
@@ -1324,12 +1325,14 @@ margin-top: 40px;
 .content-area {
     padding: 40px 0 0 0;
     width: 100%;
-    min-height: calc(100vh - 200px);
+    /* min-height: calc(100vh - 170px); */
     position: relative;
     background: #FBFBFB;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
+
+
 
 }
