@@ -1061,6 +1061,10 @@ display: flex;
     color: #F0F0F0;
 }
 
+.subject-card p {
+    font-size: 14px;
+}
+
 
     
 .home-line {
