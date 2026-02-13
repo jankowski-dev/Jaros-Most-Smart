@@ -1291,6 +1291,17 @@ margin-top: 40px;
         margin-top: 20px;
     }
 
+    .word {
+    font-size: 46px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    justify-content: center; /* Центрирование */
+    flex-shrink: 0; /* Не сжимать */
+}
+
     .lesson-header {
         flex-direction: column;
         gap: 15px;
