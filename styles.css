@@ -480,12 +480,12 @@ display: flex;
 /* Control panel */
 .control-panel {
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     gap: 20px;
     margin: 20px auto;
 
     margin-top: 40px;
-    max-width: 1200px;
+    max-width: 700px;
     padding: 0 20px;
 }
 
