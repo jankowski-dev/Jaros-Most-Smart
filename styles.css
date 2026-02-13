@@ -1274,19 +1274,27 @@ margin-top: 40px;
     align-items: center;
     justify-content: center; /* Центрирование */
     position: relative;
-    min-height: 180px; /* Фиксированная высота */
+    min-height: 100px; /* Фиксированная высота */
 }
 .math-answer {
     color: #888888;
-    min-width: 80px;
+    min-width: 50px;
     text-align: center;
     font-size: 36px;
     font-weight: 800;
-    padding: 0 10px;
-    min-height: 120px;
+    padding: 0 0px;
+    min-height: 100px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+}
+
+.math-problem .operator {
+    margin: 0 10px;
+}
+
+.math-problem .equals {
+    margin: 0 20px;
 }
 }
