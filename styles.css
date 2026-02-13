@@ -1279,7 +1279,7 @@ margin-top: 40px;
 }
 .math-answer {
     color: #888888;
-    min-width: 50px;
+    min-width: 30px;
     text-align: center;
     font-size: 42px;
     font-weight: 800;
@@ -1316,5 +1316,8 @@ margin-top: 40px;
     gap: 5px;
     margin-bottom: 30px;
     justify-content: center; /* Центрирование */
+}
+.math-problem .equals {
+    margin: 0 10px;
 }
 }
