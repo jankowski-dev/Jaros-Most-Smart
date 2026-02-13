@@ -378,7 +378,7 @@ function resetReadingTest() {
     readingCompleted = false;
     document.getElementById('wordDisplay').style.display = 'flex';
     document.getElementById('wordInfo').style.display = 'block';
-    document.getElementById('wordProgress').style.display = 'block';
+    document.getElementById('wordProgress').style.display = 'flex';
     document.getElementById('readingCompletion').style.display = 'none';
     
     document.getElementById('taskNav').classList.add('show');
@@ -509,7 +509,7 @@ function showReadingContent() {
     document.getElementById('taskNav').classList.remove('show');
     document.getElementById('wordDisplay').style.display = 'flex';
     document.getElementById('wordInfo').style.display = 'block';
-    document.getElementById('wordProgress').style.display = 'block';
+    document.getElementById('wordProgress').style.display = 'flex';
     document.getElementById('progressFill').style.width = '0%';
     
     // Загружаем слова в зависимости от уровня
