@@ -866,6 +866,7 @@ display: flex;
     position: absolute;
     left: 0;
     top: 50%;
+    margin-right: 10px;
     transform: translateY(-50%);
     margin-left: -100px; /* Position to the left of the word */
 }
@@ -1154,6 +1155,20 @@ display: flex;
     .home-top {
         padding: 40px 0 0 0px;
     }
+
+    .audio-visualizer {
+    width: 80px;
+    height: 60px;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    left: -30px;
+    top: 50%;
+    margin-right: 10px;
+    transform: translateY(-50%);
+    margin-left: -100px; /* Position to the left of the word */
+}
 
 .word {
     font-size: 76px;
