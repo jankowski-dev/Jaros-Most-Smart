@@ -1510,4 +1510,13 @@ margin-top: 40px;
     transform: translateY(-50%);
 }
 
+.word-progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+    font-size: 30px;
+    font-weight: 800;
+}
+
 }
