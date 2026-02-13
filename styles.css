@@ -398,27 +398,24 @@ body {
 }
 
 .difficulty-options {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 40px;
-    width: 100%;
-    max-width: 600px;
+display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin: 0 auto;
 }
 
 .difficulty-option {
     background: rgba(217, 217, 217, 0.15);
     border-radius: 24px;
     padding: 30px;
+    flex: 0 0 calc(25% - 20px);
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 140px;
-    font-size: 16px;
-    color: #F0F0F0;
+    margin: 0 20px 20px 0;
 }
 
 .difficulty-option:hover {
@@ -443,14 +440,10 @@ body {
 }
 
 .difficulty-options {
-    display: flex;
+display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 40px;
-    width: 100%;
-    max-width: 800px;
-    padding: 0 20px;
+    flex-direction: row;
+    margin: 0 auto;
 }
 
 #startLessonBtn {
@@ -974,12 +967,25 @@ body {
     font-weight: 300;
 }
 
+
+@media (max-width: 1280px) {
+
+#home-page {
+    padding: 0 5%;
+}
+
+
+}
+
+
+
+
 /* Адаптивность для главной страницы */
 @media (max-width: 1200px) {
     .home-content {
         flex-direction: column;
-        align-items: center;
         padding: 0 20px 0px;
+        padding-bottom: 8%;
     }
     
     .home-title {
@@ -994,12 +1000,29 @@ body {
     width: 100%; 
     }
     
+.subject-card {
+    background: rgba(217, 217, 217, 0.15);
+    border-radius: 24px;
+    padding: 30px;
+    flex: 0 0 calc(50% - 20px); /* Уменьшенная ширина */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 20px 20px 0;
+}
+
     .subcategory-grid {
         grid-template-columns: repeat(2, 1fr);
     }
     
     .difficulty-options {
-        flex-wrap: wrap;
+display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin: 0 auto;
     }
     
     .top-bar {
@@ -1027,14 +1050,39 @@ body {
 
 @media (max-width: 768px) {
     .home-top {
-        padding: 20px 0 0 20px;
+        padding: 40px 0 0 0px;
     }
+
+
+.subject-card h3 {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: #F0F0F0;
+}
+
+
     
+.home-line {
+    width: 100%;
+    max-width: 150px;
+    height: 9px;
+    background: #EE9F21;
+    border-radius: 24px;
+    margin: 0 0 0px 0;
+}
+
     .home-content {
-        padding: 0 20px 60px;
-        text-align: center;
-        align-items: center;
+        padding: 0 0px 60px;
+        padding-bottom: 8%;
     }
+
+    .section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #F0F0F0;
+    margin-bottom: 20px;
+}
     
     .home-title {
         font-size: 32px;
@@ -1048,13 +1096,34 @@ body {
     }
     
     .difficulty-options {
-        flex-direction: column;
-        align-items: center;
+display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin: 0 auto;
     }
     
     .subcategory-grid {
         grid-template-columns: 1fr;
     }
+
+    .subject-card {
+    background: rgba(217, 217, 217, 0.15);
+    border-radius: 24px;
+    padding: 30px;
+    flex: 0 0 calc(100%); /* Уменьшенная ширина */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 20px 20px 0;
+}
+
+.home-title3 {
+font-size: 28px;
+margin-bottom: 10px;
+}
     
     .lesson-header {
         flex-direction: column;
