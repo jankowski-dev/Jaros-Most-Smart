@@ -974,6 +974,14 @@ display: flex;
     margin-bottom: 0px;
 }
 
+.title-stets {
+        font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    color: #888;
+}
+
 .last-element {
     align-self: flex-end; /* выравнивание по нижнему краю */
     margin-top: auto; /* можно добавить для гарантии */
