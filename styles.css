@@ -1264,6 +1264,7 @@ margin-top: 40px;
         .control-panel {
         flex-direction: column;
         align-items: center;
+        margin-top: 10px;
     }
     .math-problem {
     font-size:36px;
