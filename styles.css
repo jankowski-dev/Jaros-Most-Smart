@@ -231,6 +231,14 @@ body {
     z-index: 1;
 }
 
+.butt-container {
+    min-width: 340px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+}
+
 .home-top {
     padding: 50px 0 0 0;
     position: relative;
@@ -480,7 +488,7 @@ display: flex;
 /* Control panel */
 .control-panel {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     gap: 20px;
     margin: 20px auto;
 
@@ -488,6 +496,8 @@ display: flex;
     max-width: 700px;
     padding: 0 20px;
 }
+
+
 
 /* Контентная область */
 .content-area {
@@ -1246,5 +1256,13 @@ margin-top: 40px;
 @media (max-width: 768px) {
     .word-container {
         padding-top: 0;
+    }
+}
+
+
+@media (max-width:620px) {
+        .control-panel {
+        flex-direction: column;
+        align-items: center;
     }
 }
