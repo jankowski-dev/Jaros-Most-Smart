@@ -1309,4 +1309,12 @@ margin-top: 40px;
     font-weight: 800;
     min-width: 100%;
 }
+
+.number-pad {
+    display: grid;
+    grid-template-columns: repeat(5, 60px);
+    gap: 5px;
+    margin-bottom: 30px;
+    justify-content: center; /* Центрирование */
+}
 }
