@@ -174,7 +174,6 @@ function toggleTimerPause() {
     
     if (isTimerPaused) {
         timerLabel.textContent = '';
-        // Добавляем класс для серого цвета
         timerElement.classList.add('timer-paused');
         if (timerInterval) {
             clearInterval(timerInterval);
@@ -182,7 +181,6 @@ function toggleTimerPause() {
         }
     } else {
         timerLabel.textContent = '';
-        // Убираем класс, возвращаем оранжевый цвет
         timerElement.classList.remove('timer-paused');
         startTimer();
     }
@@ -190,6 +188,10 @@ function toggleTimerPause() {
 
 // Функция перезапуска урока
 function resetLesson() {
+    // Сброс всех счетчиков
+    correctAnswers = 0;
+    totalAnswers = 0;
+    
     if (currentSubject === 'math') {
         resetMathTest();
         mathCompleted = false;
@@ -200,6 +202,10 @@ function resetLesson() {
     
     // Сбрасываем таймер
     resetTimer();
+    
+    // Сбрасываем цвет таймера
+    const timerElement = document.getElementById('timer');
+    timerElement.classList.remove('timer-paused');
     
     // Сбрасываем заголовок таймера
     const timerLabel = document.querySelector('.timer-label');
@@ -354,6 +360,7 @@ function resetMathTest() {
     document.querySelector('.input-label').style.display = 'block';
     document.getElementById('completionMessage').style.display = 'none';
     
+    // СБРАСЫВАЕМ СЧЕТЧИКИ
     correctAnswers = 0;
     totalAnswers = 0;
     currentMathIndex = 0;
@@ -488,6 +495,10 @@ function showLoaderAndNavigateToHome() {
         resetTimer();
         resetHomeSelection();
         
+        // Сбрасываем цвет таймера при возврате на главную
+        const timerElement = document.getElementById('timer');
+        timerElement.classList.remove('timer-paused');
+        
         setTimeout(() => {
             loader.style.opacity = '0';
             setTimeout(() => {
@@ -532,6 +543,10 @@ function showLoaderAndNavigateToLesson() {
         
         resetTimer();
         updateLessonHeader();
+        
+        // Сбрасываем цвет таймера
+        const timerElement = document.getElementById('timer');
+        timerElement.classList.remove('timer-paused');
         
         if (currentSubject === 'math') {
             showMathContent();
@@ -591,8 +606,13 @@ function showMathContent() {
     document.getElementById('completionMessage').style.display = 'none';
     document.querySelector('.input-label').style.display = 'block';
     
+    // Сбрасываем счетчики
+    correctAnswers = 0;
+    totalAnswers = 0;
+    
     generateMathProblems();
     showMathProblem();
+    updateStats();
 }
 
 function showMathProblem() {
@@ -623,35 +643,6 @@ function showMathProblem() {
     document.getElementById('numberPad').classList.remove('disabled');
 }
 
-// Функция для адаптивного размера текста в зависимости от длины слова
-function adjustWordFontSize(wordLength) {
-    const wordElement = document.getElementById('wordDisplay');
-    if (!wordElement) return;
-    
-    // Базовый размер для коротких слов
-    let fontSize = 96;
-    
-    // Уменьшаем размер в зависимости от количества символов
-    if (wordLength > 10) {
-        fontSize = 48;
-    } else if (wordLength > 8) {
-        fontSize = 60;
-    } else if (wordLength > 6) {
-        fontSize = 72;
-    } else if (wordLength > 4) {
-        fontSize = 84;
-    }
-    
-    // Применяем размер к контейнеру и всем дочерним элементам
-    wordElement.style.fontSize = fontSize + 'px';
-    
-    // Также корректируем размер для разделителей слогов
-    const dividers = wordElement.querySelectorAll('.syllable-divider');
-    dividers.forEach(divider => {
-        divider.style.fontSize = fontSize + 'px';
-    });
-}
-
 function updateReadingContent() {
     if (readingCompleted) return;
     if (!currentWords || currentWords.length === 0) {
@@ -676,41 +667,46 @@ function updateReadingContent() {
         visualizer.style.visibility = 'hidden';
     }
     
-    let displayText = '';
-    let wordLength = 0;
-    
     // Определяем, как отображать данные в зависимости от типа
     if (wordData.phrase) {
         // Это фраза из двух слов (wordsMedium или wordsHard)
-        displayText = wordData.phrase;
-        wordLength = displayText.length;
+        // Разбиваем на отдельные слова и добавляем пробел между ними
+        const words = wordData.phrase.split(' ');
         
-        // Просто показываем фразу целиком
-        for (let char of displayText) {
-            const span = document.createElement('span');
-            span.className = 'word-letter';
-            span.textContent = char;
-            
-            const vowels = 'АЕЁИОУЫЭЮЯ';
-            if (vowels.includes(char.toUpperCase())) {
-                span.classList.add('vowel');
-            } else {
-                span.classList.add('consonant');
+        words.forEach((word, wordIndex) => {
+            // Добавляем пробел между словами (кроме последнего)
+            if (wordIndex > 0) {
+                const spaceSpan = document.createElement('span');
+                spaceSpan.className = 'word-letter space';
+                spaceSpan.textContent = ' ';
+                spaceSpan.style.marginRight = '10px';
+                wordDisplay.appendChild(spaceSpan);
             }
             
-            wordDisplay.appendChild(span);
-        }
+            // Разбиваем каждое слово на буквы
+            for (let char of word) {
+                const span = document.createElement('span');
+                span.className = 'word-letter';
+                span.textContent = char;
+                
+                const vowels = 'АЕЁИОУЫЭЮЯ';
+                if (vowels.includes(char.toUpperCase())) {
+                    span.classList.add('vowel');
+                } else {
+                    span.classList.add('consonant');
+                }
+                
+                wordDisplay.appendChild(span);
+            }
+        });
         
         // Обновляем информацию
         document.getElementById('wordText').textContent = wordData.phrase;
         document.getElementById('wordTranscription').textContent = wordData.transcription || '';
         document.getElementById('wordDescription').textContent = wordData.example || wordData.description || '';
         
-    } else if (wordData.word.includes('-')) {
+    } else if (wordData.word && wordData.word.includes('-')) {
         // Это слово с дефисами (слоги)
-        displayText = wordData.word.replace(/-/g, '');
-        wordLength = displayText.length;
-        
         const syllables = wordData.word.split('-');
         
         syllables.forEach((syllable, syllableIndex) => {
@@ -737,16 +733,15 @@ function updateReadingContent() {
             }
         });
         
-        document.getElementById('wordText').textContent = displayText;
+        document.getElementById('wordText').textContent = wordData.word.replace(/-/g, '');
         document.getElementById('wordTranscription').textContent = wordData.transcription || '';
         document.getElementById('wordDescription').textContent = wordData.description || '';
         
     } else {
         // Обычное слово
-        displayText = wordData.word;
-        wordLength = displayText.length;
+        const wordText = wordData.word || '';
         
-        for (let char of displayText) {
+        for (let char of wordText) {
             const span = document.createElement('span');
             span.className = 'word-letter';
             span.textContent = char;
@@ -761,13 +756,10 @@ function updateReadingContent() {
             wordDisplay.appendChild(span);
         }
         
-        document.getElementById('wordText').textContent = wordData.word;
+        document.getElementById('wordText').textContent = wordData.word || '';
         document.getElementById('wordTranscription').textContent = wordData.transcription || '';
         document.getElementById('wordDescription').textContent = wordData.description || '';
     }
-    
-    // Адаптируем размер шрифта
-    adjustWordFontSize(wordLength);
     
     document.getElementById('currentWord').textContent = currentWordIndex + 1;
     document.getElementById('totalWords').textContent = currentWords.length;
@@ -787,7 +779,7 @@ function speakCurrentWord() {
     if (wordData.phrase) {
         textToSpeak = wordData.phrase;
     } else {
-        textToSpeak = wordData.word.replace(/-/g, '');
+        textToSpeak = wordData.word ? wordData.word.replace(/-/g, '') : '';
     }
     
     if (currentUtterance && isSpeaking) {

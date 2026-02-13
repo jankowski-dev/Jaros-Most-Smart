@@ -683,43 +683,6 @@ body {
     margin-bottom: 30px;
 }
 
-/* Контейнер для иконки перезагрузки и аквалайзера */
-.icon-container {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: -100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    z-index: 10;
-}
-
-/* Иконка перезагрузки */
-.reload-icon {
-    display: none;
-    width: 80px;
-    height: 80px;
-    background: #EE9F21;
-    border-radius: 50%;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.reload-icon:hover {
-    background: #FFB347;
-    transform: scale(1.1);
-}
-
-.reload-icon svg {
-    width: 40px;
-    height: 40px;
-    fill: white;
-}
-
 .input-label {
     color: #888888;
     font-size: 24px;
@@ -786,16 +749,6 @@ body {
     min-height: 120px;
 }
 
-/* Контейнер для слова и аквалайзера */
-.word-audio-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    min-height: 120px;
-    margin: 20px 0;
-}
-
 .word {
     font-size: 96px;
     font-weight: 800;
@@ -805,7 +758,6 @@ body {
     position: relative;
     justify-content: center;
     flex-shrink: 0;
-    transition: font-size 0.3s ease;
     max-width: 90vw;
     flex-wrap: wrap;
     justify-content: center;
@@ -815,6 +767,10 @@ body {
     margin-right: 5px;
     display: inline-block;
     transition: color 0.3s;
+}
+
+.word-letter.space {
+    margin-right: 10px;
 }
 
 .word-letter.vowel {
@@ -830,7 +786,6 @@ body {
     font-weight: 800;
     margin: 0 5px;
     line-height: 1;
-    transition: font-size 0.3s ease;
 }
 
 /* Анимация аквалайзера */
@@ -1046,12 +1001,12 @@ body {
 
 /* ========== ИСПРАВЛЕНИЯ ========== */
 
-/* 2. Серый цвет для таймера на паузе */
+/* Серый цвет для таймера на паузе */
 .timer-value.timer-paused {
     color: #888888 !important;
 }
 
-/* 3. Запрет выделения текста и элементов на мобильных устройствах */
+/* Запрет выделения текста и элементов на мобильных устройствах */
 .btn,
 .number-key,
 .subject-card,
@@ -1071,7 +1026,7 @@ body {
     user-select: none;
 }
 
-/* 5. Убираем "залипание" активного состояния на кнопках клавиатуры */
+/* Убираем "залипание" активного состояния на кнопках клавиатуры */
 .number-key:focus {
     outline: none;
     background: #F2F2F2;
@@ -1385,6 +1340,7 @@ body {
         flex-shrink: 0;
         max-width: 90vw;
         flex-wrap: wrap;
+        font-size: 46px;
     }
 
     .lesson-header {
