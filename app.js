@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
             
             populateSubcategories();
+            markUnavailableSubcategories();
         });
     });
     
@@ -64,6 +65,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
         if (e.target.closest('#subcategoryGrid') && e.target.closest('.subject-card')) {
             const card = e.target.closest('.subject-card');
+            
+            // Проверяем, доступна ли эта опция
+            if (card.classList.contains('unavailable')) {
+                // Если опция недоступна, просто возвращаемся без действий
+                return;
+            }
             
             document.querySelectorAll('#subcategoryGrid .subject-card').forEach(opt => opt.classList.remove('active'));
             card.classList.add('active');
@@ -77,15 +84,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 setTimeout(() => {
                     document.getElementById('step3').classList.remove('hidden');
+                    markUnavailableDifficulties();
                 }, 10);
             }, 300);
         }
     });
     
-    // Difficulty selection - Step 3 - АВТОМАТИЧЕСКИЙ ЗАПУСК
+    // Difficulty selection - Step 3
     document.addEventListener('click', function(e) {
         if (e.target.closest('.difficulty-options') && e.target.closest('.difficulty-option')) {
             const card = e.target.closest('.difficulty-option');
+            
+            // Проверяем, доступна ли эта опция
+            if (card.classList.contains('unavailable')) {
+                // Если опция недоступна, просто возвращаемся без действий
+                return;
+            }
             
             document.querySelectorAll('.difficulty-options .difficulty-option').forEach(opt => opt.classList.remove('active'));
             card.classList.add('active');
@@ -126,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Voice toggle button (обновленная версия с иконками)
+    // Voice toggle button
     document.getElementById('voiceToggleBtn').addEventListener('click', function() {
         voiceEnabled = !voiceEnabled;
         
@@ -165,6 +179,105 @@ document.addEventListener('DOMContentLoaded', function() {
     
     updateStats();
 });
+
+// Функция для проверки наличия данных в подкатегориях
+function checkSubcategoryDataAvailability(subject, category, level) {
+    if (subject === 'math') {
+        // Для математики проверяем наличие данных
+        if (category === 'addition') {
+            if (level === 1) return additionEasy.length > 0;
+            if (level === 2) return additionMedium.length > 0;
+            if (level === 3) return additionHard.length > 0;
+        } else if (category === 'subtraction') {
+            if (level === 1) return subtractionEasy.length > 0;
+            if (level === 2) return subtractionMedium.length > 0;
+            if (level === 3) return subtractionHard.length > 0;
+        } else if (category === 'multiplication') {
+            if (level === 1) return multiplicationEasy.length > 0;
+            if (level === 2) return multiplicationMedium.length > 0;
+            if (level === 3) return multiplicationHard.length > 0;
+        } else if (category === 'division') {
+            return false; // Деление всегда пустое
+        }
+        return true;
+    } else if (subject === 'reading') {
+        // Для чтения проверяем наличие данных
+        if (category === 'syllables') {
+            if (level === 1) return syllablesEasy.length > 0;
+            if (level === 2) return syllablesMedium.length > 0;
+            if (level === 3) return false; // Тяжелый уровень слогов пуст
+        } else if (category === 'words') {
+            if (level === 1) return wordsEasy.length > 0;
+            if (level === 2) return false; // Средний уровень слов пуст
+            if (level === 3) return false; // Тяжелый уровень слов пуст
+        } else if (category === 'sentences') {
+            return false; // Предложения всегда пустые
+        }
+    }
+    return true;
+}
+
+// Функция для отметки недоступных подкатегорий
+function markUnavailableSubcategories() {
+    if (!currentSubject) return;
+    
+    const subcategoryCards = document.querySelectorAll('#subcategoryGrid .subject-card');
+    
+    subcategoryCards.forEach(card => {
+        const category = card.dataset.category;
+        let hasAnyLevel = false;
+        
+        // Проверяем наличие данных хотя бы для одного уровня сложности
+        if (currentSubject === 'math') {
+            if (category === 'addition') {
+                hasAnyLevel = additionEasy.length > 0 || additionMedium.length > 0 || additionHard.length > 0;
+            } else if (category === 'subtraction') {
+                hasAnyLevel = subtractionEasy.length > 0 || subtractionMedium.length > 0 || subtractionHard.length > 0;
+            } else if (category === 'multiplication') {
+                hasAnyLevel = multiplicationEasy.length > 0 || multiplicationMedium.length > 0 || multiplicationHard.length > 0;
+            } else if (category === 'division') {
+                hasAnyLevel = false;
+            }
+        } else if (currentSubject === 'reading') {
+            if (category === 'syllables') {
+                hasAnyLevel = syllablesEasy.length > 0 || syllablesMedium.length > 0;
+            } else if (category === 'words') {
+                hasAnyLevel = wordsEasy.length > 0;
+            } else if (category === 'sentences') {
+                hasAnyLevel = false;
+            }
+        }
+        
+        if (!hasAnyLevel) {
+            card.classList.add('unavailable');
+            // Добавляем подсказку
+            card.setAttribute('title', 'В этом разделе пока нет заданий');
+        } else {
+            card.classList.remove('unavailable');
+            card.removeAttribute('title');
+        }
+    });
+}
+
+// Функция для отметки недоступных уровней сложности
+function markUnavailableDifficulties() {
+    if (!currentSubject || !currentCategory) return;
+    
+    const difficultyOptions = document.querySelectorAll('.difficulty-options .difficulty-option');
+    
+    difficultyOptions.forEach(option => {
+        const level = parseInt(option.dataset.difficulty);
+        const hasData = checkSubcategoryDataAvailability(currentSubject, currentCategory, level);
+        
+        if (!hasData) {
+            option.classList.add('unavailable');
+            option.setAttribute('title', 'Для этого уровня пока нет заданий');
+        } else {
+            option.classList.remove('unavailable');
+            option.removeAttribute('title');
+        }
+    });
+}
 
 // Функция паузы/продолжения по клику на таймер
 function toggleTimerPause() {
@@ -260,8 +373,8 @@ function populateSubcategories() {
 
 function resetHomeSelection() {
     document.querySelectorAll('#step1 .subject-card').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('#subcategoryGrid .subject-card').forEach(opt => opt.classList.remove('active'));
-    document.querySelectorAll('.difficulty-options .difficulty-option').forEach(opt => opt.classList.remove('active'));
+    document.querySelectorAll('#subcategoryGrid .subject-card').forEach(opt => opt.classList.remove('active', 'unavailable'));
+    document.querySelectorAll('.difficulty-options .difficulty-option').forEach(opt => opt.classList.remove('active', 'unavailable'));
     
     currentSubject = '';
     currentCategory = '';
@@ -554,6 +667,14 @@ function showLoaderAndNavigateToLesson() {
     // Проверяем, что все необходимые данные выбраны
     if (!currentSubject || !currentCategory) {
         console.error('Не выбраны предмет или категория');
+        return;
+    }
+    
+    // Проверяем, есть ли данные для выбранного уровня
+    const hasData = checkSubcategoryDataAvailability(currentSubject, currentCategory, currentLevel);
+    if (!hasData) {
+        // Если данных нет, возвращаемся на главную
+        returnToHomeNoData();
         return;
     }
     
