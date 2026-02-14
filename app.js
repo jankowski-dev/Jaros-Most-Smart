@@ -41,6 +41,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Subject selection - Step 1
     document.querySelectorAll('#step1 .subject-card').forEach(card => {
         card.addEventListener('click', function() {
+            // Проверяем, доступна ли эта опция
+            if (this.classList.contains('unavailable')) {
+                // Если опция недоступна, просто возвращаемся без действий
+                return;
+            }
+            
             document.querySelectorAll('#step1 .subject-card').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
             
@@ -178,6 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('touchstart', handleUserInteraction);
     
     updateStats();
+    markUnavailableSubjects();
 });
 
 // Функция для проверки наличия данных в подкатегориях
@@ -275,6 +282,41 @@ function markUnavailableDifficulties() {
         } else {
             option.classList.remove('unavailable');
             option.removeAttribute('title');
+        }
+    });
+}
+
+// Функция для отметки недоступных предметов
+function markUnavailableSubjects() {
+    const subjectCards = document.querySelectorAll('#step1 .subject-card');
+    
+    subjectCards.forEach(card => {
+        const subject = card.dataset.subject;
+        let hasAnyData = false;
+        
+        // Проверяем наличие данных для предмета
+        if (subject === 'math') {
+            // Для математики проверяем наличие хотя бы одной категории с данными
+            hasAnyData = additionEasy.length > 0 || additionMedium.length > 0 || additionHard.length > 0 ||
+                         subtractionEasy.length > 0 || subtractionMedium.length > 0 || subtractionHard.length > 0 ||
+                         multiplicationEasy.length > 0 || multiplicationMedium.length > 0 || multiplicationHard.length > 0;
+            // division всегда пусто, не учитываем
+        } else if (subject === 'reading') {
+            // Для чтения проверяем наличие хотя бы одной категории с данными
+            hasAnyData = syllablesEasy.length > 0 || syllablesMedium.length > 0 ||
+                         wordsEasy.length > 0;
+            // sentences всегда пусто, не учитываем
+        } else if (subject === 'writing' || subject === 'puzzles') {
+            // Для письма и головоломок данных нет
+            hasAnyData = false;
+        }
+        
+        if (!hasAnyData) {
+            card.classList.add('unavailable');
+            card.setAttribute('title', 'В этом разделе пока нет заданий');
+        } else {
+            card.classList.remove('unavailable');
+            card.removeAttribute('title');
         }
     });
 }
@@ -1377,11 +1419,11 @@ document.addEventListener('click', function(e) {
         createRippleEffect(item, e);
     }
     
-    if (e.target.classList.contains('subject-card')) {
+    if (e.target.classList.contains('subject-card') && !e.target.classList.contains('unavailable')) {
         createRippleEffect(e.target, e);
     }
     
-    if (e.target.classList.contains('difficulty-option')) {
+    if (e.target.classList.contains('difficulty-option') && !e.target.classList.contains('unavailable')) {
         createRippleEffect(e.target, e);
     }
 });
