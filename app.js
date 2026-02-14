@@ -24,6 +24,7 @@ let availableVoices = [];
 let audioContext = null;
 let isTimerPaused = false;
 let pausedSeconds = 0;
+let swipeHandlersInitialized = false;
 
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function() {
@@ -787,6 +788,105 @@ function showReadingContent() {
     
     currentWordIndex = 0;
     updateReadingContent();
+    
+    // Инициализируем обработчики свайпа (только один раз)
+    if (!swipeHandlersInitialized) {
+        initSwipeHandlers();
+        swipeHandlersInitialized = true;
+    }
+}
+
+function initSwipeHandlers() {
+    const wordDisplay = document.getElementById('wordDisplay');
+    if (!wordDisplay) return;
+    
+    let startX = 0;
+    let startY = 0;
+    let isSwiping = false;
+    let currentX = 0;
+    
+    function handleTouchStart(e) {
+        if (readingCompleted) return;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        isSwiping = true;
+        currentX = 0;
+        wordDisplay.style.transition = 'none';
+        // Не preventDefault, чтобы не блокировать клик
+    }
+    
+    function handleTouchMove(e) {
+        if (!isSwiping) return;
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        
+        // Если движение по вертикали больше, чем по горизонтали, отменяем свайп
+        if (Math.abs(deltaY) > Math.abs(deltaX)) {
+            isSwiping = false;
+            return;
+        }
+        
+        currentX = deltaX;
+        // Ограничиваем смещение до 100px в каждую сторону для визуального эффекта
+        const boundedX = Math.max(-100, Math.min(100, currentX));
+        wordDisplay.style.transform = `translateX(${boundedX}px)`;
+        wordDisplay.style.opacity = 1 - Math.abs(boundedX) / 100;
+        e.preventDefault(); // Предотвращаем скролл страницы при свайпе
+    }
+    
+    function handleTouchEnd(e) {
+        if (!isSwiping) return;
+        isSwiping = false;
+        
+        const threshold = 50; // минимальное расстояние для срабатывания свайпа
+        const isLeftSwipe = currentX < -threshold;
+        const isRightSwipe = currentX > threshold;
+        
+        wordDisplay.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+        wordDisplay.style.transform = 'translateX(0)';
+        wordDisplay.style.opacity = '1';
+        
+        if (isLeftSwipe) {
+            // Свайп влево -> следующее слово
+            swipeToNext();
+            e.preventDefault(); // предотвращаем клик
+        } else if (isRightSwipe) {
+            // Свайп вправо -> предыдущее слово
+            swipeToPrev();
+            e.preventDefault(); // предотвращаем клик
+        }
+        // Если свайп не распознан (движение меньше порога), клик сработает нормально
+    }
+    
+    function swipeToNext() {
+        if (currentWordIndex >= currentWords.length - 1) {
+            completeReadingTest();
+            return;
+        }
+        // Добавляем класс анимации
+        wordDisplay.classList.add('swipe-left');
+        setTimeout(() => {
+            wordDisplay.classList.remove('swipe-left');
+            nextWord();
+        }, 400);
+    }
+    
+    function swipeToPrev() {
+        if (currentWordIndex <= 0) return;
+        wordDisplay.classList.add('swipe-right');
+        setTimeout(() => {
+            wordDisplay.classList.remove('swipe-right');
+            prevWord();
+        }, 400);
+    }
+    
+    // Добавляем обработчики событий
+    wordDisplay.addEventListener('touchstart', handleTouchStart, { passive: false });
+    wordDisplay.addEventListener('touchmove', handleTouchMove, { passive: false });
+    wordDisplay.addEventListener('touchend', handleTouchEnd, { passive: false });
+    wordDisplay.addEventListener('touchcancel', handleTouchEnd, { passive: false });
 }
 
 function showMathContent() {

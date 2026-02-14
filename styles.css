@@ -1568,3 +1568,68 @@ body {
 .difficulty-option[title] {
     cursor: not-allowed;
 }
+
+/* Анимации для свайпа слов */
+.word.swipe-left {
+    animation: swipeLeft 0.4s ease forwards;
+}
+
+.word.swipe-right {
+    animation: swipeRight 0.4s ease forwards;
+}
+
+.word.fade-out {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+.word.fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes swipeLeft {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes swipeRight {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Скрытие кнопок навигации на мобильных устройствах */
+@media (max-width: 768px) {
+    .task-nav {
+        display: none !important;
+    }
+}
+}
