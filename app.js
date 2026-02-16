@@ -24,71 +24,70 @@ let availableVoices = [];
 let audioContext = null;
 let isTimerPaused = false;
 let pausedSeconds = 0;
-let swipeHandlersInitialized = false;
 
 // Инициализация при загрузке
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadAvailableVoices();
     startTimer();
-    
-    document.getElementById('mainLogo').addEventListener('click', function() {
+
+    document.getElementById('mainLogo').addEventListener('click', function () {
         showLoaderAndNavigateToHome();
     });
-    
-    document.getElementById('lessonLogo').addEventListener('click', function() {
+
+    document.getElementById('lessonLogo').addEventListener('click', function () {
         showLoaderAndNavigateToHome();
     });
-    
+
     // Subject selection - Step 1
     document.querySelectorAll('#step1 .subject-card').forEach(card => {
-        card.addEventListener('click', function() {
+        card.addEventListener('click', function () {
             // Проверяем, доступна ли эта опция
             if (this.classList.contains('unavailable')) {
                 // Если опция недоступна, просто возвращаемся без действий
                 return;
             }
-            
+
             document.querySelectorAll('#step1 .subject-card').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
-            
+
             currentSubject = this.dataset.subject;
-            
+
             document.getElementById('step1').classList.add('hidden');
             setTimeout(() => {
                 document.getElementById('step1').style.display = 'none';
                 document.getElementById('step2').style.display = 'block';
-                
+
                 setTimeout(() => {
                     document.getElementById('step2').classList.remove('hidden');
                 }, 10);
             }, 300);
-            
+
             populateSubcategories();
             markUnavailableSubcategories();
         });
     });
-    
+
     // Subcategory selection - Step 2
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.closest('#subcategoryGrid') && e.target.closest('.subject-card')) {
             const card = e.target.closest('.subject-card');
-            
+
             // Проверяем, доступна ли эта опция
             if (card.classList.contains('unavailable')) {
                 // Если опция недоступна, просто возвращаемся без действий
                 return;
             }
-            
+
             document.querySelectorAll('#subcategoryGrid .subject-card').forEach(opt => opt.classList.remove('active'));
             card.classList.add('active');
-            
+
             currentCategory = card.dataset.category;
-            
+
             document.getElementById('step2').classList.add('hidden');
             setTimeout(() => {
                 document.getElementById('step2').style.display = 'none';
                 document.getElementById('step3').style.display = 'block';
-                
+
                 setTimeout(() => {
                     document.getElementById('step3').classList.remove('hidden');
                     markUnavailableDifficulties();
@@ -96,64 +95,64 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }
     });
-    
+
     // Difficulty selection - Step 3
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.closest('.difficulty-options') && e.target.closest('.difficulty-option')) {
             const card = e.target.closest('.difficulty-option');
-            
+
             // Проверяем, доступна ли эта опция
             if (card.classList.contains('unavailable')) {
                 // Если опция недоступна, просто возвращаемся без действий
                 return;
             }
-            
+
             document.querySelectorAll('.difficulty-options .difficulty-option').forEach(opt => opt.classList.remove('active'));
             card.classList.add('active');
-            
+
             currentLevel = parseInt(card.dataset.difficulty);
-            
+
             // Сразу запускаем занятие без показа step4
             showLoaderAndNavigateToLesson();
         }
     });
-    
+
     // Кнопка "Заново" вместо "Пауза"
     const restartBtn = document.getElementById('restartBtn');
     if (restartBtn) {
-        restartBtn.addEventListener('click', function() {
+        restartBtn.addEventListener('click', function () {
             resetLesson();
         });
     }
-    
+
     // Клик на таймер для паузы/продолжения
     const timerElement = document.getElementById('timer');
     if (timerElement) {
         timerElement.addEventListener('click', toggleTimerPause);
     }
-    
+
     // Finish lesson buttons
-    document.getElementById('finishLessonBtn').addEventListener('click', function() {
+    document.getElementById('finishLessonBtn').addEventListener('click', function () {
         showLoaderAndNavigateToHome();
     });
-    
+
     // Calculator keys
     document.querySelectorAll('.number-key').forEach(key => {
-        key.addEventListener('click', function(e) {
+        key.addEventListener('click', function (e) {
             if (mathCompleted) return;
             createRippleEffect(this, e);
             const value = this.dataset.value;
             handleNumberInput(value);
         });
     });
-    
+
     // Voice toggle button
-    document.getElementById('voiceToggleBtn').addEventListener('click', function() {
+    document.getElementById('voiceToggleBtn').addEventListener('click', function () {
         voiceEnabled = !voiceEnabled;
-        
+
         const iconOn = document.getElementById('voiceIconOn');
         const iconOff = document.getElementById('voiceIconOff');
-        
+
         if (voiceEnabled) {
             iconOn.style.display = 'inline-flex';
             iconOff.style.display = 'none';
@@ -164,26 +163,26 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.background = '#757575';
         }
     });
-    
+
     // Reading navigation buttons
     document.getElementById('nextBtn').addEventListener('click', nextWord);
     document.getElementById('prevBtn').addEventListener('click', prevWord);
-    
+
     // Click on word to speak
-    document.getElementById('wordDisplay').addEventListener('click', function() {
+    document.getElementById('wordDisplay').addEventListener('click', function () {
         speakCurrentWord();
     });
-    
+
     // Initialize audio context on first user interaction
     const handleUserInteraction = () => {
         initAudioContext();
         document.removeEventListener('click', handleUserInteraction);
         document.removeEventListener('touchstart', handleUserInteraction);
     };
-    
+
     document.addEventListener('click', handleUserInteraction);
     document.addEventListener('touchstart', handleUserInteraction);
-    
+
     updateStats();
     markUnavailableSubjects();
 });
@@ -228,13 +227,13 @@ function checkSubcategoryDataAvailability(subject, category, level) {
 // Функция для отметки недоступных подкатегорий
 function markUnavailableSubcategories() {
     if (!currentSubject) return;
-    
+
     const subcategoryCards = document.querySelectorAll('#subcategoryGrid .subject-card');
-    
+
     subcategoryCards.forEach(card => {
         const category = card.dataset.category;
         let hasAnyLevel = false;
-        
+
         // Проверяем наличие данных хотя бы для одного уровня сложности
         if (currentSubject === 'math') {
             if (category === 'addition') {
@@ -255,7 +254,7 @@ function markUnavailableSubcategories() {
                 hasAnyLevel = false;
             }
         }
-        
+
         if (!hasAnyLevel) {
             card.classList.add('unavailable');
             // Добавляем подсказку
@@ -270,13 +269,13 @@ function markUnavailableSubcategories() {
 // Функция для отметки недоступных уровней сложности
 function markUnavailableDifficulties() {
     if (!currentSubject || !currentCategory) return;
-    
+
     const difficultyOptions = document.querySelectorAll('.difficulty-options .difficulty-option');
-    
+
     difficultyOptions.forEach(option => {
         const level = parseInt(option.dataset.difficulty);
         const hasData = checkSubcategoryDataAvailability(currentSubject, currentCategory, level);
-        
+
         if (!hasData) {
             option.classList.add('unavailable');
             option.setAttribute('title', 'Для этого уровня пока нет заданий');
@@ -290,28 +289,28 @@ function markUnavailableDifficulties() {
 // Функция для отметки недоступных предметов
 function markUnavailableSubjects() {
     const subjectCards = document.querySelectorAll('#step1 .subject-card');
-    
+
     subjectCards.forEach(card => {
         const subject = card.dataset.subject;
         let hasAnyData = false;
-        
+
         // Проверяем наличие данных для предмета
         if (subject === 'math') {
             // Для математики проверяем наличие хотя бы одной категории с данными
             hasAnyData = additionEasy.length > 0 || additionMedium.length > 0 || additionHard.length > 0 ||
-                         subtractionEasy.length > 0 || subtractionMedium.length > 0 || subtractionHard.length > 0 ||
-                         multiplicationEasy.length > 0 || multiplicationMedium.length > 0 || multiplicationHard.length > 0;
+                subtractionEasy.length > 0 || subtractionMedium.length > 0 || subtractionHard.length > 0 ||
+                multiplicationEasy.length > 0 || multiplicationMedium.length > 0 || multiplicationHard.length > 0;
             // division всегда пусто, не учитываем
         } else if (subject === 'reading') {
             // Для чтения проверяем наличие хотя бы одной категории с данными
             hasAnyData = syllablesEasy.length > 0 || syllablesMedium.length > 0 ||
-                         wordsEasy.length > 0;
+                wordsEasy.length > 0;
             // sentences всегда пусто, не учитываем
         } else if (subject === 'writing' || subject === 'puzzles') {
             // Для письма и головоломок данных нет
             hasAnyData = false;
         }
-        
+
         if (!hasAnyData) {
             card.classList.add('unavailable');
             card.setAttribute('title', 'В этом разделе пока нет заданий');
@@ -327,7 +326,7 @@ function toggleTimerPause() {
     isTimerPaused = !isTimerPaused;
     const timerElement = document.getElementById('timer');
     const timerLabel = document.querySelector('.timer-label');
-    
+
     if (isTimerPaused) {
         timerLabel.textContent = '';
         timerElement.classList.add('timer-paused');
@@ -347,7 +346,7 @@ function resetLesson() {
     // Сброс всех счетчиков
     correctAnswers = 0;
     totalAnswers = 0;
-    
+
     if (currentSubject === 'math') {
         resetMathTest();
         mathCompleted = false;
@@ -355,14 +354,14 @@ function resetLesson() {
         resetReadingTest();
         readingCompleted = false;
     }
-    
+
     // Сбрасываем таймер
     resetTimer();
-    
+
     // Сбрасываем цвет таймера
     const timerElement = document.getElementById('timer');
     timerElement.classList.remove('timer-paused');
-    
+
     // Сбрасываем заголовок таймера
     const timerLabel = document.querySelector('.timer-label');
     if (timerLabel) {
@@ -375,15 +374,15 @@ function populateSubcategories() {
     const container = document.getElementById('subcategoryGrid');
     if (!container) return;
     container.innerHTML = '';
-    
+
     if (currentSubject === 'math') {
         const categories = [
-            {name: 'addition', title: 'Сложение', description: 'Складывайте числа'},
-            {name: 'subtraction', title: 'Вычитание', description: 'Находите разность'},
-            {name: 'multiplication', title: 'Умножение', description: 'Умножайте числа'},
-            {name: 'division', title: 'Деление', description: 'Делите числа'}
+            { name: 'addition', title: 'Сложение', description: 'Складывайте числа' },
+            { name: 'subtraction', title: 'Вычитание', description: 'Находите разность' },
+            { name: 'multiplication', title: 'Умножение', description: 'Умножайте числа' },
+            { name: 'division', title: 'Деление', description: 'Делите числа' }
         ];
-        
+
         categories.forEach(cat => {
             const div = document.createElement('div');
             div.className = 'subject-card';
@@ -396,11 +395,11 @@ function populateSubcategories() {
         });
     } else if (currentSubject === 'reading') {
         const categories = [
-            {name: 'syllables', title: 'Слоги', description: 'Чтение по слогам'},
-            {name: 'words', title: 'Слова', description: 'Чтение слов'},
-            {name: 'sentences', title: 'Предложения', description: 'Чтение предложений'}
+            { name: 'syllables', title: 'Слоги', description: 'Чтение по слогам' },
+            { name: 'words', title: 'Слова', description: 'Чтение слов' },
+            { name: 'sentences', title: 'Предложения', description: 'Чтение предложений' }
         ];
-        
+
         categories.forEach(cat => {
             const div = document.createElement('div');
             div.className = 'subject-card';
@@ -418,17 +417,17 @@ function resetHomeSelection() {
     document.querySelectorAll('#step1 .subject-card').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('#subcategoryGrid .subject-card').forEach(opt => opt.classList.remove('active', 'unavailable'));
     document.querySelectorAll('.difficulty-options .difficulty-option').forEach(opt => opt.classList.remove('active', 'unavailable'));
-    
+
     currentSubject = '';
     currentCategory = '';
     currentLevel = 1;
-    
+
     // Скрываем все шаги кроме первого
     document.getElementById('step2').style.display = 'none';
     document.getElementById('step2').classList.remove('hidden');
     document.getElementById('step3').style.display = 'none';
     document.getElementById('step3').classList.remove('hidden');
-    
+
     document.getElementById('step1').style.display = 'block';
     document.getElementById('step1').classList.remove('hidden');
 }
@@ -485,16 +484,16 @@ function completeMathTest() {
     document.getElementById('numberPad').classList.add('disabled');
     document.getElementById('mathProblem').style.display = 'none';
     document.querySelector('.input-label').style.display = 'none';
-    
+
     const completionMessage = document.getElementById('completionMessage');
     completionMessage.style.display = 'flex';
-    
+
     const grade = calculateGrade(correctAnswers, totalAnswers);
     document.getElementById('finalGrade').textContent = grade;
-    
+
     document.getElementById('feedback').style.display = 'none';
     document.getElementById('progressFill').style.width = '100%';
-    
+
     // Ставим таймер на паузу
     isTimerPaused = true;
     const timerElement = document.getElementById('timer');
@@ -515,16 +514,16 @@ function resetMathTest() {
     document.getElementById('mathProblem').style.display = 'flex';
     document.querySelector('.input-label').style.display = 'block';
     document.getElementById('completionMessage').style.display = 'none';
-    
+
     // СБРАСЫВАЕМ СЧЕТЧИКИ
     correctAnswers = 0;
     totalAnswers = 0;
     currentMathIndex = 0;
-    
+
     generateMathProblems();
     showMathProblem();
     updateStats();
-    
+
     // Сбрасываем таймер
     resetTimer();
     const timerElement = document.getElementById('timer');
@@ -543,9 +542,9 @@ function completeReadingTest() {
     document.getElementById('wordInfo').style.display = 'none';
     document.getElementById('wordProgress').style.display = 'none';
     document.getElementById('readingCompletion').style.display = 'flex';
-    
+
     document.getElementById('progressFill').style.width = '100%';
-    
+
     // Ставим таймер на паузу
     isTimerPaused = true;
     const timerElement = document.getElementById('timer');
@@ -559,21 +558,21 @@ function completeReadingTest() {
         timerInterval = null;
     }
 }
-    
+
 function resetReadingTest() {
     readingCompleted = false;
     document.getElementById('wordDisplay').style.display = 'flex';
     document.getElementById('wordInfo').style.display = 'block';
     document.getElementById('wordProgress').style.display = 'flex';
     document.getElementById('readingCompletion').style.display = 'none';
-    
+
     document.getElementById('taskNav').classList.add('show');
-    
+
     currentWordIndex = 0;
-    
+
     // Загружаем слова в зависимости от уровня и перемешиваем
     loadReadingWords();
-    
+
     resetTimer();
     const timerElement = document.getElementById('timer');
     timerElement.classList.remove('timer-paused');
@@ -588,7 +587,7 @@ function resetReadingTest() {
 // Функция для загрузки слов для чтения с рандомизацией
 function loadReadingWords() {
     let sourceArray = [];
-    
+
     // Выбираем источник данных в зависимости от категории и уровня
     if (currentCategory === 'syllables') {
         if (currentLevel === 1) {
@@ -613,17 +612,17 @@ function loadReadingWords() {
         // Пока пусто для всех уровней
         sourceArray = [];
     }
-    
+
     // Проверяем, есть ли данные
     if (sourceArray.length === 0) {
         // Если данных нет, возвращаемся на главную
         returnToHomeNoData();
         return;
     }
-    
+
     // Перемешиваем массив
     currentWords = shuffleArray(sourceArray);
-    
+
     // Если слов меньше 30, используем все, если больше - берем первые 30
     if (currentWords.length > 30) {
         currentWords = currentWords.slice(0, 30);
@@ -638,16 +637,16 @@ function returnToHomeNoData() {
     setTimeout(() => {
         loader.style.display = 'none';
     }, 300);
-    
+
     // Возвращаемся на главную
     document.getElementById('lesson-page').style.display = 'none';
     document.getElementById('lesson-page').classList.remove('active');
     document.getElementById('home-page').style.display = 'flex';
     document.getElementById('home-page').classList.add('active');
-    
+
     resetTimer();
     resetHomeSelection();
-    
+
     // Сбрасываем цвет таймера
     const timerElement = document.getElementById('timer');
     timerElement.classList.remove('timer-paused');
@@ -667,27 +666,27 @@ function showLoaderAndNavigateToHome() {
     const loader = document.getElementById('loader');
     loader.style.display = 'flex';
     loader.style.opacity = '0';
-    
+
     setTimeout(() => {
         loader.style.opacity = '1';
     }, 10);
-    
+
     const minLoaderTime = 1500;
     const startTime = Date.now();
-    
+
     function navigateToHome() {
         document.getElementById('lesson-page').style.display = 'none';
         document.getElementById('lesson-page').classList.remove('active');
         document.getElementById('home-page').style.display = 'flex';
         document.getElementById('home-page').classList.add('active');
-        
+
         resetTimer();
         resetHomeSelection();
-        
+
         // Сбрасываем цвет таймера при возврате на главную
         const timerElement = document.getElementById('timer');
         timerElement.classList.remove('timer-paused');
-        
+
         setTimeout(() => {
             loader.style.opacity = '0';
             setTimeout(() => {
@@ -695,7 +694,7 @@ function showLoaderAndNavigateToHome() {
             }, 300);
         }, 300);
     }
-    
+
     setTimeout(() => {
         const elapsed = Date.now() - startTime;
         if (elapsed >= minLoaderTime) {
@@ -712,7 +711,7 @@ function showLoaderAndNavigateToLesson() {
         console.error('Не выбраны предмет или категория');
         return;
     }
-    
+
     // Проверяем, есть ли данные для выбранного уровня
     const hasData = checkSubcategoryDataAvailability(currentSubject, currentCategory, currentLevel);
     if (!hasData) {
@@ -720,37 +719,37 @@ function showLoaderAndNavigateToLesson() {
         returnToHomeNoData();
         return;
     }
-    
+
     const loader = document.getElementById('loader');
     loader.style.display = 'flex';
     loader.style.opacity = '0';
-    
+
     setTimeout(() => {
         loader.style.opacity = '1';
     }, 10);
-    
+
     const minLoaderTime = 1500;
     const startTime = Date.now();
-    
+
     function navigateToLesson() {
         document.getElementById('home-page').style.display = 'none';
         document.getElementById('home-page').classList.remove('active');
         document.getElementById('lesson-page').style.display = 'block';
         document.getElementById('lesson-page').classList.add('active');
-        
+
         resetTimer();
         updateLessonHeader();
-        
+
         // Сбрасываем цвет таймера
         const timerElement = document.getElementById('timer');
         timerElement.classList.remove('timer-paused');
-        
+
         if (currentSubject === 'math') {
             showMathContent();
         } else if (currentSubject === 'reading') {
             showReadingContent();
         }
-        
+
         setTimeout(() => {
             loader.style.opacity = '0';
             setTimeout(() => {
@@ -758,7 +757,7 @@ function showLoaderAndNavigateToLesson() {
             }, 300);
         }, 300);
     }
-    
+
     setTimeout(() => {
         const elapsed = Date.now() - startTime;
         if (elapsed >= minLoaderTime) {
@@ -774,7 +773,7 @@ function showReadingContent() {
     document.getElementById('reading-content').style.display = 'block';
     document.getElementById('feedback').style.display = 'none';
     document.getElementById('stats').classList.remove('show');
-    
+
     readingCompleted = false;
     document.getElementById('readingCompletion').style.display = 'none';
     document.getElementById('taskNav').classList.remove('show');
@@ -782,111 +781,12 @@ function showReadingContent() {
     document.getElementById('wordInfo').style.display = 'block';
     document.getElementById('wordProgress').style.display = 'flex';
     document.getElementById('progressFill').style.width = '0%';
-    
+
     // Загружаем слова в зависимости от уровня
     loadReadingWords();
-    
+
     currentWordIndex = 0;
     updateReadingContent();
-    
-    // Инициализируем обработчики свайпа (только один раз)
-    if (!swipeHandlersInitialized) {
-        initSwipeHandlers();
-        swipeHandlersInitialized = true;
-    }
-}
-
-function initSwipeHandlers() {
-    const wordDisplay = document.getElementById('wordDisplay');
-    if (!wordDisplay) return;
-    
-    let startX = 0;
-    let startY = 0;
-    let isSwiping = false;
-    let currentX = 0;
-    
-    function handleTouchStart(e) {
-        if (readingCompleted) return;
-        const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        isSwiping = true;
-        currentX = 0;
-        wordDisplay.style.transition = 'none';
-        // Не preventDefault, чтобы не блокировать клик
-    }
-    
-    function handleTouchMove(e) {
-        if (!isSwiping) return;
-        const touch = e.touches[0];
-        const deltaX = touch.clientX - startX;
-        const deltaY = touch.clientY - startY;
-        
-        // Если движение по вертикали больше, чем по горизонтали, отменяем свайп
-        if (Math.abs(deltaY) > Math.abs(deltaX)) {
-            isSwiping = false;
-            return;
-        }
-        
-        currentX = deltaX;
-        // Ограничиваем смещение до 100px в каждую сторону для визуального эффекта
-        const boundedX = Math.max(-100, Math.min(100, currentX));
-        wordDisplay.style.transform = `translateX(${boundedX}px)`;
-        wordDisplay.style.opacity = 1 - Math.abs(boundedX) / 100;
-        e.preventDefault(); // Предотвращаем скролл страницы при свайпе
-    }
-    
-    function handleTouchEnd(e) {
-        if (!isSwiping) return;
-        isSwiping = false;
-        
-        const threshold = 50; // минимальное расстояние для срабатывания свайпа
-        const isLeftSwipe = currentX < -threshold;
-        const isRightSwipe = currentX > threshold;
-        
-        wordDisplay.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-        wordDisplay.style.transform = 'translateX(0)';
-        wordDisplay.style.opacity = '1';
-        
-        if (isLeftSwipe) {
-            // Свайп влево -> следующее слово
-            swipeToNext();
-            e.preventDefault(); // предотвращаем клик
-        } else if (isRightSwipe) {
-            // Свайп вправо -> предыдущее слово
-            swipeToPrev();
-            e.preventDefault(); // предотвращаем клик
-        }
-        // Если свайп не распознан (движение меньше порога), клик сработает нормально
-    }
-    
-    function swipeToNext() {
-        if (currentWordIndex >= currentWords.length - 1) {
-            completeReadingTest();
-            return;
-        }
-        // Добавляем класс анимации
-        wordDisplay.classList.add('swipe-left');
-        setTimeout(() => {
-            wordDisplay.classList.remove('swipe-left');
-            nextWord();
-        }, 400);
-    }
-    
-    function swipeToPrev() {
-        if (currentWordIndex <= 0) return;
-        wordDisplay.classList.add('swipe-right');
-        setTimeout(() => {
-            wordDisplay.classList.remove('swipe-right');
-            prevWord();
-        }, 400);
-    }
-    
-    // Добавляем обработчики событий
-    wordDisplay.addEventListener('touchstart', handleTouchStart, { passive: false });
-    wordDisplay.addEventListener('touchmove', handleTouchMove, { passive: false });
-    wordDisplay.addEventListener('touchend', handleTouchEnd, { passive: false });
-    wordDisplay.addEventListener('touchcancel', handleTouchEnd, { passive: false });
 }
 
 function showMathContent() {
@@ -895,17 +795,17 @@ function showMathContent() {
     document.getElementById('taskNav').classList.remove('show');
     document.getElementById('feedback').style.display = 'none';
     document.getElementById('stats').classList.add('show');
-    
+
     mathCompleted = false;
     document.getElementById('numberPad').classList.remove('disabled');
     document.getElementById('mathProblem').style.display = 'flex';
     document.getElementById('completionMessage').style.display = 'none';
     document.querySelector('.input-label').style.display = 'block';
-    
+
     // Сбрасываем счетчики
     correctAnswers = 0;
     totalAnswers = 0;
-    
+
     generateMathProblems();
     showMathProblem();
     updateStats();
@@ -916,23 +816,23 @@ function showMathProblem() {
         completeMathTest();
         return;
     }
-    
+
     if (mathProblems.length === 0 || currentMathIndex >= mathProblems.length) {
         completeMathTest();
         return;
     }
-    
+
     const problem = mathProblems[currentMathIndex];
-    
+
     document.getElementById('mathNum1').textContent = problem.num1;
     document.getElementById('mathNum2').textContent = problem.num2;
     document.getElementById('mathOperator').textContent = problem.operator;
     document.getElementById('mathAnswer').textContent = '?';
     document.getElementById('mathAnswer').style.color = '#888888';
-    
+
     const progress = ((currentMathIndex + 1) / mathProblems.length) * 100;
     document.getElementById('progressFill').style.width = progress + '%';
-    
+
     document.getElementById('mathProblem').style.display = 'flex';
     document.getElementById('completionMessage').style.display = 'none';
     document.querySelector('.input-label').style.display = 'block';
@@ -941,36 +841,36 @@ function showMathProblem() {
 
 function updateReadingContent() {
     if (readingCompleted) return;
-    
+
     // Проверяем, есть ли слова
     if (!currentWords || currentWords.length === 0) {
         completeReadingTest();
         return;
     }
-    
+
     if (currentWordIndex >= currentWords.length) {
         completeReadingTest();
         return;
     }
-    
+
     const wordData = currentWords[currentWordIndex];
     if (!wordData) return;
-    
+
     const wordDisplay = document.getElementById('wordDisplay');
     if (!wordDisplay) return;
-    
+
     wordDisplay.innerHTML = '';
-    
+
     const visualizer = document.getElementById('audioVisualizer');
     if (visualizer) {
         visualizer.style.visibility = 'hidden';
     }
-    
+
     // Определяем, как отображать данные в зависимости от типа
     if (wordData.phrase) {
         // Это фраза из двух слов
         const words = wordData.phrase.split(' ');
-        
+
         words.forEach((word, wordIndex) => {
             // Добавляем пробел между словами (кроме последнего)
             if (wordIndex > 0) {
@@ -980,33 +880,33 @@ function updateReadingContent() {
                 spaceSpan.style.marginRight = '10px';
                 wordDisplay.appendChild(spaceSpan);
             }
-            
+
             // Разбиваем каждое слово на буквы
             for (let char of word) {
                 const span = document.createElement('span');
                 span.className = 'word-letter';
                 span.textContent = char;
-                
+
                 const vowels = 'АЕЁИОУЫЭЮЯ';
                 if (vowels.includes(char.toUpperCase())) {
                     span.classList.add('vowel');
                 } else {
                     span.classList.add('consonant');
                 }
-                
+
                 wordDisplay.appendChild(span);
             }
         });
-        
+
         // Обновляем информацию
         document.getElementById('wordText').textContent = wordData.phrase;
         document.getElementById('wordTranscription').textContent = wordData.transcription || '';
         document.getElementById('wordDescription').textContent = wordData.example || wordData.description || '';
-        
+
     } else if (wordData.word && wordData.word.includes('-')) {
         // Это слово с дефисами (слоги)
         const syllables = wordData.word.split('-');
-        
+
         syllables.forEach((syllable, syllableIndex) => {
             if (syllableIndex > 0) {
                 const divider = document.createElement('span');
@@ -1014,118 +914,118 @@ function updateReadingContent() {
                 divider.textContent = '-';
                 wordDisplay.appendChild(divider);
             }
-            
+
             for (let char of syllable) {
                 const span = document.createElement('span');
                 span.className = 'word-letter';
                 span.textContent = char;
-                
+
                 const vowels = 'АЕЁИОУЫЭЮЯ';
                 if (vowels.includes(char.toUpperCase())) {
                     span.classList.add('vowel');
                 } else {
                     span.classList.add('consonant');
                 }
-                
+
                 wordDisplay.appendChild(span);
             }
         });
-        
+
         document.getElementById('wordText').textContent = wordData.word.replace(/-/g, '');
         document.getElementById('wordTranscription').textContent = wordData.transcription || '';
         document.getElementById('wordDescription').textContent = wordData.description || '';
-        
+
     } else {
         // Обычное слово
         const wordText = wordData.word || '';
-        
+
         for (let char of wordText) {
             const span = document.createElement('span');
             span.className = 'word-letter';
             span.textContent = char;
-            
+
             const vowels = 'АЕЁИОУЫЭЮЯ';
             if (vowels.includes(char.toUpperCase())) {
                 span.classList.add('vowel');
             } else {
                 span.classList.add('consonant');
             }
-            
+
             wordDisplay.appendChild(span);
         }
-        
+
         document.getElementById('wordText').textContent = wordData.word || '';
         document.getElementById('wordTranscription').textContent = wordData.transcription || '';
         document.getElementById('wordDescription').textContent = wordData.description || '';
     }
-    
+
     document.getElementById('currentWord').textContent = currentWordIndex + 1;
     document.getElementById('totalWords').textContent = currentWords.length;
-    
+
     const progress = ((currentWordIndex + 1) / currentWords.length) * 100;
     document.getElementById('progressFill').style.width = progress + '%';
-    
+
     document.getElementById('taskNav').classList.add('show');
 }
 
 function speakCurrentWord() {
     if (currentWords.length === 0 || currentWordIndex >= currentWords.length || !voiceEnabled) return;
-    
+
     const wordData = currentWords[currentWordIndex];
     let textToSpeak = '';
-    
+
     if (wordData.phrase) {
         textToSpeak = wordData.phrase;
     } else {
         textToSpeak = wordData.word ? wordData.word.replace(/-/g, '') : '';
     }
-    
+
     if (currentUtterance && isSpeaking) {
         window.speechSynthesis.cancel();
         isSpeaking = false;
         hideVisualizer();
     }
-    
+
     const visualizer = document.getElementById('audioVisualizer');
     const wordContainer = document.querySelector('.word-container');
-    
+
     if (visualizer) visualizer.style.visibility = 'hidden';
-    
+
     if (wordContainer && visualizer) {
         wordContainer.insertBefore(visualizer, wordContainer.firstChild);
     }
-    
+
     if (visualizer) {
         visualizer.style.position = 'relative';
         visualizer.style.visibility = 'visible';
         visualizer.style.transform = 'translateY(-50%)';
         visualizer.style.display = 'flex';
     }
-    
+
     currentUtterance = new SpeechSynthesisUtterance(textToSpeak);
     const bestVoice = getBestRussianVoice();
-    
+
     if (bestVoice) {
         currentUtterance.voice = bestVoice;
     }
-    
+
     currentUtterance.rate = 0.8;
     currentUtterance.pitch = 1.1;
     currentUtterance.volume = 0.8;
     currentUtterance.lang = 'ru-RU';
-    
+
     isSpeaking = true;
-    
-    currentUtterance.onend = function() {
+
+    currentUtterance.onend = function () {
         isSpeaking = false;
         hideVisualizer();
     };
-    
-    currentUtterance.onerror = function() {
+
+    currentUtterance.onerror = function () {
         isSpeaking = false;
         hideVisualizer();
     };
-    
+
     window.speechSynthesis.speak(currentUtterance);
 }
 
@@ -1139,7 +1039,7 @@ function hideVisualizer() {
 function generateMathProblems() {
     let sourceArray = [];
     let operator = '';
-    
+
     // Выбираем источник данных в зависимости от категории и уровня
     if (currentCategory === 'addition') {
         operator = '+';
@@ -1160,10 +1060,10 @@ function generateMathProblems() {
         // Пока пусто
         sourceArray = [];
     }
-    
+
     // Перемешиваем массив
     let shuffled = shuffleArray(sourceArray);
-    
+
     // Берем первые 10 элементов (или меньше, если их недостаточно)
     mathProblems = shuffled.slice(0, 10).map(item => ({
         num1: item.num1,
@@ -1171,7 +1071,7 @@ function generateMathProblems() {
         operator: operator,
         answer: item.answer
     }));
-    
+
     // Если примеров меньше 10, дублируем их, но с другими числами
     while (mathProblems.length < 10 && sourceArray.length > 0) {
         const randomIndex = Math.floor(Math.random() * sourceArray.length);
@@ -1183,60 +1083,60 @@ function generateMathProblems() {
             answer: item.answer
         });
     }
-    
+
     currentMathIndex = 0;
 }
 
 function handleNumberInput(value) {
     if (isCheckingAnswer || mathCompleted) return;
-    
+
     const answerElement = document.getElementById('mathAnswer');
-    
+
     if (answerElement.textContent === '?' || answerElement.textContent === '✓') {
         answerElement.textContent = value;
     } else if (answerElement.textContent.length < 3) {
         answerElement.textContent += value;
     }
-    
+
     clearTimeout(window.checkTimeout);
     window.checkTimeout = setTimeout(checkMathAnswer, 2000);
 }
 
 function checkMathAnswer() {
     if (isCheckingAnswer || mathCompleted) return;
-    
+
     const answerElement = document.getElementById('mathAnswer');
     const userAnswer = parseInt(answerElement.textContent);
     const problem = mathProblems[currentMathIndex];
-    
+
     if (isNaN(userAnswer) || answerElement.textContent === '?' || answerElement.textContent === '✓') {
         return;
     }
 
     isCheckingAnswer = true;
     totalAnswers++;
-    
+
     if (userAnswer === problem.answer) {
         correctAnswers++;
         answerElement.style.color = '#8BBCB2';
         playCorrectSound();
         const randomResponse = correctResponses[Math.floor(Math.random() * correctResponses.length)];
         showFeedback(randomResponse, false);
-        
+
         if (voiceEnabled) {
             speakText(randomResponse);
         }
-        
+
         setTimeout(() => {
             currentMathIndex++;
             isCheckingAnswer = false;
-            
+
             if (currentMathIndex >= mathProblems.length) {
                 completeMathTest();
             } else {
                 showMathProblem();
             }
-            
+
             updateStats();
         }, 1500);
     } else {
@@ -1244,23 +1144,23 @@ function checkMathAnswer() {
         playIncorrectSound();
         const randomResponse = wrongResponses[Math.floor(Math.random() * wrongResponses.length)];
         showFeedback(randomResponse, true);
-        
+
         if (voiceEnabled) {
             speakText(randomResponse);
         }
-        
+
         setTimeout(() => {
             answerElement.textContent = '?';
             answerElement.style.color = '#888888';
             currentMathIndex++;
             isCheckingAnswer = false;
-            
+
             if (currentMathIndex >= mathProblems.length) {
                 completeMathTest();
             } else {
                 showMathProblem();
             }
-            
+
             updateStats();
         }, 1500);
     }
@@ -1269,11 +1169,11 @@ function checkMathAnswer() {
 function showFeedback(text, isWrong) {
     const feedback = document.getElementById('feedback');
     const feedbackText = document.getElementById('feedbackText');
-    
+
     feedbackText.textContent = text;
     feedback.classList.toggle('wrong', isWrong);
     feedback.style.display = 'flex';
-    
+
     setTimeout(() => {
         feedback.style.display = 'none';
     }, 2000);
@@ -1281,19 +1181,19 @@ function showFeedback(text, isWrong) {
 
 function nextWord() {
     if (currentWords.length === 0 || readingCompleted) return;
-    
+
     if (currentWordIndex >= currentWords.length - 1) {
         completeReadingTest();
         return;
     }
-    
+
     currentWordIndex++;
     updateReadingContent();
 }
 
 function prevWord() {
     if (currentWords.length === 0 || readingCompleted) return;
-    
+
     if (currentWordIndex > 0) {
         currentWordIndex--;
     } else {
@@ -1306,16 +1206,16 @@ function startTimer() {
     if (timerInterval) {
         clearInterval(timerInterval);
     }
-    
+
     timerInterval = setInterval(() => {
         if (!isTimerPaused) {
             timerSeconds++;
-            
+
             const hours = Math.floor(timerSeconds / 3600);
             const minutes = Math.floor((timerSeconds % 3600) / 60);
             const seconds = timerSeconds % 60;
-            
-            document.getElementById('timer').textContent = 
+
+            document.getElementById('timer').textContent =
                 `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
     }, 1000);
@@ -1331,7 +1231,7 @@ function resetTimer() {
 function updateStats() {
     const totalProblems = mathProblems.length;
     const wrongAnswers = totalAnswers - correctAnswers;
-    
+
     document.getElementById('totalCount').textContent = totalProblems;
     document.getElementById('correctCount').textContent = correctAnswers;
     document.getElementById('wrongCount').textContent = wrongAnswers;
@@ -1342,9 +1242,9 @@ function loadAvailableVoices() {
         availableVoices = speechSynthesis.getVoices();
         console.log("Доступные голоса:", availableVoices.map(v => `${v.name} (${v.lang})`));
     }, 500);
-    
+
     if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = function() {
+        speechSynthesis.onvoiceschanged = function () {
             availableVoices = speechSynthesis.getVoices();
             console.log("Обновленный список голосов:", availableVoices.map(v => `${v.name} (${v.lang})`));
         };
@@ -1362,42 +1262,42 @@ function initAudioContext() {
 }
 
 function getBestRussianVoice() {
-    let bestVoice = availableVoices.find(voice => 
-        (voice.lang.startsWith('ru') || voice.lang.startsWith('ru-RU')) && 
-        (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman') || 
-         voice.name.toLowerCase().includes('google') || voice.name.toLowerCase().includes('yandex'))
+    let bestVoice = availableVoices.find(voice =>
+        (voice.lang.startsWith('ru') || voice.lang.startsWith('ru-RU')) &&
+        (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman') ||
+            voice.name.toLowerCase().includes('google') || voice.name.toLowerCase().includes('yandex'))
     );
-    
+
     if (bestVoice) return bestVoice;
-    
-    bestVoice = availableVoices.find(voice => 
-        (voice.lang.startsWith('ru') || voice.lang.startsWith('ru-RU')) && 
+
+    bestVoice = availableVoices.find(voice =>
+        (voice.lang.startsWith('ru') || voice.lang.startsWith('ru-RU')) &&
         !voice.name.toLowerCase().includes('default')
     );
-    
+
     if (bestVoice) return bestVoice;
-    
-    bestVoice = availableVoices.find(voice => 
+
+    bestVoice = availableVoices.find(voice =>
         voice.lang.startsWith('ru') || voice.lang.startsWith('ru-RU')
     );
-    
+
     return bestVoice || null;
 }
 
 function speakText(text, isWord = false) {
     if (!voiceEnabled || !window.speechSynthesis) return;
-    
+
     if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
     }
-    
+
     const utterance = new SpeechSynthesisUtterance(text);
     const bestVoice = getBestRussianVoice();
-    
+
     if (bestVoice) {
         utterance.voice = bestVoice;
     }
-    
+
     if (isWord) {
         utterance.rate = 0.8;
         utterance.pitch = 1.1;
@@ -1407,7 +1307,7 @@ function speakText(text, isWord = false) {
         utterance.pitch = 1.1;
         utterance.volume = 0.9;
     }
-    
+
     utterance.lang = 'ru-RU';
     window.speechSynthesis.speak(utterance);
 }
@@ -1416,28 +1316,28 @@ function playCorrectSound() {
     if (!audioContext) {
         initAudioContext();
     }
-    
+
     if (!audioContext) {
         return;
     }
-    
+
     try {
         if (audioContext.state === 'suspended') {
             audioContext.resume();
         }
-        
+
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-        
+
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
-        
+
         oscillator.type = 'sine';
         oscillator.frequency.value = 800;
-        
+
         gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-        
+
         oscillator.start();
         oscillator.stop(audioContext.currentTime + 0.3);
     } catch (e) {
@@ -1449,28 +1349,28 @@ function playIncorrectSound() {
     if (!audioContext) {
         initAudioContext();
     }
-    
+
     if (!audioContext) {
         return;
     }
-    
+
     try {
         if (audioContext.state === 'suspended') {
             audioContext.resume();
         }
-        
+
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-        
+
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
-        
+
         oscillator.type = 'sine';
         oscillator.frequency.value = 400;
-        
+
         gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        
+
         oscillator.start();
         oscillator.stop(audioContext.currentTime + 0.5);
     } catch (e) {
@@ -1482,47 +1382,47 @@ function createRippleEffect(element, event) {
     const ripple = document.createElement('span');
     const rect = element.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height);
-    
+
     const x = event.clientX - rect.left - size / 2;
     const y = event.clientY - rect.top - size / 2;
-    
+
     ripple.style.width = ripple.style.height = size + 'px';
     ripple.style.left = x + 'px';
     ripple.style.top = y + 'px';
     ripple.classList.add('ripple');
-    
+
     const computedStyle = window.getComputedStyle(element);
     if (computedStyle.position === 'static') {
         element.style.position = 'relative';
         element.style.overflow = 'hidden';
     }
-    
+
     element.appendChild(ripple);
-    
+
     setTimeout(() => {
         ripple.remove();
     }, 600);
 }
 
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     if (e.target.classList.contains('btn') || e.target.closest('.btn')) {
         const btn = e.target.classList.contains('btn') ? e.target : e.target.closest('.btn');
         createRippleEffect(btn, e);
     }
-    
+
     if (e.target.classList.contains('number-key')) {
         createRippleEffect(e.target, e);
     }
-    
+
     if (e.target.classList.contains('dropdown-item') || e.target.closest('.dropdown-item')) {
         const item = e.target.classList.contains('dropdown-item') ? e.target : e.target.closest('.dropdown-item');
         createRippleEffect(item, e);
     }
-    
+
     if (e.target.classList.contains('subject-card') && !e.target.classList.contains('unavailable')) {
         createRippleEffect(e.target, e);
     }
-    
+
     if (e.target.classList.contains('difficulty-option') && !e.target.classList.contains('unavailable')) {
         createRippleEffect(e.target, e);
     }
