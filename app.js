@@ -1287,14 +1287,25 @@ function getBestRussianVoice() {
 function speakText(text, isWord = false) {
     if (!voiceEnabled) return;
 
+    console.log('[DEBUG speakText]', {
+        text: text.substring(0, 50),
+        isWord,
+        voiceEnabled,
+        speechServiceExists: !!window.speechService,
+        isEnabled: window.speechService ? window.speechService.isEnabled() : 'no service',
+        config: window.speechService ? window.speechService.config : null
+    });
+
     // Используем SpeechService если он доступен, иначе fallback на старую реализацию
     if (window.speechService && window.speechService.isEnabled()) {
+        console.log('[DEBUG] Using SpeechService (Yandex)');
         window.speechService.speak(text, { isWord: isWord }).catch(error => {
             console.error('Ошибка синтеза речи:', error);
             // Fallback на старую реализацию при ошибке
             fallbackSpeakText(text, isWord);
         });
     } else {
+        console.log('[DEBUG] Using fallback (browser)');
         // Fallback на старую реализацию если SpeechService не доступен
         fallbackSpeakText(text, isWord);
     }
@@ -1302,6 +1313,7 @@ function speakText(text, isWord = false) {
 
 // Старая реализация синтеза для fallback
 function fallbackSpeakText(text, isWord = false) {
+    console.log('[DEBUG fallbackSpeakText]', { text: text.substring(0, 50), isWord });
     if (!window.speechSynthesis) return;
 
     if (window.speechSynthesis.speaking) {
