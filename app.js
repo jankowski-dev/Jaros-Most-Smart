@@ -1121,7 +1121,7 @@ function checkMathAnswer() {
             }
 
             updateStats();
-        }, 1500);
+        }, 2500);
     } else {
         answerElement.style.color = '#F35C87';
         playIncorrectSound();
@@ -1145,7 +1145,7 @@ function checkMathAnswer() {
             }
 
             updateStats();
-        }, 1500);
+        }, 2500);
     }
 }
 
