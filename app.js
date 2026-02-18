@@ -980,12 +980,12 @@ function speakCurrentWord() {
         textToSpeak = wordData.word ? wordData.word.replace(/-/g, '') : '';
     }
 
-    if (currentUtterance && isSpeaking) {
-        window.speechSynthesis.cancel();
-        isSpeaking = false;
-        hideVisualizer();
+    // Отменяем текущее воспроизведение через SpeechService
+    if (window.speechService && typeof window.speechService.cancel === 'function') {
+        window.speechService.cancel();
     }
 
+    // Показываем визуализатор
     const visualizer = document.getElementById('audioVisualizer');
     const wordContainer = document.querySelector('.word-container');
 
@@ -1002,31 +1002,14 @@ function speakCurrentWord() {
         visualizer.style.display = 'flex';
     }
 
-    currentUtterance = new SpeechSynthesisUtterance(textToSpeak);
-    const bestVoice = getBestRussianVoice();
-
-    if (bestVoice) {
-        currentUtterance.voice = bestVoice;
-    }
-
-    currentUtterance.rate = 0.8;
-    currentUtterance.pitch = 1.1;
-    currentUtterance.volume = 0.8;
-    currentUtterance.lang = 'ru-RU';
-
-    isSpeaking = true;
-
-    currentUtterance.onend = function () {
-        isSpeaking = false;
+    // Используем единую функцию синтеза речи (которая использует SpeechService)
+    speakText(textToSpeak, true).then(() => {
+        // Скрываем визуализатор после завершения воспроизведения
         hideVisualizer();
-    };
-
-    currentUtterance.onerror = function () {
-        isSpeaking = false;
+    }).catch(error => {
+        console.error('Ошибка синтеза слова:', error);
         hideVisualizer();
-    };
-
-    window.speechSynthesis.speak(currentUtterance);
+    });
 }
 
 function hideVisualizer() {
@@ -1124,7 +1107,7 @@ function checkMathAnswer() {
         showFeedback(randomResponse, false);
 
         if (voiceEnabled) {
-            speakText(randomResponse);
+            speakText(randomResponse).catch(() => { });
         }
 
         setTimeout(() => {
@@ -1146,7 +1129,7 @@ function checkMathAnswer() {
         showFeedback(randomResponse, true);
 
         if (voiceEnabled) {
-            speakText(randomResponse);
+            speakText(randomResponse).catch(() => { });
         }
 
         setTimeout(() => {
@@ -1285,7 +1268,7 @@ function getBestRussianVoice() {
 }
 
 function speakText(text, isWord = false) {
-    if (!voiceEnabled) return;
+    if (!voiceEnabled) return Promise.resolve();
 
     console.log('[DEBUG speakText]', {
         text: text.substring(0, 50),
@@ -1299,47 +1282,58 @@ function speakText(text, isWord = false) {
     // Используем SpeechService если он доступен, иначе fallback на старую реализацию
     if (window.speechService && window.speechService.isEnabled()) {
         console.log('[DEBUG] Using SpeechService (Yandex)');
-        window.speechService.speak(text, { isWord: isWord }).catch(error => {
+        return window.speechService.speak(text, { isWord: isWord }).catch(error => {
             console.error('Ошибка синтеза речи:', error);
             // Fallback на старую реализацию при ошибке
-            fallbackSpeakText(text, isWord);
+            console.log('[DEBUG] Fallback due to error');
+            return fallbackSpeakText(text, isWord);
         });
     } else {
         console.log('[DEBUG] Using fallback (browser)');
         // Fallback на старую реализацию если SpeechService не доступен
-        fallbackSpeakText(text, isWord);
+        return fallbackSpeakText(text, isWord);
     }
 }
 
 // Старая реализация синтеза для fallback
 function fallbackSpeakText(text, isWord = false) {
     console.log('[DEBUG fallbackSpeakText]', { text: text.substring(0, 50), isWord });
-    if (!window.speechSynthesis) return;
+    if (!window.speechSynthesis) return Promise.resolve();
 
     if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    const bestVoice = getBestRussianVoice();
+    return new Promise((resolve, reject) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        const bestVoice = getBestRussianVoice();
 
-    if (bestVoice) {
-        utterance.voice = bestVoice;
-    }
+        if (bestVoice) {
+            utterance.voice = bestVoice;
+        }
 
-    if (isWord) {
-        utterance.rate = 0.8;
-        utterance.pitch = 1.1;
-        utterance.volume = 0.8;
-    } else {
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
-        utterance.volume = 0.9;
-    }
+        if (isWord) {
+            utterance.rate = 0.8;
+            utterance.pitch = 1.1;
+            utterance.volume = 0.8;
+        } else {
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+            utterance.volume = 0.9;
+        }
 
-    utterance.lang = 'ru-RU';
-    window.speechSynthesis.speak(utterance);
-    window.speechSynthesis.speak(utterance);
+        utterance.lang = 'ru-RU';
+
+        utterance.onend = () => {
+            resolve();
+        };
+
+        utterance.onerror = (event) => {
+            reject(new Error(`Ошибка браузерного синтеза: ${event.error}`));
+        };
+
+        window.speechSynthesis.speak(utterance);
+    });
 }
 
 function playCorrectSound() {
