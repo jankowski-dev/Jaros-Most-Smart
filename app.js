@@ -1285,7 +1285,24 @@ function getBestRussianVoice() {
 }
 
 function speakText(text, isWord = false) {
-    if (!voiceEnabled || !window.speechSynthesis) return;
+    if (!voiceEnabled) return;
+
+    // Используем SpeechService если он доступен, иначе fallback на старую реализацию
+    if (window.speechService && window.speechService.isEnabled()) {
+        window.speechService.speak(text, { isWord: isWord }).catch(error => {
+            console.error('Ошибка синтеза речи:', error);
+            // Fallback на старую реализацию при ошибке
+            fallbackSpeakText(text, isWord);
+        });
+    } else {
+        // Fallback на старую реализацию если SpeechService не доступен
+        fallbackSpeakText(text, isWord);
+    }
+}
+
+// Старая реализация синтеза для fallback
+function fallbackSpeakText(text, isWord = false) {
+    if (!window.speechSynthesis) return;
 
     if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
@@ -1309,6 +1326,7 @@ function speakText(text, isWord = false) {
     }
 
     utterance.lang = 'ru-RU';
+    window.speechSynthesis.speak(utterance);
     window.speechSynthesis.speak(utterance);
 }
 

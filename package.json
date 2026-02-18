@@ -1,0 +1,32 @@
+{
+    "name": "yarik-uroki-speech-proxy",
+    "version": "1.0.0",
+    "description": "Прокси-сервер для Yandex SpeechKit для обхода CORS ограничений",
+    "main": "speech-proxy.js",
+    "scripts": {
+        "start": "node speech-proxy.js",
+        "dev": "nodemon speech-proxy.js",
+        "test": "echo \"No tests specified\" && exit 0"
+    },
+    "keywords": [
+        "speech",
+        "tts",
+        "yandex",
+        "speechkit",
+        "proxy",
+        "cors"
+    ],
+    "author": "Yarik.Uroki",
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.18.2",
+        "cors": "^2.8.5",
+        "node-fetch": "^2.6.9"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.1"
+    },
+    "engines": {
+        "node": ">=14.0.0"
+    }
+}
