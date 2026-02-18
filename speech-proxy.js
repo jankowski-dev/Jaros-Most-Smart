@@ -1,8 +1,10 @@
-// speech-proxy.js - Прокси-сервер для Yandex SpeechKit
-// Запускается на Railway для обхода CORS ограничений
+// speech-proxy.js - Комбинированный сервер для Railway
+// 1. Обслуживает статические файлы приложения
+// 2. Прокси для Yandex SpeechKit
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
 
@@ -13,6 +15,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Обслуживание статических файлов
+app.use(express.static(path.join(__dirname)));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -94,22 +99,31 @@ app.post('/api/tts', async (req, res) => {
 // Info endpoint
 app.get('/api/info', (req, res) => {
     res.json({
-        service: 'Yandex SpeechKit Proxy',
+        service: 'Yandex SpeechKit Proxy + Static Server',
         version: '1.0.0',
         endpoints: {
             tts: 'POST /api/tts',
             health: 'GET /health',
-            info: 'GET /api/info'
+            info: 'GET /api/info',
+            main: 'GET / (index.html)'
         },
         configured: !!process.env.YANDEX_SPEECH_API_KEY,
-        hasFolderId: !!process.env.YANDEX_SPEECH_FOLDER_ID
+        hasFolderId: !!process.env.YANDEX_SPEECH_FOLDER_ID,
+        staticFiles: ['index.html', 'app.js', 'config.js', 'speech-service.js', 'data.js', 'styles.css']
     });
+});
+
+// Маршрут для главной страницы (fallback для SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Speech proxy server running on port ${PORT}`);
+    console.log(`Combined server running on port ${PORT}`);
+    console.log(`Static files served from: ${__dirname}`);
     console.log(`Health check: http://localhost:${PORT}/health`);
+    console.log(`Main page: http://localhost:${PORT}/`);
     console.log(`Yandex API key configured: ${process.env.YANDEX_SPEECH_API_KEY ? 'Yes' : 'No'}`);
 });
 

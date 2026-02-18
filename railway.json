@@ -1,0 +1,22 @@
+{
+    "$schema": "https://railway.app/railway.schema.json",
+    "build": {
+        "builder": "NIXPACKS",
+        "buildCommand": "echo 'Building static site with proxy server'"
+    },
+    "deploy": {
+        "startCommand": "node speech-proxy.js",
+        "healthcheckPath": "/health",
+        "restartPolicyType": "ON_FAILURE"
+    },
+    "static": {
+        "publicDir": ".",
+        "cleanUrls": true,
+        "rewrites": [
+            {
+                "source": "/*",
+                "destination": "/index.html"
+            }
+        ]
+    }
+}
