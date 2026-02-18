@@ -1106,11 +1106,8 @@ function checkMathAnswer() {
         const randomResponse = correctResponses[Math.floor(Math.random() * correctResponses.length)];
         showFeedback(randomResponse, false);
 
-        if (voiceEnabled) {
-            speakText(randomResponse).catch(() => { });
-        }
-
-        setTimeout(() => {
+        // Функция перехода к следующему примеру
+        const advanceToNextProblem = () => {
             currentMathIndex++;
             isCheckingAnswer = false;
 
@@ -1121,18 +1118,27 @@ function checkMathAnswer() {
             }
 
             updateStats();
-        }, 2500);
+        };
+
+        if (voiceEnabled) {
+            // Обещание завершения озвучки (с обработкой ошибок)
+            const speechPromise = speakText(randomResponse).catch(() => { });
+            // Таймаут 2500 мс как максимальное время ожидания
+            const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2500));
+            // Переход после того, что случится раньше
+            Promise.race([speechPromise, timeoutPromise]).then(advanceToNextProblem);
+        } else {
+            // Если озвучка отключена, просто ждем 2500 мс
+            setTimeout(advanceToNextProblem, 2500);
+        }
     } else {
         answerElement.style.color = '#F35C87';
         playIncorrectSound();
         const randomResponse = wrongResponses[Math.floor(Math.random() * wrongResponses.length)];
         showFeedback(randomResponse, true);
 
-        if (voiceEnabled) {
-            speakText(randomResponse).catch(() => { });
-        }
-
-        setTimeout(() => {
+        // Функция перехода к следующему примеру (с сбросом ответа)
+        const advanceToNextProblem = () => {
             answerElement.textContent = '?';
             answerElement.style.color = '#888888';
             currentMathIndex++;
@@ -1145,7 +1151,15 @@ function checkMathAnswer() {
             }
 
             updateStats();
-        }, 2500);
+        };
+
+        if (voiceEnabled) {
+            const speechPromise = speakText(randomResponse).catch(() => { });
+            const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2500));
+            Promise.race([speechPromise, timeoutPromise]).then(advanceToNextProblem);
+        } else {
+            setTimeout(advanceToNextProblem, 2500);
+        }
     }
 }
 
