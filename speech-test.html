@@ -342,13 +342,14 @@
             }
         }
 
-        // Тест прокси-сервера
+        // Тест прокси-сервера (обновленная версия с поддержкой аудио)
         async function testProxyServer() {
             const text = document.getElementById('proxyText').value;
             const statusDiv = document.getElementById('proxyStatus');
 
             statusDiv.className = 'status';
             statusDiv.textContent = 'Тестируем прокси...';
+            statusDiv.innerHTML = 'Тестируем прокси...';
 
             addLog('info', 'Тестирование прокси-сервера...');
 
@@ -357,29 +358,88 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        text: text,
+                        text: text || 'Тест прокси сервера',
                         voice: 'alena',
                         emotion: 'good',
                         speed: 1.0
                     })
                 });
 
+                addLog('debug', `Ответ прокси: ${response.status} ${response.statusText}`);
+
                 if (response.ok) {
-                    const data = await response.json();
-                    statusDiv.textContent = `✅ Прокси работает: ${data.message || 'OK'}`;
-                    statusDiv.classList.add('status-ok');
-                    addLog('success', 'Прокси-сервер работает корректно');
+                    // Проверяем Content-Type ответа
+                    const contentType = response.headers.get('content-type') || '';
+
+                    if (contentType.includes('audio')) {
+                        // Это аудио-ответ (правильно!)
+                        const audioBlob = await response.blob();
+                        const audioUrl = URL.createObjectURL(audioBlob);
+
+                        statusDiv.innerHTML = `
+                            <strong>✅ Прокси работает отлично!</strong><br>
+                            <small>Получено аудио: ${(audioBlob.size / 1024).toFixed(1)} KB</small><br>
+                            <small>Тип: ${contentType}</small><br>
+                            <small>Статус: ${response.status}</small><br>
+                            <button onclick="playTestAudio('${audioUrl}')" style="margin-top: 10px; padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                ▶️ Воспроизвести тестовое аудио
+                            </button>
+                        `;
+                        statusDiv.classList.add('status-ok');
+                        addLog('success', `Прокси работает! Аудио: ${audioBlob.size} байт`);
+
+                        // Сохраняем URL для воспроизведения
+                        window.lastTestAudioUrl = audioUrl;
+                    } else if (contentType.includes('json')) {
+                        // JSON ответ (для обратной совместимости)
+                        const data = await response.json();
+                        statusDiv.textContent = `✅ Прокси работает: ${data.message || 'OK'}`;
+                        statusDiv.classList.add('status-ok');
+                        addLog('success', 'Прокси-сервер работает корректно (JSON ответ)');
+                    } else {
+                        // Неизвестный формат, но статус OK
+                        statusDiv.textContent = `✅ Прокси отвечает (${response.status})`;
+                        statusDiv.classList.add('status-ok');
+                        addLog('success', `Прокси отвечает статусом ${response.status}`);
+                    }
                 } else {
-                    const errorText = await response.text();
-                    statusDiv.textContent = `❌ Ошибка прокси: ${response.status}`;
+                    let errorText = 'Нет деталей';
+                    try {
+                        errorText = await response.text();
+                        addLog('error', `Прокси ошибка ${response.status}: ${errorText.substring(0, 200)}`);
+                    } catch (e) {
+                        addLog('error', `Прокси ошибка ${response.status} (не удалось прочитать текст)`);
+                    }
+
+                    statusDiv.innerHTML = `
+                        <strong>❌ Ошибка прокси: ${response.status}</strong><br>
+                        <small>${errorText.substring(0, 100)}${errorText.length > 100 ? '...' : ''}</small>
+                    `;
                     statusDiv.classList.add('status-error');
-                    addLog('error', `Прокси ошибка ${response.status}: ${errorText}`);
                 }
             } catch (error) {
-                statusDiv.textContent = `❌ Ошибка подключения: ${error.message}`;
+                statusDiv.innerHTML = `
+                    <strong>❌ Ошибка подключения</strong><br>
+                    <small>${error.message}</small>
+                `;
                 statusDiv.classList.add('status-error');
                 addLog('error', `Ошибка подключения к прокси: ${error.message}`);
             }
+        }
+
+        // Функция для воспроизведения тестового аудио
+        function playTestAudio(audioUrl) {
+            if (!audioUrl) {
+                addLog('error', 'Нет аудио для воспроизведения');
+                return;
+            }
+
+            const audio = new Audio(audioUrl);
+            audio.play().then(() => {
+                addLog('success', 'Тестовое аудио воспроизводится');
+            }).catch(error => {
+                addLog('error', `Ошибка воспроизведения аудио: ${error.message}`);
+            });
         }
 
         // Прямой тест Yandex (для демонстрации CORS)
