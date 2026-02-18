@@ -10,7 +10,7 @@ window.appConfig = {
         yandex: {
             // URL прокси-сервера на Railway (обязательно для режима yandex)
             // Формат: https://your-app-name.up.railway.app/api/tts
-            proxyUrl: '',
+            proxyUrl: 'https://jms.up.railway.app/api/tts',
 
             // Голос: 'alena' (женский), 'filipp' (мужской), 'ermil' (мужской)
             voice: 'alena',

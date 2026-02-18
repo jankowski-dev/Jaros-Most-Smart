@@ -1,18 +1,57 @@
 // speech-service.js - Упрощенный сервис синтеза речи для Railway
 // Только браузерный синтез и Yandex через прокси
+// Версия с улучшенным логированием и отладкой
 
 class SpeechService {
     constructor(config) {
         this.config = config;
         this.currentAudio = null;
         this.currentUtterance = null;
+        this.debug = true; // Включить отладку
+    }
+
+    // Метод для логирования
+    log(type, message, data = null) {
+        if (!this.debug) return;
+
+        const timestamp = new Date().toISOString();
+        const prefix = `[SpeechService ${timestamp}]`;
+
+        switch (type) {
+            case 'info':
+                console.log(`${prefix} ℹ️ ${message}`, data || '');
+                break;
+            case 'success':
+                console.log(`${prefix} ✅ ${message}`, data || '');
+                break;
+            case 'warning':
+                console.warn(`${prefix} ⚠️ ${message}`, data || '');
+                break;
+            case 'error':
+                console.error(`${prefix} ❌ ${message}`, data || '');
+                break;
+            case 'debug':
+                console.debug(`${prefix} 🔍 ${message}`, data || '');
+                break;
+        }
+
+        // Также отправляем в глобальный логер если есть
+        if (window.speechDebugLog) {
+            window.speechDebugLog.push({ timestamp, type, message, data });
+        }
     }
 
     /**
      * Озвучить текст
      */
     async speak(text, options = {}) {
+        this.log('info', `Запуск синтеза речи: "${text.substring(0, 50)}${text.length > 50 ? '...' : ''}"`, {
+            engine: this.config.engine,
+            options
+        });
+
         if (!this.config.common.enabled) {
+            this.log('warning', 'Синтез речи отключен в конфигурации');
             return;
         }
 
@@ -21,20 +60,25 @@ class SpeechService {
 
         try {
             if (this.config.engine === 'yandex') {
+                this.log('debug', 'Используем Yandex SpeechKit');
                 await this.speakYandex(text, options);
             } else {
+                this.log('debug', 'Используем браузерный синтез');
                 await this.speakBrowser(text, options);
             }
+
+            this.log('success', 'Синтез речи выполнен успешно');
         } catch (error) {
-            console.error('Ошибка синтеза речи:', error);
+            this.log('error', 'Ошибка синтеза речи', error);
 
             // Fallback на браузерный синтез если включен
             if (this.config.common.fallback && this.config.engine === 'yandex') {
-                console.log('Используем fallback (браузерный синтез)');
+                this.log('warning', 'Пробуем fallback на браузерный синтез');
                 try {
                     await this.speakBrowser(text, options);
+                    this.log('success', 'Fallback синтез выполнен успешно');
                 } catch (fallbackError) {
-                    console.error('Fallback также не сработал:', fallbackError);
+                    this.log('error', 'Fallback также не сработал', fallbackError);
                 }
             }
         }
@@ -90,8 +134,16 @@ class SpeechService {
     async speakYandex(text, options = {}) {
         const proxyUrl = this.config.yandex.proxyUrl;
 
+        this.log('debug', 'Начинаем Yandex SpeechKit синтез', {
+            proxyUrl: proxyUrl ? 'установлен' : 'отсутствует',
+            textLength: text.length,
+            options
+        });
+
         if (!proxyUrl) {
-            throw new Error('URL прокси-сервера не настроен. Укажите YANDEX_PROXY_URL в переменных среды.');
+            const error = new Error('URL прокси-сервера не настроен. Укажите YANDEX_PROXY_URL в переменных среды.');
+            this.log('error', 'Ошибка конфигурации прокси', error);
+            throw error;
         }
 
         // Подготавливаем запрос к прокси
@@ -103,6 +155,11 @@ class SpeechService {
             lang: 'ru-RU'
         };
 
+        this.log('debug', 'Отправляем запрос к прокси', {
+            proxyUrl,
+            requestData: { ...requestData, text: `[${text.length} символов]` }
+        });
+
         // Выполняем запрос к прокси-серверу
         const response = await fetch(proxyUrl, {
             method: 'POST',
@@ -112,19 +169,34 @@ class SpeechService {
             body: JSON.stringify(requestData)
         });
 
+        this.log('debug', 'Получен ответ от прокси', {
+            status: response.status,
+            ok: response.ok,
+            headers: Object.fromEntries(response.headers.entries())
+        });
+
         if (!response.ok) {
             let errorText = 'Неизвестная ошибка';
             try {
                 errorText = await response.text();
+                this.log('error', 'Текст ошибки от прокси', errorText);
             } catch (e) {
-                // Игнорируем ошибку чтения
+                this.log('error', 'Не удалось прочитать текст ошибки', e);
             }
-            throw new Error(`Прокси-сервер ошибка (${response.status}): ${errorText}`);
+            const error = new Error(`Прокси-сервер ошибка (${response.status}): ${errorText}`);
+            this.log('error', 'Ошибка прокси-сервера', error);
+            throw error;
         }
 
         // Получаем аудио данные
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
+
+        this.log('success', 'Аудио получено успешно', {
+            blobSize: audioBlob.size,
+            blobType: audioBlob.type,
+            audioUrl: audioUrl.substring(0, 50) + '...'
+        });
 
         // Воспроизводим аудио
         return this.playAudio(audioUrl);
