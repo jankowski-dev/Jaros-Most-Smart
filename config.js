@@ -4,7 +4,7 @@
 window.appConfig = {
     speech: {
         // Движок синтеза речи: 'browser' или 'yandex'
-        engine: 'yandex',
+        engine: 'browser',
 
         // Настройки Yandex SpeechKit
         yandex: {
