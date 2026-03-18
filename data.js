@@ -108,11 +108,11 @@ const syllablesMedium = [
     { word: "КНИ-ГА", transcription: "[кни-га]", description: "Предмет с листами бумаги, для чтения" },
     { word: "РУЧ-КА", transcription: "[руч-ка]", description: "Предмет для письма чернилами" },
     { word: "ПАР-ТА", transcription: "[пар-та]", description: "Стол для ученика в школе" },
-    { word: "ДОСК-А", transcription: "[доск-а]", description: "Плоская поверхность для письма мелом" },
-    { word: "КО-РАБЛЬ", transcription: "[ко-рабль]", description: "Большое судно для плавания по морю" },
-    { word: "СА-МОЛЁТ", transcription: "[са-молёт]", description: "Летательный аппарат с крыльями" },
-    { word: "ТЕ-ЛЕФОН", transcription: "[те-лефон]", description: "Устройство для связи на расстоянии" },
-    { word: "РА-ДИО", transcription: "[ра-дио]", description: "Устройство для приёма радиостанций" }
+    { word: "ДО-СК-А", transcription: "[доск-а]", description: "Плоская поверхность для письма мелом" },
+    { word: "КО-РА-БЛЬ", transcription: "[ко-рабль]", description: "Большое судно для плавания по морю" },
+    { word: "СА-МО-ЛЁТ", transcription: "[са-молёт]", description: "Летательный аппарат с крыльями" },
+    { word: "ТЕ-ЛЕ-ФОН", transcription: "[те-лефон]", description: "Устройство для связи на расстоянии" },
+    { word: "РА-ДИ-О", transcription: "[ра-дио]", description: "Устройство для приёма радиостанций" }
 ];
 
 // 1.1.3. Слоги - Тяжелый уровень (УДАЛЕН)
