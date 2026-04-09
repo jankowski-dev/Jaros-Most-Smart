@@ -593,7 +593,7 @@ function updateReadingContent() {
                 const spaceSpan = document.createElement('span');
                 spaceSpan.className = 'word-letter space';
                 spaceSpan.textContent = ' ';
-                spaceSpan.style.marginRight = '10px';
+                spaceSpan.style.marginRight = '25px';
                 wordDisplay.appendChild(spaceSpan);
             }
 
