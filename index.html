@@ -2,12 +2,25 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Ярик.Уроки - Обучающая платформа</title>
+    <meta name="theme-color" content="#EE9F21">
+    <meta name="description" content="Обучающая платформа для детей">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ярик">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Update Banner -->
+    <div id="update-banner" class="update-banner">
+        <span>Появилась новая версия</span>
+        <button id="update-btn" class="btn">Обновить</button>
+    </div>
+
     <!-- Loader -->
     <div id="loader">
         <div class="loader-logo">Ярик<span>.Уроки</span></div>
@@ -217,5 +230,6 @@
     <script src="speech-service.js"></script>
     <script src="data.js"></script>
     <script src="app.js"></script>
+    <script src="update-notifier.js"></script>
 </body>
 </html>

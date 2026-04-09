@@ -58,6 +58,14 @@ app.get('/api/info', (req, res) => {
     });
 });
 
+// Version endpoint для PWA update checking
+app.get('/api/version', (req, res) => {
+    res.json({
+        version: '1.0.0',
+        buildTime: new Date().toISOString()
+    });
+});
+
 // Proxy endpoint for Yandex SpeechKit TTS
 app.post('/api/tts', async (req, res) => {
     const requestId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);

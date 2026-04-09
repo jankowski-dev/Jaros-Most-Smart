@@ -12,6 +12,39 @@ body {
     overflow-x: hidden;
 }
 
+/* PWA Update Banner */
+.update-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    display: none;
+    align-items: center;
+    gap: 15px;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    font-size: 14px;
+}
+
+.update-banner .btn {
+    background: #EE9F21;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.update-banner .btn:hover {
+    background: #d48e1d;
+}
+
 /* Скрытие страниц */
 .page {
     display: none;
@@ -644,6 +677,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
 }
 
 /* Верхняя панель */
@@ -716,7 +750,7 @@ body {
 
 /* Стили для страницы математики */
 .math-problem {
-    font-size: 96px;
+    font-size: 77px;
     font-weight: 800;
     color: #EE9F21;
     margin-bottom: 30px;
@@ -743,7 +777,7 @@ body {
     color: #888888;
     min-width: 100px;
     text-align: center;
-    font-size: 96px;
+    font-size: 77px;
     font-weight: 800;
     padding: 0 10px;
     min-height: 120px;
@@ -857,6 +891,13 @@ body {
 }
 
 /* Стили для страницы чтения */
+#reading-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
 .word-container {
     display: flex;
     flex-direction: column;
@@ -1104,6 +1145,10 @@ body {
 .task-nav {
     display: none;
     gap: 30px;
+    margin-top: auto;
+    margin-bottom: 40px;
+    align-self: stretch;
+    justify-content: center;
 }
 
 .task-nav.show {
