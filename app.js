@@ -216,9 +216,8 @@ function updateLessonHeader() {
     const lessonInfo = document.getElementById('lessonInfo');
     if (!lessonInfo) return;
     const subjectName = getSubjectDisplayName(currentSubject);
-    const categoryName = getCategoryDisplayName(currentCategory);
     const levelText = levelNames[currentLevel] || '';
-    lessonInfo.textContent = `${subjectName}: ${categoryName} (${levelText})`;
+    lessonInfo.textContent = `${subjectName} (${levelText})`;
 }
 
 function calculateGrade(correct, total) {
@@ -339,12 +338,10 @@ function resetReadingTest() {
 function loadReadingWords() {
     let sourceArray = [];
 
-    if (currentCategory === 'syllables') {
-        sourceArray = currentLevel === 1 ? [...syllablesEasy] : [...syllablesMedium];
-    } else if (currentCategory === 'words') {
-        sourceArray = currentLevel === 1 ? [...wordsEasy] : [];
-    } else if (currentCategory === 'sentences') {
-        sourceArray = [];
+    if (currentLevel === 1) {
+        sourceArray = [...syllablesEasy];
+    } else {
+        sourceArray = [...syllablesHard];
     }
 
     if (sourceArray.length === 0) {
@@ -499,6 +496,13 @@ function showReadingContent() {
     document.getElementById('wordInfo').style.display = 'block';
     document.getElementById('wordProgress').style.display = 'flex';
     document.getElementById('progressFill').style.width = '0%';
+
+    const wordDisplay = document.getElementById('wordDisplay');
+    if (currentLevel === 2) {
+        wordDisplay.classList.add('hard-level');
+    } else {
+        wordDisplay.classList.remove('hard-level');
+    }
 
     loadReadingWords();
 
@@ -727,17 +731,14 @@ function generateMathProblems() {
     let sourceArray = [];
     let operator = '';
 
-    if (currentCategory === 'addition') {
+    if (currentLevel === 1) {
         operator = '+';
-        sourceArray = currentLevel === 1 ? [...additionEasy] : [...additionMedium];
-    } else if (currentCategory === 'subtraction') {
-        operator = '-';
-        sourceArray = currentLevel === 1 ? [...subtractionEasy] : [...subtractionMedium];
-    } else if (currentCategory === 'multiplication') {
-        operator = '*';
-        sourceArray = currentLevel === 1 ? [...multiplicationEasy] : [...multiplicationMedium];
-    } else if (currentCategory === 'division') {
-        sourceArray = [];
+        sourceArray = [...additionEasy];
+    } else {
+        const addProblems = additionEasy.map(item => ({ ...item, operator: '+' }));
+        const subProblems = subtractionEasy.map(item => ({ ...item, operator: '-' }));
+        const allProblems = [...addProblems, ...subProblems];
+        sourceArray = shuffleArray(allProblems).slice(0, 20);
     }
 
     let shuffled = shuffleArray(sourceArray);
@@ -745,7 +746,7 @@ function generateMathProblems() {
     mathProblems = shuffled.slice(0, 10).map(item => ({
         num1: item.num1,
         num2: item.num2,
-        operator: operator,
+        operator: item.operator,
         answer: item.answer
     }));
 
@@ -755,7 +756,7 @@ function generateMathProblems() {
         mathProblems.push({
             num1: item.num1,
             num2: item.num2,
-            operator: operator,
+            operator: item.operator,
             answer: item.answer
         });
     }

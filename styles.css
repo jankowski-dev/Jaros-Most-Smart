@@ -881,10 +881,22 @@ body {
     justify-content: center;
 }
 
+.word.hard-level {
+    font-size: 48px;
+}
+
 .word-letter {
     margin-right: 5px;
     display: inline-block;
     transition: color 0.3s;
+}
+
+.word.hard-level .word-letter {
+    margin-right: 2px;
+}
+
+.word.hard-level .word-letter.space {
+    margin-right: 15px;
 }
 
 .word-letter.space {
