@@ -292,7 +292,6 @@ function completeReadingTest() {
     readingCompleted = true;
     document.getElementById('taskNav').classList.remove('show');
     document.getElementById('wordDisplay').style.display = 'none';
-    document.getElementById('wordInfo').style.display = 'none';
     document.getElementById('wordProgress').style.display = 'none';
     document.getElementById('readingCompletion').style.display = 'flex';
 
@@ -314,7 +313,6 @@ function completeReadingTest() {
 function resetReadingTest() {
     readingCompleted = false;
     document.getElementById('wordDisplay').style.display = 'flex';
-    document.getElementById('wordInfo').style.display = 'block';
     document.getElementById('wordProgress').style.display = 'flex';
     document.getElementById('readingCompletion').style.display = 'none';
 
@@ -493,7 +491,6 @@ function showReadingContent() {
     document.getElementById('readingCompletion').style.display = 'none';
     document.getElementById('taskNav').classList.remove('show');
     document.getElementById('wordDisplay').style.display = 'flex';
-    document.getElementById('wordInfo').style.display = 'block';
     document.getElementById('wordProgress').style.display = 'flex';
     document.getElementById('progressFill').style.width = '0%';
 
@@ -613,10 +610,6 @@ function updateReadingContent() {
             }
         });
 
-        document.getElementById('wordText').textContent = wordData.phrase;
-        document.getElementById('wordTranscription').textContent = wordData.transcription || '';
-        document.getElementById('wordDescription').textContent = wordData.example || wordData.description || '';
-
     } else if (wordData.word && wordData.word.includes('-')) {
         const syllables = wordData.word.split('-');
 
@@ -644,10 +637,6 @@ function updateReadingContent() {
             }
         });
 
-        document.getElementById('wordText').textContent = wordData.word.replace(/-/g, '');
-        document.getElementById('wordTranscription').textContent = wordData.transcription || '';
-        document.getElementById('wordDescription').textContent = wordData.description || '';
-
     } else {
         const wordText = wordData.word || '';
 
@@ -665,10 +654,6 @@ function updateReadingContent() {
 
             wordDisplay.appendChild(span);
         }
-
-        document.getElementById('wordText').textContent = wordData.word || '';
-        document.getElementById('wordTranscription').textContent = wordData.transcription || '';
-        document.getElementById('wordDescription').textContent = wordData.description || '';
     }
 
     document.getElementById('currentWord').textContent = currentWordIndex + 1;
