@@ -766,10 +766,12 @@ body {
 }
 
 .math-problem .operator {
+    color: #EE9F21;
     margin: 0 20px;
 }
 
 .math-problem .equals {
+    color: #EE9F21;
     margin: 0 30px;
 }
 
