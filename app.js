@@ -714,11 +714,9 @@ function hideVisualizer() {
 
 function generateMathProblems() {
     let sourceArray = [];
-    let operator = '';
 
     if (currentLevel === 1) {
-        operator = '+';
-        sourceArray = [...additionEasy];
+        sourceArray = additionEasy.map(item => ({ ...item, operator: '+' }));
     } else {
         const addProblems = additionEasy.map(item => ({ ...item, operator: '+' }));
         const subProblems = subtractionEasy.map(item => ({ ...item, operator: '-' }));
