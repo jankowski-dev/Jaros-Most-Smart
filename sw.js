@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yarik-uroki-v1';
+const CACHE_NAME = 'yarik-uroki-v2';
 
 const ASSETS_TO_CACHE = [
   '/',
