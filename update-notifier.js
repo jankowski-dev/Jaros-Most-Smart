@@ -6,11 +6,11 @@ const CHECK_INTERVAL = 30 * 60 * 1000; // 30 минут
 
 let updateBanner = null;
 let updateBtn = null;
+let isUpdating = false;
 
 async function checkForUpdates() {
   try {
-    // Проверяем версию через Railway API endpoint
-    const response = await fetch('/api/version');
+    const response = await fetch('/api/version?t=' + Date.now());
 
     if (!response.ok) {
       console.log('[UpdateNotifier] Не удалось проверить версию');
@@ -22,6 +22,8 @@ async function checkForUpdates() {
     if (data.version && data.version !== APP_VERSION) {
       console.log(`[UpdateNotifier] Доступна новая версия: ${data.version}`);
       showUpdateBanner();
+    } else {
+      hideUpdateBanner();
     }
   } catch (error) {
     console.log('[UpdateNotifier] Ошибка проверки обновлений:', error);
@@ -29,7 +31,11 @@ async function checkForUpdates() {
 }
 
 function showUpdateBanner() {
-  if (updateBanner) return; // Уже показан
+  if (isUpdating) return;
+  if (updateBanner) {
+    updateBanner.style.display = 'flex';
+    return;
+  }
 
   updateBanner = document.getElementById('update-banner');
   updateBtn = document.getElementById('update-btn');
@@ -39,36 +45,51 @@ function showUpdateBanner() {
   updateBanner.style.display = 'flex';
 
   if (updateBtn) {
-    updateBtn.addEventListener('click', () => {
-      if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-        window.location.reload();
-      }
-    });
+    updateBtn.onclick = () => {
+      if (isUpdating) return;
+      isUpdating = true;
+      
+      hideUpdateBanner();
+
+      navigator.serviceWorker.ready.then((registration) => {
+        if (registration.waiting) {
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          
+          registration.active.addEventListener('statechange', (e) => {
+            if (e.target.state === 'activated') {
+              window.location.reload();
+            }
+          });
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else {
+          window.location.reload();
+        }
+      });
+    };
+  }
+}
+
+function hideUpdateBanner() {
+  if (updateBanner) {
+    updateBanner.style.display = 'none';
   }
 }
 
 function initUpdateNotifier() {
-  // Регистрация Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
         console.log('[UpdateNotifier] SW зарегистрирован:', registration.scope);
 
-        // Проверяем обновления сразу
         checkForUpdates();
 
-        // Затем периодически
         setInterval(checkForUpdates, CHECK_INTERVAL);
 
-        // Также проверяем при обновлении SW
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              showUpdateBanner();
-            }
-          });
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
         });
       })
       .catch((error) => {
@@ -77,5 +98,4 @@ function initUpdateNotifier() {
   }
 }
 
-// Запуск при загрузке скрипта
 document.addEventListener('DOMContentLoaded', initUpdateNotifier);

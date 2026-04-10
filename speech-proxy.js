@@ -61,7 +61,7 @@ app.get('/api/info', (req, res) => {
 // Version endpoint для PWA update checking
 app.get('/api/version', (req, res) => {
     res.json({
-        version: '1.0.0',
+        version: '1.1.0',
         buildTime: new Date().toISOString()
     });
 });
