@@ -1292,22 +1292,21 @@ function checkTestAnswer(selectedIndex) {
     const isCorrect = selectedWord === correctWord;
 
     shuffledOptions.forEach((opt, i) => {
+        opt.disabled = true;
         if (i === selectedIndex) {
+            opt.classList.add('selected');
             if (isCorrect) {
-                opt.classList.add('selected', 'correct');
+                opt.classList.add('correct');
             } else {
-                opt.classList.add('selected', 'wrong');
-                wrongAttempts++;
+                opt.classList.add('wrong');
             }
         }
-        if (opt.textContent === correctWord) {
-            opt.classList.add('correct-answer');
-        }
-        opt.disabled = true;
     });
 
     if (isCorrect) {
         testCorrectCount++;
+        playCorrectSound();
+
         const wordDisplay = document.getElementById('testWordDisplay');
         wordDisplay.textContent = wordData.word;
         wordDisplay.className = 'test-word-display correct';
@@ -1323,6 +1322,10 @@ function checkTestAnswer(selectedIndex) {
             nextTest();
         }, 2000);
     } else {
+        wrongAttempts++;
+        playIncorrectSound();
+        shakeElement(shuffledOptions[selectedIndex]);
+
         const feedback = document.getElementById('testFeedback');
         const response = wrongResponses[Math.floor(Math.random() * wrongResponses.length)];
         document.getElementById('testFeedbackText').textContent = response;
@@ -1330,13 +1333,18 @@ function checkTestAnswer(selectedIndex) {
 
         setTimeout(() => {
             feedback.classList.remove('show', 'wrong');
-            const options = document.querySelectorAll('.test-option');
-            options.forEach(opt => {
+            shuffledOptions.forEach(opt => {
                 opt.disabled = false;
-                opt.classList.remove('selected', 'wrong', 'correct-answer');
+                opt.classList.remove('selected', 'wrong');
             });
         }, 1000);
     }
+}
+
+function shakeElement(element) {
+    element.style.animation = 'none';
+    element.offsetHeight;
+    element.style.animation = 'shake 0.5s ease-in-out';
 }
 
 function nextTest() {
@@ -1358,10 +1366,11 @@ function prevTest() {
 }
 
 function completeTest() {
+    if (testCompleted) return;
     testCompleted = true;
 
     document.getElementById('test-content').style.display = 'none';
-    document.getElementById('testCompletion').style.display = 'block';
+    document.getElementById('testCompletion').style.display = 'flex';
     document.getElementById('testProgressFill').style.width = '100%';
 
     const grade = calculateGrade(testCorrectCount, testQuestions.length);

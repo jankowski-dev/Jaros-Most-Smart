@@ -12,6 +12,12 @@ body {
     overflow-x: hidden;
 }
 
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
 /* PWA Update Banner */
 .update-banner {
     position: fixed;
@@ -1936,8 +1942,13 @@ body {
 
 /* Test Completion */
 .test-completion {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: 40px;
+    min-height: 300px;
 }
 
 .test-completion-title {
