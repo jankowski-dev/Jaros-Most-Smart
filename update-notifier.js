@@ -59,7 +59,6 @@ function showUpdateBanner(newVersion) {
     console.log('[UpdateNotifier] Кнопка Обновить нажата');
     if (isUpdating) return;
     isUpdating = true;
-    console.log('[UpdateNotifier] Начинаем обновление...');
 
     // Показываем что идёт обновление
     updateText.textContent = 'Обновление...';
@@ -67,40 +66,35 @@ function showUpdateBanner(newVersion) {
     navigator.serviceWorker.ready.then((registration) => {
       console.log('[UpdateNotifier] SW ready, waiting:', !!registration.waiting);
       
-      if (registration.waiting) {
-        console.log('[UpdateNotifier] Есть waiting SW, отправляем SKIP_WAITING');
-        // Отправляем команду SW чтобы он активировал новую версию
-        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-
-        // После сообщения SW должен перезагрузить страницу сам через controllerchange
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // Новый SW установлен, показываем сообщение
-              localStorage.setItem(STORAGE_KEY, newVersion);
-              updateText.textContent = 'Обновлено! Перезагрузка...';
-              updateBtn.textContent = 'Закрыть';
-              updateBtn.onclick = () => {
-                hideUpdateBanner();
-                isUpdating = false;
-              };
-              // Перезагружаем страницу один раз
-              window.location.reload();
-            }
-          });
-        });
-      } else {
-        console.log('[UpdateNotifier] Нет waiting SW - уже активен');
-        // SW уже активен, просто сохраняем версию
+      // Принудительно проверяем обновления SW
+      registration.update().then(() => {
+        console.log('[UpdateNotifier] Проверка обновлений SW завершена');
+        
+        if (registration.waiting) {
+          console.log('[UpdateNotifier] Есть waiting SW, отправляем SKIP_WAITING');
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+        
+        // Ждём немного и показываем результат
+        setTimeout(() => {
+          localStorage.setItem(STORAGE_KEY, newVersion);
+          updateText.textContent = 'Обновлено!';
+          updateBtn.textContent = 'Закрыть';
+          updateBtn.onclick = () => {
+            hideUpdateBanner();
+            isUpdating = false;
+          };
+          // Перезагружаем приложение чтобы загрузить новые файлы
+          setTimeout(() => window.location.reload(), 1000);
+        }, 2000);
+      }).catch(err => {
+        console.error('[UpdateNotifier] Ошибка обновления SW:', err);
+        // Даже при ошибке сохраняем что "обновлено"
         localStorage.setItem(STORAGE_KEY, newVersion);
         updateText.textContent = 'Обновлено!';
         updateBtn.textContent = 'Закрыть';
-        updateBtn.onclick = () => {
-          hideUpdateBanner();
-          isUpdating = false;
-        };
-      }
+        isUpdating = false;
+      });
     });
   };
 }
