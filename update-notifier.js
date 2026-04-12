@@ -24,18 +24,16 @@ async function checkForUpdates() {
     if (data.version) {
       const lastUpdated = localStorage.getItem(STORAGE_KEY);
       
-      // Если уже обновлялись до этой версии - скрываем баннер
+      // Если уже обновлялись до этой версии - скрываем баннер навсегда
       if (lastUpdated === data.version) {
         console.log('[UpdateNotifier] Уже обновлено до последней версии');
         hideUpdateBanner();
         return;
       }
       
-      // Если версия на сервере отличается от последней сохранённой - показываем баннер
-      if (lastUpdated !== data.version) {
-        console.log(`[UpdateNotifier] Доступна новая версия: ${data.version}`);
-        showUpdateBanner(data.version);
-      }
+      // Показываем баннер с новой версией
+      console.log(`[UpdateNotifier] Доступна новая версия: ${data.version}`);
+      showUpdateBanner(data.version);
     }
   } catch (error) {
     console.log('[UpdateNotifier] Ошибка проверки обновлений:', error);
@@ -135,10 +133,6 @@ function initUpdateNotifier() {
         checkForUpdates();
 
         setInterval(checkForUpdates, CHECK_INTERVAL);
-
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          window.location.reload();
-        });
       })
       .catch((error) => {
         console.error('[UpdateNotifier] Ошибка регистрации SW:', error);
