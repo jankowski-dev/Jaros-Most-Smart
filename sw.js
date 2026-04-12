@@ -83,6 +83,8 @@ self.addEventListener('fetch', (event) => {
 // Слушаем сообщения от клиента
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW] Получена команда SKIP_WAITING');
     self.skipWaiting();
+    self.clients.claim();
   }
 });

@@ -59,9 +59,12 @@ app.get('/api/info', (req, res) => {
 });
 
 // Version endpoint для PWA update checking
+// Версия автоматически обновляется при каждом деплое (на основе даты)
 app.get('/api/version', (req, res) => {
+    const today = new Date();
+    const version = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
     res.json({
-        version: '1.1.0',
+        version: version,
         buildTime: new Date().toISOString()
     });
 });
