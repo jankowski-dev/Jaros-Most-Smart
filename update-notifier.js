@@ -65,42 +65,31 @@ function showUpdateBanner(newVersion) {
     updateText.textContent = 'Обновление...';
 
     navigator.serviceWorker.ready.then((registration) => {
-      console.log('[UpdateNotifier] SW ready, waiting:', !!registration.waiting, 'active:', !!registration.active);
+      console.log('[UpdateNotifier] SW ready, waiting:', !!registration.waiting);
       
       if (registration.waiting) {
         console.log('[UpdateNotifier] Есть waiting SW, отправляем SKIP_WAITING');
         // Отправляем команду SW чтобы он активировал новую версию
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 
-        registration.active.addEventListener('statechange', (e) => {
-          if (e.target.state === 'activated') {
-            console.log('[UpdateNotifier] Новый Service Worker активирован');
-
-            // Сохраняем что обновились до новой версии
-            localStorage.setItem(STORAGE_KEY, newVersion);
-
-            // Показываем сообщение об успехе
-            updateText.textContent = 'Обновлено!';
-            updateBtn.textContent = 'Закрыть';
-            updateBtn.onclick = () => {
-              hideUpdateBanner();
-              isUpdating = false;
-            };
-          }
+        // После сообщения SW должен перезагрузить страницу сам через controllerchange
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Новый SW установлен, показываем сообщение
+              localStorage.setItem(STORAGE_KEY, newVersion);
+              updateText.textContent = 'Обновлено! Перезагрузка...';
+              updateBtn.textContent = 'Закрыть';
+              updateBtn.onclick = () => {
+                hideUpdateBanner();
+                isUpdating = false;
+              };
+              // Перезагружаем страницу один раз
+              window.location.reload();
+            }
+          });
         });
-
-        // Fallback если statechange не сработал
-        setTimeout(() => {
-          if (updateText.textContent === 'Обновление...') {
-            localStorage.setItem(STORAGE_KEY, newVersion);
-            updateText.textContent = 'Обновлено!';
-            updateBtn.textContent = 'Закрыть';
-            updateBtn.onclick = () => {
-              hideUpdateBanner();
-              isUpdating = false;
-            };
-          }
-        }, 3000);
       } else {
         console.log('[UpdateNotifier] Нет waiting SW - уже активен');
         // SW уже активен, просто сохраняем версию
@@ -126,7 +115,7 @@ function hideUpdateBanner() {
 function initUpdateNotifier() {
   // Service Workers работают только через HTTP/HTTPS, не через file://
   if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
-    navigator.serviceWorker.register('/sw.js?t=' + Date.now())
+    navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
         console.log('[UpdateNotifier] SW зарегистрирован:', registration.scope);
 

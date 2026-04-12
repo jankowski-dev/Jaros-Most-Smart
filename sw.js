@@ -32,10 +32,16 @@ self.addEventListener('activate', (event) => {
         return Promise.all(
           cacheNames
             .filter((name) => name !== CACHE_NAME)
-            .map((name) => caches.delete(name))
+            .map((name) => {
+              console.log('[SW] Удаляем старый кеш:', name);
+              return caches.delete(name);
+            })
         );
       })
-      .then(() => self.clients.claim())
+      .then(() => {
+        console.log('[SW] Новый SW активирован');
+        return self.clients.claim();
+      })
   );
 });
 
