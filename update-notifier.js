@@ -19,6 +19,7 @@ async function checkForUpdates() {
     }
 
     const data = await response.json();
+    console.log('[UpdateNotifier] Версия API:', data.version, 'Сохранённая:', localStorage.getItem(STORAGE_KEY));
 
     if (data.version) {
       const lastUpdated = localStorage.getItem(STORAGE_KEY);
@@ -55,15 +56,21 @@ function showUpdateBanner(newVersion) {
   updateBtn.textContent = 'Обновить';
   updateBtn.style.display = 'inline-flex';
 
+  // Всегда переустанавливаем обработчик клика
   updateBtn.onclick = () => {
+    console.log('[UpdateNotifier] Кнопка Обновить нажата');
     if (isUpdating) return;
     isUpdating = true;
+    console.log('[UpdateNotifier] Начинаем обновление...');
 
     // Показываем что идёт обновление
     updateText.textContent = 'Обновление...';
 
     navigator.serviceWorker.ready.then((registration) => {
+      console.log('[UpdateNotifier] SW ready, waiting:', !!registration.waiting, 'active:', !!registration.active);
+      
       if (registration.waiting) {
+        console.log('[UpdateNotifier] Есть waiting SW, отправляем SKIP_WAITING');
         // Отправляем команду SW чтобы он активировал новую версию
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 
@@ -96,6 +103,16 @@ function showUpdateBanner(newVersion) {
             };
           }
         }, 3000);
+      } else {
+        console.log('[UpdateNotifier] Нет waiting SW - уже активен');
+        // SW уже активен, просто сохраняем версию
+        localStorage.setItem(STORAGE_KEY, newVersion);
+        updateText.textContent = 'Обновлено!';
+        updateBtn.textContent = 'Закрыть';
+        updateBtn.onclick = () => {
+          hideUpdateBanner();
+          isUpdating = false;
+        };
       }
     });
   };
@@ -109,8 +126,9 @@ function hideUpdateBanner() {
 }
 
 function initUpdateNotifier() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
+  // Service Workers работают только через HTTP/HTTPS, не через file://
+  if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+    navigator.serviceWorker.register('/sw.js?t=' + Date.now())
       .then((registration) => {
         console.log('[UpdateNotifier] SW зарегистрирован:', registration.scope);
 
@@ -125,6 +143,8 @@ function initUpdateNotifier() {
       .catch((error) => {
         console.error('[UpdateNotifier] Ошибка регистрации SW:', error);
       });
+  } else {
+    console.log('[UpdateNotifier] SW недоступен (file:// протокол или не поддерживается)');
   }
 }
 
