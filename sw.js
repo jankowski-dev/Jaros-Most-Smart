@@ -45,13 +45,37 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch - Cache-First стратегия для офлайн
+// Fetch стратегия
 self.addEventListener('fetch', (event) => {
-  // Пропускаем запросы к API (healthcheck и т.д.)
+  // Пропускаем запросы к API
   if (event.request.url.includes('/api/')) {
     return;
   }
 
+  // Для HTML (документы) - всегда network-first, чтобы получать свежие версии
+  if (event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
+          }
+          return response;
+        })
+        .catch(() => {
+          // Нет интернета - берём из кеша
+          return caches.match(event.request).then(cached => {
+            if (cached) return cached;
+            // Если совсем нет кеша (первый запуск офлайн) - возвращаем базовый HTML
+            return caches.match('/index.html');
+          });
+        })
+    );
+    return;
+  }
+
+  // Для остального (CSS, JS, картинки) - cache-first
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
@@ -61,26 +85,16 @@ self.addEventListener('fetch', (event) => {
 
         return fetch(event.request)
           .then((response) => {
-            // Не кешируем некорректные ответы
-            if (!response || response.status !== 200 || response.type !== 'basic') {
+            if (!response || response.status !== 200) {
               return response;
             }
-
-            // Клонируем ответ для кеширования
             const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
             return response;
           })
           .catch(() => {
-            // Офлайн fallback для HTML
-            if (event.request.destination === 'document') {
-              return caches.match('/index.html');
-            }
+            // Если нет интернета и нет кеша - игнорируем (сломанные изображения и т.д.)
+            return new Response('', { status: 404 });
           });
       })
   );

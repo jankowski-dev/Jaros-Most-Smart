@@ -19,7 +19,10 @@
     <!-- Update Banner -->
     <div id="update-banner" class="update-banner">
         <span id="update-text">Появилась новая версия</span>
-        <button id="update-btn" class="btn">Обновить</button>
+        <div id="update-progress-container" style="display: none; width: 100%; height: 4px; background: #ddd; border-radius: 2px; margin-top: 10px;">
+            <div id="update-progress-bar" style="width: 0%; height: 100%; background: #EE9F21; border-radius: 2px; transition: width 0.1s linear;"></div>
+        </div>
+        <button id="update-btn" class="btn" style="margin-top: 10px;">Обновить</button>
     </div>
 
     <!-- Loader -->
