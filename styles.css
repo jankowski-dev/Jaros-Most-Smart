@@ -1890,6 +1890,7 @@ body {
     width: 100%;
     max-width: 400px;
     margin: 0 auto 30px auto;
+    align-items: stretch;
 }
 
 .test-option {
@@ -1901,9 +1902,9 @@ body {
     background: white;
     color: #555;
     cursor: pointer;
-    transition: all 0.3s;
-    width: 100%;
-    max-width: 400px;
+    transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+    width: 400px;
+    max-width: 100%;
     box-sizing: border-box;
 }
 

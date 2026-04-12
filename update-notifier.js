@@ -1,7 +1,7 @@
 // Update Notifier для PWA
 // Периодически проверяет новую версию через Railway API
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '2.1';
 const CHECK_INTERVAL = 30 * 60 * 1000; // 30 минут
 
 let updateBanner = null;
@@ -48,13 +48,13 @@ function showUpdateBanner() {
     updateBtn.onclick = () => {
       if (isUpdating) return;
       isUpdating = true;
-      
+
       hideUpdateBanner();
 
       navigator.serviceWorker.ready.then((registration) => {
         if (registration.waiting) {
           registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-          
+
           registration.active.addEventListener('statechange', (e) => {
             if (e.target.state === 'activated') {
               window.location.reload();
