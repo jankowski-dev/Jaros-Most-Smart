@@ -1,7 +1,7 @@
 // Update Notifier для PWA
 // Периодически проверяет новую версию через Railway API
 
-const APP_VERSION = '2.1';
+const APP_VERSION = '2.2';
 const CHECK_INTERVAL = 30 * 60 * 1000; // 30 минут
 
 let updateBanner = null;
