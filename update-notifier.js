@@ -76,6 +76,10 @@ function showUpdateBanner(newVersion) {
     progressContainer.style.display = 'block';
     progressBar.style.width = '0%';
     
+    // Сохраняем версию сразу в localStorage
+    localStorage.setItem(STORAGE_KEY, newVersion);
+    console.log('[UpdateNotifier] Версия сохранена:', newVersion);
+    
     // Анимация загрузки 2 секунды
     let progress = 0;
     const interval = setInterval(() => {
@@ -87,29 +91,19 @@ function showUpdateBanner(newVersion) {
         
         // Завершаем обновление
         navigator.serviceWorker.ready.then((registration) => {
-          console.log('[UpdateNotifier] SW ready, waiting:', !!registration.waiting);
-          
-          registration.update().then(() => {
-            if (registration.waiting) {
-              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-            }
-          }).catch(err => {
+          registration.update().catch(err => {
             console.error('[UpdateNotifier] Ошибка обновления SW:', err);
           });
           
-          // Сохраняем версию и показываем результат
-          localStorage.setItem(STORAGE_KEY, newVersion);
-          setTimeout(() => {
-            progressContainer.style.display = 'none';
-            updateText.textContent = 'Обновлено!';
-            updateBtn.style.display = 'inline-flex';
-            updateBtn.textContent = 'Закрыть';
-            updateBtn.onclick = () => {
-              hideUpdateBanner();
-              isUpdating = false;
-            };
-            setTimeout(() => window.location.reload(), 1000);
-          }, 500);
+          // Показываем результат
+          progressContainer.style.display = 'none';
+          updateText.textContent = 'Обновлено!';
+          updateBtn.style.display = 'inline-flex';
+          updateBtn.textContent = 'Закрыть';
+          updateBtn.onclick = () => {
+            hideUpdateBanner();
+            isUpdating = false;
+          };
         });
       }
     }, 40); // 40ms * 50 = 2000ms
