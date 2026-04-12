@@ -26,6 +26,18 @@ let isTimerPaused = false;
 let pausedSeconds = 0;
 let globalDifficulty = 1;
 
+// Тест на слух
+let currentTestIndex = 0;
+let testQuestions = [];
+let testWordsData = [];
+let testAnswers = [];
+let testCorrectCount = 0;
+let testTotalAnswered = 0;
+let testCompleted = false;
+let testTimerInterval;
+let testTimerSeconds = 0;
+let testVoiceEnabled = true;
+
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function () {
     loadAvailableVoices();
@@ -78,6 +90,47 @@ document.addEventListener('DOMContentLoaded', function () {
         currentLevel = globalDifficulty;
         showLoaderAndNavigateToLesson();
     });
+
+    document.getElementById('menu-test').addEventListener('click', function () {
+        showLoaderAndNavigateToTest();
+    });
+
+    // Тест - голос
+    document.getElementById('testVoiceToggleBtn').addEventListener('click', function () {
+        testVoiceEnabled = !testVoiceEnabled;
+        const iconOn = document.getElementById('testVoiceIconOn');
+        const iconOff = document.getElementById('testVoiceIconOff');
+        if (testVoiceEnabled) {
+            iconOn.style.display = 'inline-flex';
+            iconOff.style.display = 'none';
+            this.style.background = '#EE9F21';
+        } else {
+            iconOn.style.display = 'none';
+            iconOff.style.display = 'inline-flex';
+            this.style.background = '#757575';
+        }
+    });
+
+    // Тест - клик по слову для воспроизведения
+    document.getElementById('testWordDisplay').addEventListener('click', function () {
+        playCurrentTestWord();
+    });
+
+    // Тест - выбор варианта ответа
+    document.querySelectorAll('.test-option').forEach(option => {
+        option.addEventListener('click', function () {
+            const index = parseInt(this.dataset.index);
+            checkTestAnswer(index);
+        });
+    });
+
+
+
+    // Тест - заново
+    document.getElementById('testRestartBtn').addEventListener('click', resetTest);
+
+    // Тест - закрыть
+    document.getElementById('finishTestBtn').addEventListener('click', showLoaderAndNavigateToHome);
 
     // Кнопка "Заново" вместо "Пауза"
     const restartBtn = document.getElementById('restartBtn');
@@ -399,6 +452,8 @@ function showLoaderAndNavigateToHome() {
         document.getElementById('lesson-page').classList.remove('active');
         document.getElementById('settings-page').style.display = 'none';
         document.getElementById('settings-page').classList.remove('active');
+        document.getElementById('test-page').style.display = 'none';
+        document.getElementById('test-page').classList.remove('active');
         document.getElementById('home-page').style.display = 'flex';
         document.getElementById('home-page').classList.add('active');
 
@@ -448,6 +503,8 @@ function showLoaderAndNavigateToLesson() {
         document.getElementById('home-page').classList.remove('active');
         document.getElementById('settings-page').style.display = 'none';
         document.getElementById('settings-page').classList.remove('active');
+        document.getElementById('test-page').style.display = 'none';
+        document.getElementById('test-page').classList.remove('active');
         document.getElementById('lesson-page').style.display = 'block';
         document.getElementById('lesson-page').classList.add('active');
 
@@ -1087,6 +1144,267 @@ function playIncorrectSound() {
     } catch (e) {
         console.log("Ошибка при воспроизведении звука:", e);
     }
+}
+
+// ==================== ТЕСТ НА СЛУХ ====================
+
+function showLoaderAndNavigateToTest() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'flex';
+    loader.style.opacity = '0';
+
+    setTimeout(() => {
+        loader.style.opacity = '1';
+    }, 10);
+
+    const minLoaderTime = 800;
+    const startTime = Date.now();
+
+    function navigateToTest() {
+        document.getElementById('home-page').style.display = 'none';
+        document.getElementById('home-page').classList.remove('active');
+        document.getElementById('lesson-page').style.display = 'none';
+        document.getElementById('lesson-page').classList.remove('active');
+        document.getElementById('test-page').style.display = 'flex';
+        document.getElementById('test-page').classList.add('active');
+
+        initTest();
+
+        setTimeout(() => {
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 300);
+        }, 300);
+    }
+
+    setTimeout(() => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed >= minLoaderTime) {
+            navigateToTest();
+        } else {
+            setTimeout(navigateToTest, minLoaderTime - elapsed);
+        }
+    }, minLoaderTime);
+}
+
+function initTest() {
+    currentTestIndex = 0;
+    testCorrectCount = 0;
+    testTotalAnswered = 0;
+    testCompleted = false;
+    wrongAttempts = 0;
+    testWordsData = [...testWords];
+    testQuestions = shuffleArray([...testWordsData]).slice(0, 20);
+    testAnswers = new Array(testQuestions.length).fill(null);
+
+    resetTestTimer();
+    showTestWord();
+}
+
+function showTestWord() {
+    if (currentTestIndex >= testQuestions.length) {
+        completeTest();
+        return;
+    }
+
+    const wordData = testQuestions[currentTestIndex];
+    const wordDisplay = document.getElementById('testWordDisplay');
+    const options = document.querySelectorAll('.test-option');
+    const feedback = document.getElementById('testFeedback');
+    const completion = document.getElementById('testCompletion');
+
+    completion.style.display = 'none';
+    feedback.style.display = 'none';
+    feedback.classList.remove('show', 'wrong');
+
+    wordDisplay.textContent = '???';
+    wordDisplay.className = 'test-word-display';
+
+    const shuffledOptions = shuffleArray([...wordData.options]);
+    options.forEach((opt, i) => {
+        opt.textContent = shuffledOptions[i];
+        opt.disabled = false;
+        opt.className = 'test-option';
+    });
+
+    const progress = ((currentTestIndex + 1) / testQuestions.length) * 100;
+    document.getElementById('testProgressFill').style.width = progress + '%';
+
+    if (testVoiceEnabled) {
+        setTimeout(() => playCurrentTestWord(), 500);
+    }
+}
+
+
+
+function playCurrentTestWord() {
+    if (!testVoiceEnabled || testQuestions.length === 0 || testCompleted) return;
+
+    const wordData = testQuestions[currentTestIndex];
+    const textToSpeak = wordData.word;
+
+    const visualizer = document.getElementById('testAudioVisualizer');
+    const wordContainer = document.querySelector('.test-word-container');
+
+    if (visualizer) {
+        visualizer.style.visibility = 'hidden';
+    }
+
+    if (wordContainer && visualizer) {
+        wordContainer.insertBefore(visualizer, wordContainer.firstChild);
+    }
+
+    if (visualizer) {
+        visualizer.style.position = 'relative';
+        visualizer.style.visibility = 'visible';
+        visualizer.style.transform = 'translateY(-50%)';
+        visualizer.style.display = 'flex';
+    }
+
+    const speakPromise = window.speechService && window.speechService.isEnabled()
+        ? window.speechService.speak(textToSpeak, { isWord: true })
+        : fallbackSpeakText(textToSpeak, true);
+
+    speakPromise.then(() => {
+        hideTestVisualizer();
+    }).catch(() => {
+        hideTestVisualizer();
+    });
+}
+
+function hideTestVisualizer() {
+    const visualizer = document.getElementById('testAudioVisualizer');
+    if (visualizer) {
+        visualizer.style.visibility = 'hidden';
+    }
+}
+
+let wrongAttempts = 0;
+
+function checkTestAnswer(selectedIndex) {
+    if (testCompleted) return;
+
+    const wordData = testQuestions[currentTestIndex];
+    const shuffledOptions = document.querySelectorAll('.test-option');
+    const selectedWord = shuffledOptions[selectedIndex].textContent;
+    const correctWord = wordData.word;
+    const isCorrect = selectedWord === correctWord;
+
+    shuffledOptions.forEach((opt, i) => {
+        if (i === selectedIndex) {
+            if (isCorrect) {
+                opt.classList.add('selected', 'correct');
+            } else {
+                opt.classList.add('selected', 'wrong');
+                wrongAttempts++;
+            }
+        }
+        if (opt.textContent === correctWord) {
+            opt.classList.add('correct-answer');
+        }
+        opt.disabled = true;
+    });
+
+    if (isCorrect) {
+        testCorrectCount++;
+        const wordDisplay = document.getElementById('testWordDisplay');
+        wordDisplay.textContent = wordData.word;
+        wordDisplay.className = 'test-word-display correct';
+
+        const feedback = document.getElementById('testFeedback');
+        const response = correctResponses[Math.floor(Math.random() * correctResponses.length)];
+        document.getElementById('testFeedbackText').textContent = response;
+        feedback.classList.remove('wrong');
+        feedback.classList.add('show');
+
+        setTimeout(() => {
+            feedback.classList.remove('show');
+            nextTest();
+        }, 2000);
+    } else {
+        const feedback = document.getElementById('testFeedback');
+        const response = wrongResponses[Math.floor(Math.random() * wrongResponses.length)];
+        document.getElementById('testFeedbackText').textContent = response;
+        feedback.classList.add('show', 'wrong');
+
+        setTimeout(() => {
+            feedback.classList.remove('show', 'wrong');
+            const options = document.querySelectorAll('.test-option');
+            options.forEach(opt => {
+                opt.disabled = false;
+                opt.classList.remove('selected', 'wrong', 'correct-answer');
+            });
+        }, 1000);
+    }
+}
+
+function nextTest() {
+    if (currentTestIndex < testQuestions.length - 1) {
+        currentTestIndex++;
+        wrongAttempts = 0;
+        showTestWord();
+    } else if (currentTestIndex === testQuestions.length - 1) {
+        currentTestIndex++;
+        setTimeout(completeTest, 500);
+    }
+}
+
+function prevTest() {
+    if (currentTestIndex > 0) {
+        currentTestIndex--;
+        showTestWord();
+    }
+}
+
+function completeTest() {
+    testCompleted = true;
+
+    document.getElementById('test-content').style.display = 'none';
+    document.getElementById('testCompletion').style.display = 'block';
+    document.getElementById('testProgressFill').style.width = '100%';
+
+    const grade = calculateGrade(testCorrectCount, testQuestions.length);
+    document.getElementById('testFinalGrade').textContent = grade;
+
+    isTimerPaused = true;
+    if (testTimerInterval) {
+        clearInterval(testTimerInterval);
+    }
+}
+
+function resetTest() {
+    currentTestIndex = 0;
+    testCorrectCount = 0;
+    testTotalAnswered = 0;
+    testCompleted = false;
+    wrongAttempts = 0;
+    testQuestions = shuffleArray([...testWordsData]).slice(0, 20);
+    testAnswers = new Array(testQuestions.length).fill(null);
+
+    document.getElementById('test-content').style.display = 'block';
+    document.getElementById('testCompletion').style.display = 'none';
+
+    resetTestTimer();
+    showTestWord();
+}
+
+function resetTestTimer() {
+    testTimerSeconds = 0;
+    document.getElementById('testTimer').textContent = '00:00:00';
+
+    if (testTimerInterval) {
+        clearInterval(testTimerInterval);
+    }
+
+    testTimerInterval = setInterval(() => {
+        testTimerSeconds++;
+        const h = Math.floor(testTimerSeconds / 3600);
+        const m = Math.floor((testTimerSeconds % 3600) / 60);
+        const s = testTimerSeconds % 60;
+        document.getElementById('testTimer').textContent =
+            `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }, 1000);
 }
 
 function createRippleEffect(element, event) {

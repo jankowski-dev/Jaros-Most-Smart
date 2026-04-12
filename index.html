@@ -6,6 +6,7 @@
     <title>Ярик.Уроки - Обучающая платформа</title>
     <meta name="theme-color" content="#EE9F21">
     <meta name="description" content="Обучающая платформа для детей">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ярик">
@@ -50,6 +51,9 @@
                 <div class="menu-item" id="menu-reading">
                     <span class="menu-item-name">Чтение</span>
                 </div>
+                <div class="menu-item" id="menu-test">
+                    <span class="menu-item-name">Тест</span>
+                </div>
                 <div class="menu-item-disabled">
                     <span class="menu-item-name">Настройки</span>
                 </div>
@@ -67,6 +71,96 @@
             <div class="menu-list">
                 <div class="settings-placeholder">
                     <p>Страница настроек в разработке</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Page -->
+    <div id="test-page" class="page" style="display: none;">
+        <div class="lesson-header">
+            <div class="logo" id="testLogo">Ярик<span>.Уроки</span></div>
+            <div class="lesson-info" id="testInfo">Тест на слух</div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="timer">
+                <div class="timer-label"></div>
+                <div class="timer-value" id="testTimer">00:00:00</div>
+            </div>
+
+            <div class="butt-container"> 
+                <button class="btn" id="testVoiceToggleBtn">
+                    <span id="testVoiceIconOn" style="display: inline-flex; gap: 8px; align-items: center;">
+                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                        Вкл
+                    </span>
+                    <span id="testVoiceIconOff" style="display: none; gap: 8px; align-items: center;">
+                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <line x1="23" y1="9" x2="17" y2="15"></line>
+                            <line x1="17" y1="9" x2="23" y2="15"></line>
+                        </svg>
+                        Выкл
+                    </span>
+                </button>
+
+                <button class="btn btn-secondary" id="testRestartBtn">
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                </button>
+
+                <button class="btn btn-cancel" id="finishTestBtn">
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6L6 18M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="testProgressFill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Test Content -->
+            <div id="test-content">
+                <div class="test-word-container">
+                    <div class="audio-visualizer" id="testAudioVisualizer">
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                    </div>
+                    <div class="test-word-display" id="testWordDisplay">???</div>
+                </div>
+
+                <div class="test-options" id="testOptions">
+                    <button class="test-option" data-index="0"></button>
+                    <button class="test-option" data-index="1"></button>
+                    <button class="test-option" data-index="2"></button>
+                </div>
+
+                <div class="feedback" id="testFeedback">
+                    <div class="feedback-text" id="testFeedbackText"></div>
+                </div>
+
+                <div class="test-completion" id="testCompletion" style="display: none;">
+                    <div class="test-completion-title">Тест завершён!</div>
+                    <div class="test-completion-grade">Твоя оценка: <span id="testFinalGrade">10</span></div>
                 </div>
             </div>
         </div>
