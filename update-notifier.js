@@ -34,6 +34,8 @@ function showUpdateBanner() {
   if (isUpdating) return;
   if (updateBanner) {
     updateBanner.style.display = 'flex';
+    updateBanner.querySelector('span').textContent = 'Появилась новая версия';
+    updateBtn.textContent = 'Обновить';
     return;
   }
 
@@ -49,23 +51,22 @@ function showUpdateBanner() {
       if (isUpdating) return;
       isUpdating = true;
 
-      hideUpdateBanner();
-
       navigator.serviceWorker.ready.then((registration) => {
         if (registration.waiting) {
           registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 
+          updateBanner.querySelector('span').textContent = 'Обновлено!';
+          updateBtn.textContent = 'Закрыть';
+          updateBtn.onclick = () => {
+            hideUpdateBanner();
+            isUpdating = false;
+          };
+
           registration.active.addEventListener('statechange', (e) => {
             if (e.target.state === 'activated') {
-              window.location.reload();
+              console.log('[UpdateNotifier] Новый Service Worker активирован');
             }
           });
-
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        } else {
-          window.location.reload();
         }
       });
     };
@@ -76,6 +77,7 @@ function hideUpdateBanner() {
   if (updateBanner) {
     updateBanner.style.display = 'none';
   }
+  isUpdating = false;
 }
 
 function initUpdateNotifier() {
