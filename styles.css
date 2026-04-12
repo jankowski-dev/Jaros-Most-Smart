@@ -1912,11 +1912,14 @@ body {
     width: 400px;
     max-width: 100%;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.test-option:hover:not(:disabled) {
-    border-color: #EE9F21;
-    background: #FFF8E7;
+@media (hover: hover) {
+    .test-option:hover:not(:disabled) {
+        border-color: #EE9F21;
+        background: #FFF8E7;
+    }
 }
 
 .test-option:disabled {
