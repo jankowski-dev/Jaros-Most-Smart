@@ -12,7 +12,7 @@ const ASSETS_TO_CACHE = [
   '/icon.png'
 ];
 
-// Установка - кешируем все assets
+// Установка
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -20,11 +20,10 @@ self.addEventListener('install', (event) => {
         console.log('[SW] Кешируем assets');
         return cache.addAll(ASSETS_TO_CACHE);
       })
-      .then(() => self.skipWaiting())
   );
 });
 
-// Активация - очищаем старые кеши
+// Активация
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -32,16 +31,10 @@ self.addEventListener('activate', (event) => {
         return Promise.all(
           cacheNames
             .filter((name) => name !== CACHE_NAME)
-            .map((name) => {
-              console.log('[SW] Удаляем старый кеш:', name);
-              return caches.delete(name);
-            })
+            .map((name) => caches.delete(name))
         );
       })
-      .then(() => {
-        console.log('[SW] Новый SW активирован');
-        return self.clients.claim();
-      })
+      .then(() => self.clients.claim())
   );
 });
 
@@ -52,50 +45,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Для HTML (документы) - всегда network-first, чтобы получать свежие версии
+  // Для HTML - всегда сеть, не кешируем
   if (event.request.destination === 'document') {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
-          }
-          return response;
-        })
-        .catch(() => {
-          // Нет интернета - берём из кеша
-          return caches.match(event.request).then(cached => {
-            if (cached) return cached;
-            // Если совсем нет кеша (первый запуск офлайн) - возвращаем базовый HTML
-            return caches.match('/index.html');
-          });
-        })
-    );
-    return;
+    return; // Пусть браузер сам загружает с сервера
   }
 
-  // Для остального (CSS, JS, картинки) - cache-first
+  // Для остального - cache-first
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        return fetch(event.request)
-          .then((response) => {
-            if (!response || response.status !== 200) {
-              return response;
-            }
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
-            return response;
-          })
-          .catch(() => {
-            // Если нет интернета и нет кеша - игнорируем (сломанные изображения и т.д.)
-            return new Response('', { status: 404 });
-          });
+        return cachedResponse || fetch(event.request);
       })
   );
 });
