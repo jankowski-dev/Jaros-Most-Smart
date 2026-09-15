@@ -976,73 +976,10 @@ body {
     line-height: 1;
 }
 
-/* Анимация аквалайзера */
-.audio-visualizer {
-    width: 60px;
-    height: 40px;
-    display: flex;
-    visibility: hidden;
-    justify-content: space-between;
-    align-items: center;
-    margin: 30px auto 0;
-}
-
-#audioVisualizer {
-    display: none;
-}
-
-.visualizer-bar {
-    width: 6px;
-    background: #EE9F21;
-    border-radius: 3px;
-    animation: visualizer 1.2s infinite ease-in-out;
-}
-
-.visualizer-bar:nth-child(1) {
-    animation-delay: 0s;
-    height: 20px;
-}
-
-.visualizer-bar:nth-child(2) {
-    animation-delay: 0.1s;
-    height: 40px;
-}
-
-.visualizer-bar:nth-child(3) {
-    animation-delay: 0.2s;
-    height: 60px;
-}
-
-.visualizer-bar:nth-child(4) {
-    animation-delay: 0.3s;
-    height: 40px;
-}
-
-.visualizer-bar:nth-child(5) {
-    animation-delay: 0.4s;
-    height: 20px;
-}
-
-.visualizer-bar:nth-child(6) {
-    animation-delay: 0.5s;
-    height: 40px;
-}
-
-.visualizer-bar:nth-child(7) {
-    animation-delay: 0.6s;
-    height: 60px;
-}
-
-@keyframes visualizer {
-
-    0%,
-    100% {
-        transform: scaleY(0.5);
-    }
-
-    50% {
-        transform: scaleY(1);
-    }
+/* Заливка букв синхронно с озвучкой */
+.word-letter.filled,
+.test-char.filled {
+    color: #8BBCB2;
 }
 
 .word-info {
@@ -1349,15 +1286,6 @@ body {
 @media (max-width: 768px) {
     .home-top {
         padding: 40px 0 0 0px;
-    }
-
-    .audio-visualizer {
-        width: 80px;
-        height: 60px;
-        display: flex;
-        visibility: hidden;
-        justify-content: space-between;
-        align-items: center;
     }
 
     .word {
@@ -1709,15 +1637,6 @@ body {
         gap: 8px;
     }
 
-    .audio-visualizer {
-        width: 80px;
-        height: 60px;
-        display: flex;
-        visibility: hidden;
-        justify-content: space-between;
-        align-items: center;
-    }
-
     .word-progress {
         display: flex;
         justify-content: center;
@@ -1851,19 +1770,6 @@ body {
     position: relative;
 }
 
-.test-word-container .audio-visualizer {
-    display: none;
-    gap: 4px;
-    height: 60px;
-    justify-content: center;
-    align-items: center;
-    margin-top: 40px;
-}
-
-.test-word-container .audio-visualizer.active {
-    display: flex;
-}
-
 .test-word-display {
     font-size: 72px;
     font-weight: 800;
@@ -1872,8 +1778,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     cursor: pointer;
     user-select: none;
+}
+
+.test-char {
+    display: inline-block;
+    margin: 0 3px;
+    transition: color 0.3s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.test-char.revealing {
+    opacity: 0;
+    transform: scale(0.7);
 }
 
 .test-word-display.correct {
@@ -1882,6 +1800,19 @@ body {
 
 .test-word-display.wrong {
     color: #F35C87;
+}
+
+@media (max-width: 768px) {
+    .test-word-display {
+        font-size: 52px;
+    }
+}
+
+@media (max-width: 620px) {
+    .test-word-display {
+        font-size: 40px;
+        min-height: 70px;
+    }
 }
 
 /* Test Options */

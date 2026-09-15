@@ -2,6 +2,55 @@
 // Только браузерный синтез и Yandex через прокси
 // Версия с улучшенным логированием и отладкой
 
+/**
+ * Отслеживает прогресс браузерного синтеза и вызывает options.onProgress(0..1).
+ * Использует onboundary (charIndex), при его отсутствии — оценку по времени.
+ * Возвращает { stop(), reportFinal() }.
+ */
+function createBrowserProgressTracker(utterance, text, options = {}) {
+    const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null;
+    const msPerChar = options.isWord ? 80 : 70;
+    const estimatedDuration = Math.max(400, text.length * msPerChar);
+
+    let rafId = null;
+    let startTime = 0;
+    let boundaryProgress = 0;
+
+    const report = (fraction) => {
+        if (onProgress) onProgress(Math.max(0, Math.min(1, fraction)));
+    };
+
+    const tick = () => {
+        const elapsed = performance.now() - startTime;
+        const timeProgress = elapsed / estimatedDuration;
+        report(Math.min(Math.max(boundaryProgress, timeProgress), 0.95));
+        rafId = requestAnimationFrame(tick);
+    };
+
+    utterance.onstart = () => {
+        startTime = performance.now();
+        if (onProgress) rafId = requestAnimationFrame(tick);
+    };
+
+    utterance.onboundary = (event) => {
+        if (typeof event.charIndex === 'number' && text.length > 0) {
+            boundaryProgress = Math.max(boundaryProgress, event.charIndex / text.length);
+        }
+    };
+
+    return {
+        stop() {
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+        },
+        reportFinal() {
+            report(1);
+        }
+    };
+}
+
 class SpeechService {
     constructor(config) {
         this.config = config;
@@ -113,12 +162,17 @@ class SpeechService {
                 utterance.voice = russianVoice;
             }
 
+            const tracker = createBrowserProgressTracker(utterance, text, options);
+
             utterance.onend = () => {
+                tracker.stop();
+                tracker.reportFinal();
                 this.currentUtterance = null;
                 resolve();
             };
 
             utterance.onerror = (event) => {
+                tracker.stop();
                 this.currentUtterance = null;
                 reject(new Error(`Ошибка браузерного синтеза: ${event.error}`));
             };
@@ -199,19 +253,28 @@ class SpeechService {
         });
 
         // Воспроизводим аудио
-        return this.playAudio(audioUrl);
+        return this.playAudio(audioUrl, options);
     }
 
     /**
      * Воспроизвести аудио из URL
      */
-    playAudio(audioUrl) {
+    playAudio(audioUrl, options = {}) {
         return new Promise((resolve, reject) => {
             try {
                 const audio = new Audio(audioUrl);
                 this.currentAudio = audio;
 
+                const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null;
+
+                audio.ontimeupdate = () => {
+                    if (onProgress && isFinite(audio.duration) && audio.duration > 0) {
+                        onProgress(Math.min(1, audio.currentTime / audio.duration));
+                    }
+                };
+
                 audio.onended = () => {
+                    if (onProgress) onProgress(1);
                     URL.revokeObjectURL(audioUrl);
                     this.currentAudio = null;
                     resolve();

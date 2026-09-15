@@ -628,12 +628,8 @@ function updateReadingContent() {
     const wordDisplay = document.getElementById('wordDisplay');
     if (!wordDisplay) return;
 
+    stopFillAnimation();
     wordDisplay.innerHTML = '';
-
-    const visualizer = document.getElementById('audioVisualizer');
-    if (visualizer) {
-        visualizer.style.visibility = 'hidden';
-    }
 
     if (wordData.phrase) {
         const words = wordData.phrase.split(' ');
@@ -718,6 +714,82 @@ function updateReadingContent() {
     document.getElementById('taskNav').classList.add('show');
 }
 
+// --- Анимация заливки слова синхронно с озвучкой ---
+
+const UNFILL_DURATION = 600; // мс — обратный ход заливки
+
+let activeFillLetters = null;
+let activeFillRaf = null;
+
+function getFillLetters(container) {
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('.word-letter, .test-char'))
+        .filter(el => !el.classList.contains('space'));
+}
+
+// fraction: 0..1 — залиты буквы [0, fraction*N)
+function applyFill(letters, fraction) {
+    if (!letters || !letters.length) return;
+    const count = Math.round(Math.max(0, Math.min(1, fraction)) * letters.length);
+    letters.forEach((el, i) => {
+        el.classList.toggle('filled', i < count);
+    });
+}
+
+// fraction: 0..1 — залиты буквы [fraction*N, N), т.е. гаснут слева направо
+function applyUnfill(letters, fraction) {
+    if (!letters || !letters.length) return;
+    const count = Math.round(Math.max(0, Math.min(1, fraction)) * letters.length);
+    letters.forEach((el, i) => {
+        el.classList.toggle('filled', i >= count);
+    });
+}
+
+function stopFillAnimation() {
+    if (activeFillRaf) {
+        cancelAnimationFrame(activeFillRaf);
+        activeFillRaf = null;
+    }
+    if (activeFillLetters) {
+        applyFill(activeFillLetters, 0);
+        activeFillLetters = null;
+    }
+}
+
+function startFillAnimation(container) {
+    stopFillAnimation();
+
+    const letters = getFillLetters(container);
+    if (!letters.length) return null;
+
+    activeFillLetters = letters;
+    applyFill(letters, 0);
+
+    return {
+        setProgress(fraction) {
+            if (activeFillLetters !== letters) return;
+            applyFill(letters, fraction);
+        },
+        finish() {
+            if (activeFillLetters !== letters) return;
+            applyFill(letters, 1);
+
+            const start = performance.now();
+            const step = (now) => {
+                const p = Math.min(1, (now - start) / UNFILL_DURATION);
+                applyUnfill(letters, p);
+                if (p < 1) {
+                    activeFillRaf = requestAnimationFrame(step);
+                } else {
+                    activeFillRaf = null;
+                    if (activeFillLetters === letters) activeFillLetters = null;
+                }
+            };
+            activeFillRaf = requestAnimationFrame(step);
+        }
+    };
+}
+
 function speakCurrentWord() {
     if (currentWords.length === 0 || currentWordIndex >= currentWords.length || !voiceEnabled) return;
 
@@ -734,27 +806,17 @@ function speakCurrentWord() {
         window.speechService.cancel();
     }
 
-    const visualizer = document.getElementById('audioVisualizer');
+    const wordDisplay = document.getElementById('wordDisplay');
+    const animation = startFillAnimation(wordDisplay);
 
-    if (visualizer) {
-        // Анимация отцентрирована через CSS, просто показываем
-        visualizer.style.display = 'flex';
-        visualizer.style.visibility = 'visible';
-    }
-
-    speakText(textToSpeak, true).then(() => {
-        hideVisualizer();
+    speakText(textToSpeak, true, {
+        onProgress: animation ? (fraction) => animation.setProgress(fraction) : undefined
+    }).then(() => {
+        if (animation) animation.finish();
     }).catch(error => {
         console.error('Ошибка синтеза слова:', error);
-        hideVisualizer();
+        if (animation) animation.finish();
     });
-}
-
-function hideVisualizer() {
-    const visualizer = document.getElementById('audioVisualizer');
-    if (visualizer) {
-        visualizer.style.visibility = 'hidden';
-    }
 }
 
 function generateMathProblems() {
@@ -1003,7 +1065,7 @@ function getBestRussianVoice() {
     return bestVoice || null;
 }
 
-function speakText(text, isWord = false) {
+function speakText(text, isWord = false, options = {}) {
     if (!voiceEnabled) return Promise.resolve();
 
     console.log('[DEBUG speakText]', {
@@ -1017,18 +1079,18 @@ function speakText(text, isWord = false) {
 
     if (window.speechService && window.speechService.isEnabled()) {
         console.log('[DEBUG] Using SpeechService (Yandex)');
-        return window.speechService.speak(text, { isWord: isWord }).catch(error => {
+        return window.speechService.speak(text, { isWord: isWord, onProgress: options.onProgress }).catch(error => {
             console.error('Ошибка синтеза речи:', error);
             console.log('[DEBUG] Fallback due to error');
-            return fallbackSpeakText(text, isWord);
+            return fallbackSpeakText(text, isWord, options);
         });
     } else {
         console.log('[DEBUG] Using fallback (browser)');
-        return fallbackSpeakText(text, isWord);
+        return fallbackSpeakText(text, isWord, options);
     }
 }
 
-function fallbackSpeakText(text, isWord = false) {
+function fallbackSpeakText(text, isWord = false, options = {}) {
     console.log('[DEBUG fallbackSpeakText]', { text: text.substring(0, 50), isWord });
     if (!window.speechSynthesis) return Promise.resolve();
 
@@ -1056,11 +1118,20 @@ function fallbackSpeakText(text, isWord = false) {
 
         utterance.lang = 'ru-RU';
 
+        const tracker = typeof createBrowserProgressTracker === 'function'
+            ? createBrowserProgressTracker(utterance, text, { isWord: isWord, onProgress: options.onProgress })
+            : null;
+
         utterance.onend = () => {
+            if (tracker) {
+                tracker.stop();
+                tracker.reportFinal();
+            }
             resolve();
         };
 
         utterance.onerror = (event) => {
+            if (tracker) tracker.stop();
             reject(new Error(`Ошибка браузерного синтеза: ${event.error}`));
         };
 
@@ -1190,6 +1261,25 @@ function initTest() {
     showTestWord();
 }
 
+// Символы-заглушки для скрытого слова (смесь букв и знаков)
+const PLACEHOLDER_CHARS = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$?!*+=<>~';
+
+function renderTestPlaceholder(word) {
+    const wordDisplay = document.getElementById('testWordDisplay');
+    if (!wordDisplay) return;
+
+    wordDisplay.className = 'test-word-display';
+    wordDisplay.innerHTML = '';
+
+    const length = (word || '').length;
+    for (let i = 0; i < length; i++) {
+        const span = document.createElement('span');
+        span.className = 'test-char';
+        span.textContent = PLACEHOLDER_CHARS[Math.floor(Math.random() * PLACEHOLDER_CHARS.length)];
+        wordDisplay.appendChild(span);
+    }
+}
+
 function showTestWord() {
     if (currentTestIndex >= testQuestions.length) {
         completeTest();
@@ -1197,7 +1287,6 @@ function showTestWord() {
     }
 
     const wordData = testQuestions[currentTestIndex];
-    const wordDisplay = document.getElementById('testWordDisplay');
     const options = document.querySelectorAll('.test-option');
     const feedback = document.getElementById('testFeedback');
     const completion = document.getElementById('testCompletion');
@@ -1206,8 +1295,8 @@ function showTestWord() {
     feedback.style.display = 'none';
     feedback.classList.remove('show', 'wrong');
 
-    wordDisplay.textContent = '???';
-    wordDisplay.className = 'test-word-display';
+    stopFillAnimation();
+    renderTestPlaceholder(wordData.word);
 
     const shuffledOptions = shuffleArray([...wordData.options]);
     options.forEach((opt, i) => {
@@ -1224,39 +1313,63 @@ function showTestWord() {
     }
 }
 
-
-
 function playCurrentTestWord() {
     if (!testVoiceEnabled || testQuestions.length === 0 || testCompleted) return;
 
     const wordData = testQuestions[currentTestIndex];
     const textToSpeak = wordData.word;
 
-    const visualizer = document.getElementById('testAudioVisualizer');
-
-    if (visualizer) {
-        // Анимация отцентрирована через CSS (absolute + transform)
-        // Просто показываем её, не меняя позиционирование
-        visualizer.style.display = 'flex';
-        visualizer.style.visibility = 'visible';
+    if (window.speechService && typeof window.speechService.cancel === 'function') {
+        window.speechService.cancel();
     }
 
+    const wordDisplay = document.getElementById('testWordDisplay');
+    const animation = startFillAnimation(wordDisplay);
+
     const speakPromise = window.speechService && window.speechService.isEnabled()
-        ? window.speechService.speak(textToSpeak, { isWord: true })
-        : fallbackSpeakText(textToSpeak, true);
+        ? window.speechService.speak(textToSpeak, {
+            isWord: true,
+            onProgress: animation ? (fraction) => animation.setProgress(fraction) : undefined
+        })
+        : fallbackSpeakText(textToSpeak, true, {
+            onProgress: animation ? (fraction) => animation.setProgress(fraction) : undefined
+        });
 
     speakPromise.then(() => {
-        hideTestVisualizer();
+        if (animation) animation.finish();
     }).catch(() => {
-        hideTestVisualizer();
+        if (animation) animation.finish();
     });
 }
 
-function hideTestVisualizer() {
-    const visualizer = document.getElementById('testAudioVisualizer');
-    if (visualizer) {
-        visualizer.style.visibility = 'hidden';
+function revealTestWord(word, onDone) {
+    const wordDisplay = document.getElementById('testWordDisplay');
+    if (!wordDisplay) {
+        if (onDone) onDone();
+        return;
     }
+
+    const chars = Array.from(wordDisplay.querySelectorAll('.test-char'));
+    const letters = (word || '').split('');
+    wordDisplay.classList.add('correct');
+
+    const STAGGER = 60;
+    const FLIP = 150;
+
+    chars.forEach((span, i) => {
+        setTimeout(() => {
+            span.classList.add('revealing');
+            setTimeout(() => {
+                span.textContent = letters[i] || '';
+                span.classList.remove('revealing');
+            }, FLIP);
+        }, i * STAGGER);
+    });
+
+    const total = chars.length ? chars.length * STAGGER + FLIP + 1300 : 0;
+    setTimeout(() => {
+        if (onDone) onDone();
+    }, total);
 }
 
 function checkTestAnswer(selectedIndex) {
@@ -1284,9 +1397,7 @@ function checkTestAnswer(selectedIndex) {
         testCorrectCount++;
         playCorrectSound();
 
-        const wordDisplay = document.getElementById('testWordDisplay');
-        wordDisplay.textContent = wordData.word;
-        wordDisplay.className = 'test-word-display correct';
+        stopFillAnimation();
 
         const feedback = document.getElementById('testFeedback');
         const response = correctResponses[Math.floor(Math.random() * correctResponses.length)];
@@ -1294,10 +1405,10 @@ function checkTestAnswer(selectedIndex) {
         feedback.classList.remove('wrong');
         feedback.classList.add('show');
 
-        setTimeout(() => {
+        revealTestWord(wordData.word, () => {
             feedback.classList.remove('show');
             nextTest();
-        }, 2000);
+        });
     } else {
         wrongAttempts++;
         playIncorrectSound();

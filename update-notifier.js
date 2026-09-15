@@ -196,40 +196,52 @@ function hideUpdateBanner() {
 
 function initUpdateNotifier() {
   // Service Workers работают только через HTTP/HTTPS, не через file://
-  if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('[UpdateNotifier] SW зарегистрирован:', registration.scope);
-
-        // Проверяем обновления при каждой загрузке страницы
-        registration.addEventListener('updatefound', () => {
-          // Если сейчас идёт обновление - не показываем баннер
-          if (isUpdating) return;
-          
-          console.log('[UpdateNotifier] Найден новый SW!');
-          const newWorker = registration.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('[UpdateNotifier] Новый SW готов, показываем баннер обновления');
-              checkForUpdates();
-            }
-          });
-        });
-
-        checkForUpdates();
-
-        setInterval(() => {
-          registration.update().then(() => {
-            console.log('[UpdateNotifier] Проверка обновлений SW');
-          });
-        }, CHECK_INTERVAL);
-      })
-      .catch((error) => {
-        console.error('[UpdateNotifier] Ошибка регистрации SW:', error);
-      });
-  } else {
+  if (!('serviceWorker' in navigator) || window.location.protocol === 'file:') {
     console.log('[UpdateNotifier] SW недоступен (file:// протокол или не поддерживается)');
+    return;
   }
+
+  // На локальной разработке SW только мешает: он кэширует файлы и отдаёт
+  // старые версии. Отключаем его на localhost.
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') {
+    console.log('[UpdateNotifier] localhost — service worker отключён');
+    navigator.serviceWorker.getRegistrations()
+      .then((registrations) => registrations.forEach((r) => r.unregister()))
+      .catch(() => {});
+    return;
+  }
+
+  navigator.serviceWorker.register('/sw.js')
+    .then((registration) => {
+      console.log('[UpdateNotifier] SW зарегистрирован:', registration.scope);
+
+      // Проверяем обновления при каждой загрузке страницы
+      registration.addEventListener('updatefound', () => {
+        // Если сейчас идёт обновление - не показываем баннер
+        if (isUpdating) return;
+
+        console.log('[UpdateNotifier] Найден новый SW!');
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('[UpdateNotifier] Новый SW готов, показываем баннер обновления');
+            checkForUpdates();
+          }
+        });
+      });
+
+      checkForUpdates();
+
+      setInterval(() => {
+        registration.update().then(() => {
+          console.log('[UpdateNotifier] Проверка обновлений SW');
+        });
+      }, CHECK_INTERVAL);
+    })
+    .catch((error) => {
+      console.error('[UpdateNotifier] Ошибка регистрации SW:', error);
+    });
 }
 
 document.addEventListener('DOMContentLoaded', initUpdateNotifier);
