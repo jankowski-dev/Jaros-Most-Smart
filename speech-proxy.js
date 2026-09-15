@@ -4,6 +4,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
 
@@ -130,13 +131,16 @@ app.get('/api/info', (req, res) => {
     });
 });
 
-// Version endpoint для PWA update checking
+// Version endpoint для PWA update checking.
+// Версия = время последнего изменения app.js. Меняется только при деплое,
+// а не каждый день, поэтому баннер обновления появляется по делу.
 app.get('/api/version', (req, res) => {
-    const today = new Date();
-    const version = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
-    res.json({
-        version: version,
-        buildTime: new Date().toISOString()
+    fs.stat(path.join(__dirname, 'app.js'), (err, stats) => {
+        const version = err ? 'unknown' : String(Math.floor(stats.mtimeMs));
+        res.json({
+            version: version,
+            buildTime: new Date().toISOString()
+        });
     });
 });
 

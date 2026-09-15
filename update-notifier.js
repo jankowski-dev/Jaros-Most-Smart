@@ -96,94 +96,118 @@ function showUpdateBanner(newVersion) {
 }
 
 function applyUpdate(newVersion) {
-  const progressContainer = document.getElementById('update-progress-container');
+  console.log('[UpdateNotifier] Применяем обновление');
 
-  navigator.serviceWorker.ready.then((registration) => {
-    // Попытаемся обновить SW
-    return registration.update().then(() => {
-      // Ждём пока новый SW перейдёт в состояние installed
-      return waitForSWReady(registration);
-    }).then((newWorker) => {
-      if (newWorker) {
-        console.log('[UpdateNotifier] Новый SW готов, отправляем SKIP_WAITING');
-        // Отправляем SKIP_WAITING чтобы новый SW активировался
-        newWorker.postMessage({ type: 'SKIP_WAITING' });
-        // Ждём пока новый SW станет контроллером
-        return waitForControllerChange();
+  const run = async () => {
+    // 1. Просим браузер проверить новый service worker
+    try {
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.ready;
+        await registration.update();
+
+        // 2. Ждём новый SW (не дольше 5 секунд)
+        const newWorker = await waitForSWReady(registration, 5000);
+        if (newWorker) {
+          console.log('[UpdateNotifier] Новый SW готов, отправляем SKIP_WAITING');
+          newWorker.postMessage({ type: 'SKIP_WAITING' });
+          await waitForControllerChange(5000);
+        }
       }
-    }).then(() => {
-      console.log('[UpdateNotifier] Новый SW активирован, сохраняем версию и перезагружаем');
-      // Сохраняем версию только после успешной активации
+    } catch (err) {
+      console.warn('[UpdateNotifier] Не удалось обновить SW:', err);
+    }
+
+    // 3. В любом случае сбрасываем кэши — это гарантирует свежие файлы
+    try {
+      if (window.caches) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+    } catch (err) {
+      console.warn('[UpdateNotifier] Не удалось очистить кэш:', err);
+    }
+
+    try {
       localStorage.setItem(STORAGE_KEY, newVersion);
       pendingVersion = null;
-      // Перезагружаем страницу для применения новых ресурсов
-      window.location.reload();
-    }).catch((err) => {
-      console.error('[UpdateNotifier] Ошибка обновления SW:', err);
-      // При ошибке - показываем что не удалось
-      progressContainer.style.display = 'none';
-      updateText.textContent = 'Ошибка обновления';
-      updateBtn.style.display = 'inline-flex';
-      updateBtn.textContent = 'Повторить';
-      updateBtn.onclick = () => {
-        isUpdating = false;
-        showUpdateBanner(newVersion);
-      };
-      isUpdating = false;
-    });
-  });
+    } catch (err) {
+      console.warn('[UpdateNotifier] Не удалось сохранить версию:', err);
+    }
+
+    // 4. Перезагружаем страницу
+    window.location.reload();
+  };
+
+  run();
 }
 
-function waitForSWReady(registration) {
+function waitForSWReady(registration, timeout = 5000) {
   return new Promise((resolve) => {
-    // Если уже есть новый SW в installed состоянии
-    if (registration.installing) {
-      const sw = registration.installing;
-      if (sw.state === 'installed') {
-        resolve(sw);
+    let settled = false;
+    let timer = null;
+
+    const done = (worker) => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      resolve(worker);
+    };
+
+    const watch = (worker) => {
+      if (worker.state === 'installed') {
+        done(worker);
         return;
       }
-      sw.addEventListener('statechange', function onState() {
-        if (sw.state === 'installed') {
-          sw.removeEventListener('statechange', onState);
-          resolve(sw);
+      worker.addEventListener('statechange', function onState() {
+        if (worker.state === 'installed') {
+          worker.removeEventListener('statechange', onState);
+          done(worker);
         }
       });
-      return;
-    }
+    };
 
-    // Если уже есть waiting SW
-    if (registration.waiting) {
-      resolve(registration.waiting);
-      return;
-    }
-
-    // Если новый SW появится через updatefound
-    function onUpdateFound() {
-      const newWorker = registration.installing;
-      if (!newWorker) return;
-      newWorker.addEventListener('statechange', function onState() {
-        if (newWorker.state === 'installed') {
+    if (registration.installing) {
+      watch(registration.installing);
+    } else if (registration.waiting) {
+      done(registration.waiting);
+    } else {
+      registration.addEventListener('updatefound', function onUpdateFound() {
+        if (registration.installing) {
           registration.removeEventListener('updatefound', onUpdateFound);
-          newWorker.removeEventListener('statechange', onState);
-          resolve(newWorker);
+          watch(registration.installing);
         }
       });
     }
-    registration.addEventListener('updatefound', onUpdateFound);
+
+    // Если новый SW так и не появился — не зависаем, продолжаем без него
+    timer = setTimeout(() => done(null), timeout);
   });
 }
 
-function waitForControllerChange() {
+function waitForControllerChange(timeout = 5000) {
   return new Promise((resolve) => {
     if (!navigator.serviceWorker.controller) {
       resolve();
       return;
     }
-    navigator.serviceWorker.addEventListener('controllerchange', function onController() {
+
+    let settled = false;
+    let timer = null;
+
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
       navigator.serviceWorker.removeEventListener('controllerchange', onController);
       resolve();
-    });
+    };
+
+    function onController() {
+      done();
+    }
+
+    navigator.serviceWorker.addEventListener('controllerchange', onController);
+    timer = setTimeout(done, timeout);
   });
 }
 
