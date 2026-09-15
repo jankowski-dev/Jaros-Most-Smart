@@ -1,5 +1,5 @@
 // speech-proxy.js - Упрощенный и надежный прокси-сервер для Yandex SpeechKit
-// Версия 2.0 - с улучшенной обработкой ошибок и логированием
+// Версия 2.4 - безопасность, rate limiting, валидация
 
 const express = require('express');
 const cors = require('cors');
@@ -10,8 +10,81 @@ const { URLSearchParams } = require('url');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ==================== БЕЗОПАСНОСТЬ ====================
+
+// Ограниченный CORS - только собственный домен + localhost для разработки
+const ALLOWED_ORIGINS = [
+    'https://jms.up.railway.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS policy violation'));
+        }
+    },
+    methods: ['POST', 'GET'],
+    allowedHeaders: ['Content-Type']
+}));
+
+// CSP-заголовки
+app.use((req, res, next) => {
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'");
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
+
+// Rate limiting - простая реализация без зависимостей
+const requestCounts = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 минута
+const RATE_LIMIT_MAX = 30; // максимум 30 запросов в минуту
+
+function rateLimit(req, res, next) {
+    const ip = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+
+    if (!requestCounts.has(ip)) {
+        requestCounts.set(ip, { count: 1, windowStart: now });
+        return next();
+    }
+
+    const record = requestCounts.get(ip);
+
+    if (now - record.windowStart > RATE_LIMIT_WINDOW) {
+        record.count = 1;
+        record.windowStart = now;
+        return next();
+    }
+
+    record.count++;
+
+    if (record.count > RATE_LIMIT_MAX) {
+        return res.status(429).json({
+            error: 'Too many requests',
+            retryAfter: Math.ceil((RATE_LIMIT_WINDOW - (now - record.windowStart)) / 1000)
+        });
+    }
+
+    next();
+}
+
+// Очистка старых записей каждые 5 минут
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, record] of requestCounts.entries()) {
+        if (now - record.windowStart > RATE_LIMIT_WINDOW) {
+            requestCounts.delete(ip);
+        }
+    }
+}, 5 * 60 * 1000);
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -21,45 +94,43 @@ app.use((req, res, next) => {
     next();
 });
 
-// Обслуживание статических файлов
-app.use(express.static(path.join(__dirname)));
+// Обслуживание статических файлов (безопасная настройка)
+const staticDir = path.join(__dirname);
+const HIDDEN_FILES = ['.gitignore', '.env', 'data copy.js', 'package.json', 'package-lock.json', 'railway.json', 'update-version.js', 'README.md', 'speech-proxy.js'];
+
+app.use((req, res, next) => {
+    const requestedFile = path.basename(req.path);
+    if (HIDDEN_FILES.includes(requestedFile) || requestedFile.startsWith('.')) {
+        return res.status(404).json({ error: 'Not found' });
+    }
+    next();
+});
+
+app.use(express.static(staticDir));
 
 // Health check endpoint - всегда должен работать
 app.get('/health', (req, res) => {
-    const healthInfo = {
+    res.json({
         status: 'ok',
         service: 'speech-proxy',
         timestamp: new Date().toISOString(),
-        yandexConfigured: !!process.env.YANDEX_SPEECH_API_KEY,
-        hasFolderId: !!process.env.YANDEX_SPEECH_FOLDER_ID,
-        nodeVersion: process.version,
         uptime: process.uptime()
-    };
-    console.log('Health check:', healthInfo);
-    res.json(healthInfo);
+    });
 });
 
-// Info endpoint для диагностики
+// Info endpoint - минимальная информация без раскрытия секретов
 app.get('/api/info', (req, res) => {
     res.json({
-        service: 'Yandex SpeechKit Proxy',
-        version: '2.0',
+        service: 'Yarik.Uroki Speech Proxy',
+        version: '2.4',
         endpoints: {
             tts: 'POST /api/tts',
-            health: 'GET /health',
-            info: 'GET /api/info'
-        },
-        environment: {
-            yandexApiKey: process.env.YANDEX_SPEECH_API_KEY ? 'Configured' : 'Missing',
-            folderId: process.env.YANDEX_SPEECH_FOLDER_ID ? 'Configured' : 'Missing',
-            nodeEnv: process.env.NODE_ENV || 'development',
-            port: PORT
+            health: 'GET /health'
         }
     });
 });
 
 // Version endpoint для PWA update checking
-// Версия автоматически обновляется при каждом деплое (на основе даты)
 app.get('/api/version', (req, res) => {
     const today = new Date();
     const version = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
@@ -69,8 +140,15 @@ app.get('/api/version', (req, res) => {
     });
 });
 
-// Proxy endpoint for Yandex SpeechKit TTS
-app.post('/api/tts', async (req, res) => {
+// Допустимые значения параметров
+const VALID_VOICES = ['alena', 'filipp', 'ermil'];
+const VALID_EMOTIONS = ['good', 'evil', 'neutral'];
+const MIN_SPEED = 0.1;
+const MAX_SPEED = 3.0;
+const MAX_TEXT_LENGTH = 500;
+
+// Proxy endpoint for Yandex SpeechKit TTS (с rate limiting и валидацией)
+app.post('/api/tts', rateLimit, async (req, res) => {
     const requestId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     const startTime = Date.now();
 
@@ -96,6 +174,39 @@ app.post('/api/tts', async (req, res) => {
             console.warn(`[${requestId}] Invalid text parameter`);
             return res.status(400).json({
                 error: 'Text parameter is required and must be a non-empty string',
+                requestId
+            });
+        }
+
+        // Валидация длины текста
+        if (text.length > MAX_TEXT_LENGTH) {
+            return res.status(400).json({
+                error: `Text too long. Maximum ${MAX_TEXT_LENGTH} characters`,
+                requestId
+            });
+        }
+
+        // Валидация voice
+        if (voice && !VALID_VOICES.includes(voice)) {
+            return res.status(400).json({
+                error: `Invalid voice. Allowed: ${VALID_VOICES.join(', ')}`,
+                requestId
+            });
+        }
+
+        // Валидация emotion
+        if (emotion && !VALID_EMOTIONS.includes(emotion)) {
+            return res.status(400).json({
+                error: `Invalid emotion. Allowed: ${VALID_EMOTIONS.join(', ')}`,
+                requestId
+            });
+        }
+
+        // Валидация speed
+        const numSpeed = parseFloat(speed);
+        if (isNaN(numSpeed) || numSpeed < MIN_SPEED || numSpeed > MAX_SPEED) {
+            return res.status(400).json({
+                error: `Invalid speed. Must be between ${MIN_SPEED} and ${MAX_SPEED}`,
                 requestId
             });
         }
@@ -160,8 +271,7 @@ app.post('/api/tts', async (req, res) => {
         console.log(`[${requestId}] Yandex response received`, {
             status: yandexResponse.status,
             ok: yandexResponse.ok,
-            responseTime: `${responseTime}ms`,
-            headers: Object.fromEntries(yandexResponse.headers.entries())
+            responseTime: `${responseTime}ms`
         });
 
         // Обработка ошибок от Yandex
@@ -268,14 +378,14 @@ process.on('unhandledRejection', (reason, promise) => {
 app.listen(PORT, () => {
     console.log(`
 ===========================================
-🚀 Speech Proxy Server v2.0
+🚀 Speech Proxy Server v2.4
 ===========================================
 ✅ Server running on port: ${PORT}
 ✅ Health check: http://localhost:${PORT}/health
 ✅ TTS endpoint: POST http://localhost:${PORT}/api/tts
 ✅ Static files served from: ${__dirname}
-✅ Yandex API configured: ${process.env.YANDEX_SPEECH_API_KEY ? 'YES' : 'NO'}
-✅ Folder ID configured: ${process.env.YANDEX_SPEECH_FOLDER_ID ? 'YES' : 'NO'}
+✅ CORS restricted to allowed origins
+✅ Rate limiting: ${RATE_LIMIT_MAX} req/min
 ===========================================
     `);
 });

@@ -7,7 +7,7 @@ class SpeechService {
         this.config = config;
         this.currentAudio = null;
         this.currentUtterance = null;
-        this.debug = true; // Включить отладку
+        this.debug = config.debug || false;
     }
 
     // Метод для логирования

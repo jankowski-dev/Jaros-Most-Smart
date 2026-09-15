@@ -42,3 +42,4 @@ coverage/
 # Локальные копии
 *.bak
 *.backup
+data copy.js

@@ -37,11 +37,12 @@ let testCompleted = false;
 let testTimerInterval;
 let testTimerSeconds = 0;
 let testVoiceEnabled = true;
+let wrongAttempts = 0;
 
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function () {
     loadAvailableVoices();
-    startTimer();
+    // Таймер НЕ запускается здесь — запускается только при входе в урок
 
     document.getElementById('mainLogo').addEventListener('click', function () {
         showLoaderAndNavigateToHome();
@@ -255,12 +256,7 @@ function getSubjectDisplayName(subject) {
 function getCategoryDisplayName(category) {
     const names = {
         'addition': 'Сложение',
-        'subtraction': 'Вычитание',
-        'multiplication': 'Умножение',
-        'division': 'Деление',
-        'syllables': 'Слоги',
-        'words': 'Слова',
-        'sentences': 'Предложения'
+        'syllables': 'Слоги'
     };
     return names[category] || category;
 }
@@ -985,7 +981,7 @@ function loadAvailableVoices() {
 function initAudioContext() {
     if (!audioContext) {
         try {
-            audioContext = new (AudioContext || webkitAudioContext)();
+            audioContext = new AudioContext();
         } catch (e) {
             console.log("Web Audio API не поддерживается в этом браузере:", e);
         }
@@ -1193,7 +1189,7 @@ function initTest() {
     testCorrectCount = 0;
     testTotalAnswered = 0;
     testCompleted = false;
-    wrongAttempts = 0;
+    wrongAttempts = 0; // wrongAnswers объявлен ниже как let
     testWordsData = [...testWords];
     testQuestions = shuffleArray([...testWordsData]).slice(0, 20);
     testAnswers = new Array(testQuestions.length).fill(null);
@@ -1245,21 +1241,12 @@ function playCurrentTestWord() {
     const textToSpeak = wordData.word;
 
     const visualizer = document.getElementById('testAudioVisualizer');
-    const wordContainer = document.querySelector('.test-word-container');
 
     if (visualizer) {
-        visualizer.style.visibility = 'hidden';
-    }
-
-    if (wordContainer && visualizer) {
-        wordContainer.insertBefore(visualizer, wordContainer.firstChild);
-    }
-
-    if (visualizer) {
-        visualizer.style.position = 'relative';
-        visualizer.style.visibility = 'visible';
-        visualizer.style.transform = 'translateY(-50%)';
+        // Анимация отцентрирована через CSS (absolute + transform)
+        // Просто показываем её, не меняя позиционирование
         visualizer.style.display = 'flex';
+        visualizer.style.visibility = 'visible';
     }
 
     const speakPromise = window.speechService && window.speechService.isEnabled()
@@ -1279,8 +1266,6 @@ function hideTestVisualizer() {
         visualizer.style.visibility = 'hidden';
     }
 }
-
-let wrongAttempts = 0;
 
 function checkTestAnswer(selectedIndex) {
     if (testCompleted) return;

@@ -2,7 +2,7 @@
 // Настройки загружаются из переменных среды Railway
 
 // ВЕРСИЯ ПРИЛОЖЕНИЯ - измени здесь одну строку при выкладке новой версии
-window.APP_VERSION = '2.3';
+window.APP_VERSION = '2.4';
 
 window.appConfig = {
     speech: {
