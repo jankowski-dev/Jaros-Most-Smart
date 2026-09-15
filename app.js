@@ -735,19 +735,11 @@ function speakCurrentWord() {
     }
 
     const visualizer = document.getElementById('audioVisualizer');
-    const wordContainer = document.querySelector('.word-container');
-
-    if (visualizer) visualizer.style.visibility = 'hidden';
-
-    if (wordContainer && visualizer) {
-        wordContainer.insertBefore(visualizer, wordContainer.firstChild);
-    }
 
     if (visualizer) {
-        visualizer.style.position = 'relative';
-        visualizer.style.visibility = 'visible';
-        visualizer.style.transform = 'translateY(-50%)';
+        // Анимация отцентрирована через CSS, просто показываем
         visualizer.style.display = 'flex';
+        visualizer.style.visibility = 'visible';
     }
 
     speakText(textToSpeak, true).then(() => {

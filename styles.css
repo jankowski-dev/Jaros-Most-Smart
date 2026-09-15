@@ -984,11 +984,10 @@ body {
     visibility: hidden;
     justify-content: space-between;
     align-items: center;
-    transform: translateY(-50%);
-    margin-top: 25px;
+    margin: 20px auto 0;
 }
 
-#readingAudioVisualizer {
+#audioVisualizer {
     display: none;
 }
 
@@ -1359,7 +1358,6 @@ body {
         visibility: hidden;
         justify-content: space-between;
         align-items: center;
-        transform: translateY(-50%);
     }
 
     .word {
@@ -1718,7 +1716,6 @@ body {
         visibility: hidden;
         justify-content: space-between;
         align-items: center;
-        transform: translateY(-50%);
     }
 
     .word-progress {
@@ -1855,13 +1852,12 @@ body {
 }
 
 .test-word-container .audio-visualizer {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     display: none;
     gap: 4px;
     height: 60px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
 }
 
 .test-word-container .audio-visualizer.active {
