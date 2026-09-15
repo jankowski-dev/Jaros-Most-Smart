@@ -984,7 +984,7 @@ body {
     visibility: hidden;
     justify-content: space-between;
     align-items: center;
-    margin: 20px auto 0;
+    margin: 30px auto 0;
 }
 
 #audioVisualizer {
@@ -1857,7 +1857,7 @@ body {
     height: 60px;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 40px;
 }
 
 .test-word-container .audio-visualizer.active {
