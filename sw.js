@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yarik-uroki-v2.5';
+const CACHE_NAME = 'yarik-uroki-v2.6';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -10,7 +10,10 @@ const ASSETS_TO_CACHE = [
   '/speech-service.js',
   '/update-notifier.js',
   '/manifest.json',
-  '/icon.png'
+  '/icon.png',
+  '/icon-192.png',
+  '/fonts/montserrat-cyrillic.woff2',
+  '/fonts/montserrat-latin.woff2'
 ];
 
 // Установка: кладём свежие версии файлов в кэш.
@@ -88,6 +91,9 @@ self.addEventListener('fetch', (event) => {
 });
 
 function offlineFallback(request) {
+  if (request.mode === 'navigate') {
+    return caches.match('/index.html').then((cached) => cached || new Response('Offline', { status: 503, statusText: 'Service Unavailable' }));
+  }
   if (request.destination === 'image') {
     return new Response(
       '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#ddd" width="100" height="100"/><text fill="#999" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="14">Offline</text></svg>',

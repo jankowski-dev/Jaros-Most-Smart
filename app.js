@@ -3,6 +3,10 @@
 // Глобальные переменные
 let currentPage = 'home';
 let currentLevel = 1;
+
+// Базовые классы для элементов теста (зависят от дизайна и применяются app.js)
+const TEST_WORD_DISPLAY_CLASSES = 'test-word-display text-7xl md:text-9xl font-black';
+const TEST_OPTION_CLASSES = 'test-option border-2 border-gray-300 rounded-2xl p-5 text-xl font-bold text-gray-600 hover:border-brand hover:bg-brand/5 disabled:opacity-50 disabled:pointer-events-none transition-all active:scale-[0.97]';
 let currentSubject = '';
 let currentCategory = '';
 let voiceEnabled = true;
@@ -25,6 +29,61 @@ let audioContext = null;
 let isTimerPaused = false;
 let pausedSeconds = 0;
 let globalDifficulty = 1;
+
+/**
+ * Показывает полноэкранный лоадер и страхует от «вечного» экрана:
+ * если навигация упадёт с ошибкой, лоадер всё равно скроется через 6 секунд.
+ */
+function showLoader() {
+    const loader = document.getElementById('loader');
+    if (!loader) return;
+
+    if (loaderTimeout) clearTimeout(loaderTimeout);
+
+    loader.style.display = 'flex';
+    loader.style.opacity = '0';
+
+    setTimeout(() => {
+        loader.style.opacity = '1';
+    }, 10);
+
+    loaderTimeout = setTimeout(() => {
+        hideLoader();
+    }, 6000);
+}
+
+function hideLoader(delay = 0) {
+    const loader = document.getElementById('loader');
+    if (!loader) return;
+
+    if (loaderTimeout) {
+        clearTimeout(loaderTimeout);
+        loaderTimeout = null;
+    }
+
+    setTimeout(() => {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 300);
+    }, delay);
+}
+
+/**
+ * Останавливает озвучку и анимацию заливки при смене экрана,
+ * чтобы голос не продолжал звучать на главной или в другом задании.
+ */
+function stopAllSpeech() {
+    stopFillAnimation();
+
+    if (window.speechService && typeof window.speechService.cancel === 'function') {
+        window.speechService.cancel();
+    } else if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+
+    currentUtterance = null;
+}
 
 // Тест на слух
 let currentTestIndex = 0;
@@ -63,16 +122,34 @@ document.addEventListener('DOMContentLoaded', function () {
     // Toggle switch - глобальная настройка сложности
     const difficultyToggle = document.getElementById('difficultyToggle');
     if (difficultyToggle) {
+        const syncToggleA11y = () => {
+            const isHard = difficultyToggle.classList.contains('active');
+            difficultyToggle.setAttribute('aria-checked', String(isHard));
+            difficultyToggle.setAttribute('aria-label', isHard ? 'Сложность: сложная' : 'Сложность: лёгкая');
+        };
+
+        difficultyToggle.setAttribute('role', 'switch');
+        difficultyToggle.setAttribute('tabindex', '0');
+        syncToggleA11y();
+
         difficultyToggle.addEventListener('click', function (e) {
             e.stopPropagation();
             this.classList.toggle('active');
             globalDifficulty = this.classList.contains('active') ? 2 : 1;
-            
+
             const leftLabel = this.parentElement.querySelector('.toggle-left');
             const rightLabel = this.parentElement.querySelector('.toggle-right');
             if (leftLabel && rightLabel) {
                 leftLabel.classList.toggle('active', globalDifficulty === 1);
                 rightLabel.classList.toggle('active', globalDifficulty === 2);
+            }
+            syncToggleA11y();
+        });
+
+        difficultyToggle.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
             }
         });
     }
@@ -96,19 +173,31 @@ document.addEventListener('DOMContentLoaded', function () {
         showLoaderAndNavigateToTest();
     });
 
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.setAttribute('role', 'button');
+        item.setAttribute('tabindex', '0');
+        item.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
+        });
+    });
+
     // Тест - голос
     document.getElementById('testVoiceToggleBtn').addEventListener('click', function () {
         testVoiceEnabled = !testVoiceEnabled;
         const iconOn = document.getElementById('testVoiceIconOn');
         const iconOff = document.getElementById('testVoiceIconOff');
+        this.setAttribute('aria-label', testVoiceEnabled ? 'Озвучивание теста: включено' : 'Озвучивание теста: выключено');
         if (testVoiceEnabled) {
             iconOn.style.display = 'inline-flex';
             iconOff.style.display = 'none';
-            this.style.background = '#EE9F21';
+            this.classList.remove('bg-gray-200', 'text-gray-500');
         } else {
             iconOn.style.display = 'none';
             iconOff.style.display = 'inline-flex';
-            this.style.background = '#757575';
+            this.classList.add('bg-gray-200', 'text-gray-500');
         }
     });
 
@@ -154,17 +243,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Calculator keys
     document.querySelectorAll('.number-key').forEach(key => {
+        key.setAttribute('role', 'button');
+        key.setAttribute('tabindex', '0');
+        key.setAttribute('aria-label', 'Цифра ' + key.dataset.value);
+
         key.addEventListener('click', function (e) {
             if (mathCompleted) return;
             createRippleEffect(this, e);
             const value = this.dataset.value;
             handleNumberInput(value);
         });
+
+        key.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                this.click();
+            }
+        });
+    });
+
+    // Keyboard input for math (desktop)
+    document.addEventListener('keydown', function (e) {
+        if (currentSubject !== 'math' || mathCompleted || isCheckingAnswer) return;
+        if (!document.getElementById('lesson-page').classList.contains('active')) return;
+        if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+        if (e.target && e.target.classList && e.target.classList.contains('number-key')) {
+            // Enter/Space на цифровой клавише обрабатывает сама клавиша.
+            if (e.key === 'Enter' || e.key === ' ') return;
+        }
+        if (/^[0-9]$/.test(e.key)) {
+            e.preventDefault();
+            handleNumberInput(e.key);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            checkMathAnswer();
+        }
     });
 
     // Voice toggle button
     document.getElementById('voiceToggleBtn').addEventListener('click', function () {
         voiceEnabled = !voiceEnabled;
+        this.setAttribute('aria-label', voiceEnabled ? 'Озвучивание урока: включено' : 'Озвучивание урока: выключено');
 
         const iconOn = document.getElementById('voiceIconOn');
         const iconOff = document.getElementById('voiceIconOff');
@@ -172,11 +292,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (voiceEnabled) {
             iconOn.style.display = 'inline-flex';
             iconOff.style.display = 'none';
-            this.style.background = '#EE9F21';
+            this.classList.remove('bg-gray-200', 'text-gray-500');
         } else {
             iconOn.style.display = 'none';
             iconOff.style.display = 'inline-flex';
-            this.style.background = '#757575';
+            this.classList.add('bg-gray-200', 'text-gray-500');
         }
     });
 
@@ -222,6 +342,8 @@ function toggleTimerPause() {
 }
 
 function resetLesson() {
+    stopAllSpeech();
+
     correctAnswers = 0;
     totalAnswers = 0;
 
@@ -285,10 +407,12 @@ function calculateGrade(correct, total) {
 }
 
 function completeMathTest() {
+    stopAllSpeech();
+
     mathCompleted = true;
     document.getElementById('numberPad').classList.add('disabled');
     document.getElementById('mathProblem').style.display = 'none';
-    document.querySelector('.input-label').style.display = 'none';
+    document.getElementById('inputLabel').style.display = 'none';
 
     const completionMessage = document.getElementById('completionMessage');
     completionMessage.style.display = 'flex';
@@ -316,8 +440,8 @@ function resetMathTest() {
     mathCompleted = false;
     document.getElementById('numberPad').classList.remove('disabled');
     document.getElementById('mathProblem').style.display = 'flex';
-    document.querySelector('.input-label').style.display = 'block';
     document.getElementById('completionMessage').style.display = 'none';
+    document.getElementById('inputLabel').style.display = '';
 
     correctAnswers = 0;
     totalAnswers = 0;
@@ -338,13 +462,15 @@ function resetMathTest() {
 }
 
 function completeReadingTest() {
+    stopAllSpeech();
+
     readingCompleted = true;
     document.getElementById('taskNav').classList.remove('show');
     document.getElementById('wordDisplay').style.display = 'none';
     document.getElementById('wordProgress').style.display = 'none';
     document.getElementById('readingCompletion').style.display = 'flex';
 
-    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('readingProgressFill').style.width = '100%';
 
     isTimerPaused = true;
     const timerElement = document.getElementById('timer');
@@ -404,11 +530,7 @@ function loadReadingWords() {
 }
 
 function returnToHomeNoData() {
-    const loader = document.getElementById('loader');
-    loader.style.opacity = '0';
-    setTimeout(() => {
-        loader.style.display = 'none';
-    }, 300);
+    hideLoader();
 
     document.getElementById('lesson-page').style.display = 'none';
     document.getElementById('lesson-page').classList.remove('active');
@@ -432,15 +554,10 @@ function shuffleArray(array) {
 }
 
 function showLoaderAndNavigateToHome() {
-    const loader = document.getElementById('loader');
-    loader.style.display = 'flex';
-    loader.style.opacity = '0';
+    stopAllSpeech();
+    showLoader();
 
-    setTimeout(() => {
-        loader.style.opacity = '1';
-    }, 10);
-
-    const minLoaderTime = 1500;
+    const minLoaderTime = 500;
     const startTime = Date.now();
 
     function navigateToHome() {
@@ -459,12 +576,7 @@ function showLoaderAndNavigateToHome() {
         const timerElement = document.getElementById('timer');
         timerElement.classList.remove('timer-paused');
 
-        setTimeout(() => {
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 300);
-        }, 300);
+        hideLoader(250);
     }
 
     setTimeout(() => {
@@ -483,45 +595,40 @@ function showLoaderAndNavigateToLesson() {
         return;
     }
 
-    const loader = document.getElementById('loader');
-    loader.style.display = 'flex';
-    loader.style.opacity = '0';
+    stopAllSpeech();
+    showLoader();
 
-    setTimeout(() => {
-        loader.style.opacity = '1';
-    }, 10);
-
-    const minLoaderTime = 1500;
+    const minLoaderTime = 700;
     const startTime = Date.now();
 
     function navigateToLesson() {
-        document.getElementById('home-page').style.display = 'none';
-        document.getElementById('home-page').classList.remove('active');
-        document.getElementById('settings-page').style.display = 'none';
-        document.getElementById('settings-page').classList.remove('active');
-        document.getElementById('test-page').style.display = 'none';
-        document.getElementById('test-page').classList.remove('active');
-        document.getElementById('lesson-page').style.display = 'block';
-        document.getElementById('lesson-page').classList.add('active');
+        try {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('home-page').classList.remove('active');
+            document.getElementById('settings-page').style.display = 'none';
+            document.getElementById('settings-page').classList.remove('active');
+            document.getElementById('test-page').style.display = 'none';
+            document.getElementById('test-page').classList.remove('active');
+            document.getElementById('lesson-page').style.display = 'flex';
+            document.getElementById('lesson-page').classList.add('active');
 
-        resetTimer();
-        updateLessonHeader();
+            resetTimer();
+            updateLessonHeader();
 
-        const timerElement = document.getElementById('timer');
-        timerElement.classList.remove('timer-paused');
+            const timerElement = document.getElementById('timer');
+            timerElement.classList.remove('timer-paused');
 
-        if (currentSubject === 'math') {
-            showMathContent();
-        } else if (currentSubject === 'reading') {
-            showReadingContent();
+            if (currentSubject === 'math') {
+                showMathContent();
+            } else if (currentSubject === 'reading') {
+                showReadingContent();
+            }
+        } catch (error) {
+            console.error('Ошибка при открытии урока:', error);
+        } finally {
+            // Лоадер скрывается даже при ошибке инициализации урока.
+            hideLoader(250);
         }
-
-        setTimeout(() => {
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 300);
-        }, 300);
     }
 
     setTimeout(() => {
@@ -536,7 +643,7 @@ function showLoaderAndNavigateToLesson() {
 
 function showReadingContent() {
     document.getElementById('math-content').style.display = 'none';
-    document.getElementById('reading-content').style.display = 'block';
+    document.getElementById('reading-content').style.display = 'flex';
     document.getElementById('feedback').style.display = 'none';
     document.getElementById('stats').classList.remove('show');
 
@@ -545,7 +652,7 @@ function showReadingContent() {
     document.getElementById('taskNav').classList.remove('show');
     document.getElementById('wordDisplay').style.display = 'flex';
     document.getElementById('wordProgress').style.display = 'flex';
-    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('readingProgressFill').style.width = '0%';
 
     const wordDisplay = document.getElementById('wordDisplay');
     if (currentLevel === 2) {
@@ -571,7 +678,7 @@ function showMathContent() {
     document.getElementById('numberPad').classList.remove('disabled');
     document.getElementById('mathProblem').style.display = 'flex';
     document.getElementById('completionMessage').style.display = 'none';
-    document.querySelector('.input-label').style.display = 'block';
+    document.getElementById('inputLabel').style.display = '';
 
     correctAnswers = 0;
     totalAnswers = 0;
@@ -598,19 +705,20 @@ function showMathProblem() {
     document.getElementById('mathNum2').textContent = problem.num2;
     document.getElementById('mathOperator').textContent = problem.operator;
     document.getElementById('mathAnswer').textContent = '?';
-    document.getElementById('mathAnswer').style.color = '#888888';
+    document.getElementById('mathAnswer').classList.remove('text-correct', 'text-wrong');
 
     const progress = ((currentMathIndex + 1) / mathProblems.length) * 100;
     document.getElementById('progressFill').style.width = progress + '%';
 
     document.getElementById('mathProblem').style.display = 'flex';
     document.getElementById('completionMessage').style.display = 'none';
-    document.querySelector('.input-label').style.display = 'block';
     document.getElementById('numberPad').classList.remove('disabled');
 }
 
 function updateReadingContent() {
     if (readingCompleted) return;
+
+    stopAllSpeech();
 
     if (!currentWords || currentWords.length === 0) {
         completeReadingTest();
@@ -709,7 +817,7 @@ function updateReadingContent() {
     document.getElementById('totalWords').textContent = currentWords.length;
 
     const progress = ((currentWordIndex + 1) / currentWords.length) * 100;
-    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('readingProgressFill').style.width = progress + '%';
 
     document.getElementById('taskNav').classList.add('show');
 }
@@ -885,7 +993,7 @@ function checkMathAnswer() {
 
     if (userAnswer === problem.answer) {
         correctAnswers++;
-        answerElement.style.color = '#8BBCB2';
+        answerElement.classList.add('text-correct');
         playCorrectSound();
         const randomResponse = correctResponses[Math.floor(Math.random() * correctResponses.length)];
         showFeedback(randomResponse, false);
@@ -911,14 +1019,13 @@ function checkMathAnswer() {
             setTimeout(advanceToNextProblem, 2500);
         }
     } else {
-        answerElement.style.color = '#F35C87';
+        answerElement.classList.add('text-wrong');
         playIncorrectSound();
         const randomResponse = wrongResponses[Math.floor(Math.random() * wrongResponses.length)];
         showFeedback(randomResponse, true);
 
         const advanceToNextProblem = () => {
             answerElement.textContent = '?';
-            answerElement.style.color = '#888888';
             currentMathIndex++;
             isCheckingAnswer = false;
 
@@ -1019,15 +1126,20 @@ function resetHomeSelection() {
 }
 
 function loadAvailableVoices() {
+    const debug = window.appConfig && window.appConfig.speech && window.appConfig.speech.common && window.appConfig.speech.common.debug;
+    const logVoices = (label) => {
+        if (!debug) return;
+        console.log(label, availableVoices.map(v => `${v.name} (${v.lang})`));
+    };
     setTimeout(() => {
         availableVoices = speechSynthesis.getVoices();
-        console.log("Доступные голоса:", availableVoices.map(v => `${v.name} (${v.lang})`));
+        logVoices("Доступные голоса:");
     }, 500);
 
     if (speechSynthesis.onvoiceschanged !== undefined) {
         speechSynthesis.onvoiceschanged = function () {
             availableVoices = speechSynthesis.getVoices();
-            console.log("Обновленный список голосов:", availableVoices.map(v => `${v.name} (${v.lang})`));
+            logVoices("Обновленный список голосов:");
         };
     }
 }
@@ -1068,30 +1180,35 @@ function getBestRussianVoice() {
 function speakText(text, isWord = false, options = {}) {
     if (!voiceEnabled) return Promise.resolve();
 
-    console.log('[DEBUG speakText]', {
-        text: text.substring(0, 50),
-        isWord,
-        voiceEnabled,
-        speechServiceExists: !!window.speechService,
-        isEnabled: window.speechService ? window.speechService.isEnabled() : 'no service',
-        config: window.speechService ? window.speechService.config : null
-    });
+    const debug = window.appConfig && window.appConfig.speech && window.appConfig.speech.common && window.appConfig.speech.common.debug;
+    if (debug) {
+        console.log('[DEBUG speakText]', {
+            text: text.substring(0, 50),
+            isWord,
+            voiceEnabled,
+            speechServiceExists: !!window.speechService,
+            isEnabled: window.speechService ? window.speechService.isEnabled() : 'no service',
+            config: window.speechService ? window.speechService.config : null
+        });
+    }
 
     if (window.speechService && window.speechService.isEnabled()) {
-        console.log('[DEBUG] Using SpeechService (Yandex)');
+        if (debug) console.log('[DEBUG] Using SpeechService (Yandex)');
         return window.speechService.speak(text, { isWord: isWord, onProgress: options.onProgress }).catch(error => {
             console.error('Ошибка синтеза речи:', error);
-            console.log('[DEBUG] Fallback due to error');
+            if (debug) console.log('[DEBUG] Fallback due to error');
             return fallbackSpeakText(text, isWord, options);
         });
     } else {
-        console.log('[DEBUG] Using fallback (browser)');
+        if (debug) console.log('[DEBUG] Using fallback (browser)');
         return fallbackSpeakText(text, isWord, options);
     }
 }
 
 function fallbackSpeakText(text, isWord = false, options = {}) {
-    console.log('[DEBUG fallbackSpeakText]', { text: text.substring(0, 50), isWord });
+    if (window.appConfig && window.appConfig.speech && window.appConfig.speech.common && window.appConfig.speech.common.debug) {
+        console.log('[DEBUG fallbackSpeakText]', { text: text.substring(0, 50), isWord });
+    }
     if (!window.speechSynthesis) return Promise.resolve();
 
     if (window.speechSynthesis.speaking) {
@@ -1208,33 +1325,27 @@ function playIncorrectSound() {
 // ==================== ТЕСТ НА СЛУХ ====================
 
 function showLoaderAndNavigateToTest() {
-    const loader = document.getElementById('loader');
-    loader.style.display = 'flex';
-    loader.style.opacity = '0';
+    stopAllSpeech();
+    showLoader();
 
-    setTimeout(() => {
-        loader.style.opacity = '1';
-    }, 10);
-
-    const minLoaderTime = 800;
+    const minLoaderTime = 500;
     const startTime = Date.now();
 
     function navigateToTest() {
-        document.getElementById('home-page').style.display = 'none';
-        document.getElementById('home-page').classList.remove('active');
-        document.getElementById('lesson-page').style.display = 'none';
-        document.getElementById('lesson-page').classList.remove('active');
-        document.getElementById('test-page').style.display = 'flex';
-        document.getElementById('test-page').classList.add('active');
+        try {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('home-page').classList.remove('active');
+            document.getElementById('lesson-page').style.display = 'none';
+            document.getElementById('lesson-page').classList.remove('active');
+            document.getElementById('test-page').style.display = 'flex';
+            document.getElementById('test-page').classList.add('active');
 
-        initTest();
-
-        setTimeout(() => {
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 300);
-        }, 300);
+            initTest();
+        } catch (error) {
+            console.error('Ошибка при открытии теста:', error);
+        } finally {
+            hideLoader(250);
+        }
     }
 
     setTimeout(() => {
@@ -1268,7 +1379,7 @@ function renderTestPlaceholder(word) {
     const wordDisplay = document.getElementById('testWordDisplay');
     if (!wordDisplay) return;
 
-    wordDisplay.className = 'test-word-display';
+    wordDisplay.className = TEST_WORD_DISPLAY_CLASSES;
     wordDisplay.innerHTML = '';
 
     const length = (word || '').length;
@@ -1286,6 +1397,8 @@ function showTestWord() {
         return;
     }
 
+    stopAllSpeech();
+
     const wordData = testQuestions[currentTestIndex];
     const options = document.querySelectorAll('.test-option');
     const feedback = document.getElementById('testFeedback');
@@ -1302,7 +1415,7 @@ function showTestWord() {
     options.forEach((opt, i) => {
         opt.textContent = shuffledOptions[i];
         opt.disabled = false;
-        opt.className = 'test-option';
+        opt.className = TEST_OPTION_CLASSES;
     });
 
     const progress = ((currentTestIndex + 1) / testQuestions.length) * 100;
@@ -1404,9 +1517,11 @@ function checkTestAnswer(selectedIndex) {
         document.getElementById('testFeedbackText').textContent = response;
         feedback.classList.remove('wrong');
         feedback.classList.add('show');
+        feedback.style.display = 'flex';
 
         revealTestWord(wordData.word, () => {
             feedback.classList.remove('show');
+            feedback.style.display = 'none';
             nextTest();
         });
     } else {
@@ -1418,9 +1533,11 @@ function checkTestAnswer(selectedIndex) {
         const response = wrongResponses[Math.floor(Math.random() * wrongResponses.length)];
         document.getElementById('testFeedbackText').textContent = response;
         feedback.classList.add('show', 'wrong');
+        feedback.style.display = 'flex';
 
         setTimeout(() => {
             feedback.classList.remove('show', 'wrong');
+            feedback.style.display = 'none';
             shuffledOptions.forEach(opt => {
                 opt.disabled = false;
                 opt.classList.remove('selected', 'wrong');
@@ -1457,6 +1574,8 @@ function completeTest() {
     if (testCompleted) return;
     testCompleted = true;
 
+    stopAllSpeech();
+
     document.getElementById('test-content').style.display = 'none';
     document.getElementById('testCompletion').style.display = 'flex';
     document.getElementById('testProgressFill').style.width = '100%';
@@ -1479,7 +1598,7 @@ function resetTest() {
     testQuestions = shuffleArray([...testWordsData]).slice(0, 20);
     testAnswers = new Array(testQuestions.length).fill(null);
 
-    document.getElementById('test-content').style.display = 'block';
+    document.getElementById('test-content').style.display = 'flex';
     document.getElementById('testCompletion').style.display = 'none';
 
     resetTestTimer();

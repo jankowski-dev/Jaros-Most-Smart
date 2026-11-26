@@ -56,7 +56,7 @@ class SpeechService {
         this.config = config;
         this.currentAudio = null;
         this.currentUtterance = null;
-        this.debug = config.debug || false;
+        this.debug = Boolean(config.common && config.common.debug);
     }
 
     // Метод для логирования

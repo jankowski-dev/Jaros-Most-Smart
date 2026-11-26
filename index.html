@@ -2,108 +2,105 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ярик.Уроки - Обучающая платформа</title>
     <meta name="theme-color" content="#EE9F21">
     <meta name="description" content="Обучающая платформа для детей">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Ярик">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="preload" href="fonts/montserrat-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="overflow-x-hidden">
     <!-- Update Banner -->
-    <div id="update-banner" class="update-banner">
-        <span id="update-text">Появилась новая версия</span>
-        <div id="update-progress-container" style="display: none; width: 100%; height: 4px; background: #ddd; border-radius: 2px; margin-top: 10px;">
-            <div id="update-progress-bar" style="width: 0%; height: 100%; background: #EE9F21; border-radius: 2px; transition: width 0.1s linear;"></div>
+    <div id="update-banner" class="update-banner flex items-center gap-4 px-5 py-4 rounded-2xl shadow-xl">
+        <span id="update-text" class="text-sm">Появилась новая версия</span>
+        <div id="update-progress-container" class="hidden w-full h-4 bg-gray-200 rounded-2xl overflow-hidden">
+            <div id="update-progress-bar" class="w-0 h-full bg-brand rounded-2xl transition-all"></div>
         </div>
-        <button id="update-btn" class="btn" style="margin-top: 10px;">Обновить</button>
+        <button id="update-btn" class="btn">Обновить</button>
     </div>
 
     <!-- Loader -->
-    <div id="loader">
-        <div class="loader-logo">Ярик<span>.Уроки</span></div>
-        <div class="loader-spinner"></div>
+    <div id="loader" class="loader fixed inset-0 flex flex-col items-center justify-center bg-black text-white z-[9999] transition-opacity">
+        <div class="loader-logo font-black text-4xl md:text-5xl uppercase tracking-wider text-brand mb-10 pulse">ЯРИК<span class="text-gray-300">.УРОКИ</span></div>
+        <div class="loader-spinner w-16 h-16 md:w-20 md:h-20 border-4 border-white/10 border-t-brand rounded-full animate-spin"></div>
     </div>
 
     <!-- Home Page -->
     <div id="home-page" class="page active">
-        <div class="home-top">
-            <div class="logo" id="mainLogo"><span class="logo-name">Ярик</span><span>.Уроки</span></div>
+        <div class="home-top flex items-center justify-between px-6 md:px-12 pt-8 pb-4">
+            <div id="mainLogo" class="logo font-black text-2xl md:text-3xl uppercase tracking-wider text-white cursor-pointer select-none">ЯРИК<span class="text-gray-300">.УРОКИ</span></div>
             <div class="header-controls">
-                <div class="global-toggle">
-                    <span class="toggle-label toggle-left">Легкий</span>
-                    <div class="toggle-track" id="difficultyToggle">
-                        <div class="toggle-thumb"></div>
+                <div class="global-toggle flex items-center gap-3 px-5 py-2 rounded-full bg-white/10 backdrop-blur-sm">
+                    <span class="toggle-label toggle-left font-medium text-sm text-white/80 active">Легкий</span>
+                    <div class="toggle-track w-14 h-8 rounded-full bg-white/20 transition-all" id="difficultyToggle">
+                        <div class="toggle-thumb w-6 h-6 rounded-full bg-white shadow"></div>
                     </div>
-                    <span class="toggle-label toggle-right">Сложный</span>
+                    <span class="toggle-label toggle-right font-medium text-sm text-white/80">Сложный</span>
                 </div>
             </div>
         </div>
-        <div class="menu-section">
-            <h2 class="menu-title">Меню</h2>
-            <div class="menu-list">
+        <div class="menu-section flex-1 flex flex-col items-center justify-center gap-8 px-6 pb-8">
+            <h2 class="menu-title font-bold text-2xl md:text-3xl mb-2">Меню</h2>
+            <div class="menu-list w-full max-w-md flex flex-col gap-4">
                 <div class="menu-item" id="menu-math">
-                    <span class="menu-item-name">Математика</span>
+                    <span class="menu-item-name font-bold text-lg text-gray-800 hover:text-brand-dark active:scale-[0.98]">Математика</span>
                 </div>
                 <div class="menu-item" id="menu-reading">
-                    <span class="menu-item-name">Чтение</span>
+                    <span class="menu-item-name font-bold text-lg text-gray-800 hover:text-brand-dark active:scale-[0.98]">Чтение</span>
                 </div>
                 <div class="menu-item" id="menu-test">
-                    <span class="menu-item-name">Тест</span>
+                    <span class="menu-item-name font-bold text-lg text-gray-800 hover:text-brand-dark active:scale-[0.98]">Тест</span>
                 </div>
                 <div class="menu-item-disabled">
-                    <span class="menu-item-name">Настройки</span>
+                    <span class="menu-item-name font-bold text-lg text-gray-400">Настройки</span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Settings Page -->
-    <div id="settings-page" class="page" style="display: none;">
-        <div class="home-top">
-            <div class="logo" id="settingsLogo">Ярик<span>.Уроки</span></div>
+    <div id="settings-page" class="page">
+        <div class="home-top flex items-center px-6 md:px-12 pt-8">
+            <div id="settingsLogo" class="logo font-black text-2xl md:text-3xl uppercase tracking-wider">ЯРИК<span class="text-gray-300">.УРОКИ</span></div>
         </div>
-        <div class="menu-section">
-            <h2 class="menu-title">Настройки</h2>
-            <div class="menu-list">
-                <div class="settings-placeholder">
-                    <p>Страница настроек в разработке</p>
-                </div>
+        <div class="menu-section flex-1 flex flex-col items-center justify-center">
+            <h2 class="menu-title font-bold text-2xl mb-6 text-gray-800">Настройки</h2>
+            <div class="settings-placeholder text-center bg-white/80 rounded-3xl p-8 shadow-xl text-gray-600">
+                <p>Страница настроек в разработке</p>
             </div>
         </div>
     </div>
 
     <!-- Test Page -->
-    <div id="test-page" class="page" style="display: none;">
-        <div class="lesson-header">
-            <div class="logo" id="testLogo">Ярик<span>.Уроки</span></div>
-            <div class="lesson-info" id="testInfo">Тест на слух</div>
+    <div id="test-page" class="page">
+        <div class="lesson-header flex items-center justify-between bg-white rounded-b-2xl shadow-md px-5 py-3 md:px-8 md:py-4">
+            <div id="testLogo" class="logo font-black text-2xl uppercase tracking-wider">ЯРИК<span class="text-gray-300">.УРОКИ</span></div>
+            <div id="testInfo" class="lesson-info font-bold text-lg text-brand">Тест на слух</div>
         </div>
 
-        <!-- Control Panel -->
-        <div class="control-panel">
+        <div class="control-panel flex items-center justify-between gap-6 px-6 md:px-12 pt-6">
             <div class="timer">
-                <div class="timer-label"></div>
-                <div class="timer-value" id="testTimer">00:00:00</div>
+                <div class="timer-label text-gray-500 text-sm font-light"></div>
+                <div class="timer-value text-brand font-black text-3xl md:text-4xl min-w-[130px] cursor-pointer" id="testTimer">00:00:00</div>
             </div>
-
-            <div class="butt-container"> 
-                <button class="btn" id="testVoiceToggleBtn">
-                    <span id="testVoiceIconOn" style="display: inline-flex; gap: 8px; align-items: center;">
-                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="butt-container">
+                <button class="btn" id="testVoiceToggleBtn" type="button" aria-label="Озвучивание теста: включено">
+                    <span id="testVoiceIconOn" class="inline-flex gap-2 items-center">
+                        <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                             <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                         </svg>
                         Вкл
                     </span>
-                    <span id="testVoiceIconOff" style="display: none; gap: 8px; align-items: center;">
-                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <span id="testVoiceIconOff" class="hidden gap-2 items-center">
+                        <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                             <line x1="23" y1="9" x2="17" y2="15"></line>
                             <line x1="17" y1="9" x2="23" y2="15"></line>
@@ -111,80 +108,71 @@
                         Выкл
                     </span>
                 </button>
-
-                <button class="btn btn-secondary" id="testRestartBtn">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button class="btn btn-secondary" id="testRestartBtn" type="button" aria-label="Начать тест заново">
+                    <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="1 4 1 10 7 10"></polyline>
                         <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                     </svg>
                 </button>
-
-                <button class="btn btn-cancel" id="finishTestBtn">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button class="btn btn-cancel" id="finishTestBtn" type="button" aria-label="Завершить тест">
+                    <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6L6 18M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
         </div>
 
-        <!-- Content Area -->
-        <div class="content-area">
-            <!-- Progress Bar -->
+        <div class="content-area flex flex-col items-center justify-between px-6 md:px-12 pt-4 pb-8">
             <div class="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill" id="testProgressFill" style="width: 0%;"></div>
                 </div>
             </div>
 
-            <!-- Test Content -->
-            <div id="test-content">
-                <div class="test-word-container">
-                    <div class="test-word-display" id="testWordDisplay"></div>
+            <div id="test-content" class="test-content w-full flex flex-col items-center gap-8">
+                <div class="test-word-container flex items-center justify-center min-h-[100px]">
+                    <div class="test-word-display text-7xl md:text-9xl font-black" id="testWordDisplay" role="button" tabindex="0" aria-label="Прослушать слово ещё раз"></div>
                 </div>
-
-                <div class="test-options" id="testOptions">
+                <div class="test-options grid grid-cols-1 md:grid-cols-3 gap-5" id="testOptions">
                     <button class="test-option" data-index="0"></button>
                     <button class="test-option" data-index="1"></button>
                     <button class="test-option" data-index="2"></button>
                 </div>
-
-                <div class="feedback" id="testFeedback">
-                    <div class="feedback-text" id="testFeedbackText"></div>
+                <div class="feedback" id="testFeedback" role="status" aria-live="polite">
+                    <div class="feedback-text font-bold text-lg md:text-xl" id="testFeedbackText"></div>
                 </div>
             </div>
 
-            <div class="test-completion" id="testCompletion" style="display: none;">
-                <div class="test-completion-title">Тест завершён!</div>
-                <div class="test-completion-grade">Твоя оценка: <span id="testFinalGrade">10</span></div>
+            <div class="test-completion flex flex-col items-center justify-center text-center p-10 min-h-[300px]" id="testCompletion" style="display: none;">
+                <div class="test-completion-title font-bold text-2xl md:text-3xl text-gray-800 mb-6">Тест завершён!</div>
+                <div class="test-completion-grade font-black text-brand text-6xl md:text-8xl" id="testFinalGrade">10</div>
             </div>
         </div>
     </div>
 
     <!-- Lesson Page -->
-    <div id="lesson-page" class="page" style="display: none;">
-        <div class="lesson-header">
-            <div class="logo" id="lessonLogo">Ярик<span>.Уроки</span></div>
-            <div class="lesson-info" id="lessonInfo">Математика: Сложение</div>
+    <div id="lesson-page" class="page">
+        <div class="lesson-header flex items-center justify-between bg-white rounded-b-2xl shadow-md px-5 py-3 md:px-8 md:py-4">
+            <div id="lessonLogo" class="logo font-black text-2xl uppercase tracking-wider cursor-pointer select-none">ЯРИК<span class="text-gray-300">.УРОКИ</span></div>
+            <div id="lessonInfo" class="lesson-info font-bold text-lg text-brand">Математика: Сложение</div>
         </div>
 
-        <!-- Control Panel -->
-        <div class="control-panel">
+        <div class="control-panel flex items-center justify-between gap-6 px-6 md:px-12 pt-6">
             <div class="timer">
-                <div class="timer-label"></div>
-                <div class="timer-value" id="timer">00:00:00</div>
+                <div class="timer-label text-gray-500 text-sm font-light"></div>
+                <div class="timer-value text-brand font-black text-3xl md:text-4xl min-w-[130px] cursor-pointer" id="timer" role="button" tabindex="0" aria-label="Пауза таймера">00:00:00</div>
             </div>
-
-            <div class="butt-container"> 
-                <button class="btn" id="voiceToggleBtn">
-                    <span id="voiceIconOn" style="display: inline-flex; gap: 8px; align-items: center;">
-                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="butt-container">
+                <button class="btn" id="voiceToggleBtn" type="button" aria-label="Озвучивание урока: включено">
+                    <span id="voiceIconOn" class="inline-flex gap-2 items-center">
+                        <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                             <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                         </svg>
                         Вкл
                     </span>
-                    <span id="voiceIconOff" style="display: none; gap: 8px; align-items: center;">
-                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <span id="voiceIconOff" class="hidden gap-2 items-center">
+                        <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                             <line x1="23" y1="9" x2="17" y2="15"></line>
                             <line x1="17" y1="9" x2="23" y2="15"></line>
@@ -192,114 +180,112 @@
                         Выкл
                     </span>
                 </button>
-
-                <button class="btn btn-secondary" id="restartBtn">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button class="btn btn-secondary" id="restartBtn" type="button" aria-label="Начать урок заново">
+                    <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="1 4 1 10 7 10"></polyline>
                         <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                     </svg>
                 </button>
-
-                <button class="btn btn-cancel" id="finishLessonBtn">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button class="btn btn-cancel" id="finishLessonBtn" type="button" aria-label="Завершить урок">
+                    <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6L6 18M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
         </div>
 
-        <!-- Content Area -->
-        <div class="content-area">
-            <!-- Progress Bar -->
+        <div class="content-area flex flex-col items-center justify-between px-6 md:px-12 pt-4 pb-8">
             <div class="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
                 </div>
             </div>
 
-            <!-- Task Area -->
-            <div class="task-area">
+            <div class="task-area w-full flex flex-col items-center">
                 <!-- Math Content -->
-                <div id="math-content">
-                    <div class="math-problem" id="mathProblem">
-                        <span class="number" id="mathNum1">3</span>
-                        <span class="operator" id="mathOperator">+</span>
-                        <span class="number" id="mathNum2">2</span>
-                        <span class="equals">=</span>
-                        <span class="math-answer" id="mathAnswer">?</span>
+                <div id="math-content" class="math-content">
+                    <div class="math-problem flex items-center justify-center gap-2 md:gap-4 text-6xl md:text-7xl lg:text-[3.75rem] font-black" id="mathProblem">
+                        <span class="number mx-2 md:mx-3 text-gray-400" id="mathNum1">3</span>
+                        <span class="operator mx-2 md:mx-3 text-brand" id="mathOperator">+</span>
+                        <span class="number mx-2 md:mx-3 text-gray-400" id="mathNum2">2</span>
+                        <span class="equals mx-2 md:mx-3 text-brand" id="equals">=</span>
+                        <span class="math-answer text-gray-500 min-w-[100px] text-center" id="mathAnswer">?</span>
                     </div>
-                    
-                    <div class="completion-message" id="completionMessage">
-                        <div class="completion-title">Твоя оценка</div>
-                        <div class="completion-grade" id="finalGrade">10</div>
+
+                    <div class="completion-message flex flex-col items-center justify-center min-h-[180px] text-center" id="completionMessage">
+                        <div class="completion-title font-black text-3xl md:text-4xl text-brand mb-6">Твоя оценка</div>
+                        <div class="completion-grade font-black text-6xl md:text-8xl text-correct" id="finalGrade">10</div>
                     </div>
-                    
-                    <div class="input-label">Введи ответ</div>
-                    <div class="number-pad" id="numberPad">
-                        <div class="number-key" data-value="1">1</div>
-                        <div class="number-key" data-value="2">2</div>
-                        <div class="number-key" data-value="3">3</div>
-                        <div class="number-key" data-value="4">4</div>
-                        <div class="number-key" data-value="5">5</div>
-                        <div class="number-key" data-value="6">6</div>
-                        <div class="number-key" data-value="7">7</div>
-                        <div class="number-key" data-value="8">8</div>
-                        <div class="number-key" data-value="9">9</div>
-                        <div class="number-key" data-value="0">0</div>
+
+                    <div class="input-label font-bold text-lg md:text-xl text-gray-600 text-center mt-8 mb-8" id="inputLabel">Введи ответ</div>
+                    <div class="number-pad grid grid-cols-5 md:grid-cols-10 gap-4 justify-items-center" id="numberPad">
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="1">1</div>
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="2">2</div>
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="3">3</div>
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="4">4</div>
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="5">5</div>
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="6">6</div>
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="7">7</div>
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="8">8</div>
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="9">9</div>
+                        <div class="number-key h-16 w-16 rounded-2xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-2xl md:text-3xl font-bold text-gray-600" data-value="0">0</div>
                     </div>
                 </div>
 
-<!-- Reading Content -->
-<div id="reading-content" style="display: none;">
-    <div class="word-container">
-        <div class="word" id="wordDisplay"></div>
-    </div>
-                    <div class="reading-completion" id="readingCompletion">
-                        <div class="reading-completion-title">Задание завершено!</div>
+                <!-- Reading Content -->
+                <div id="reading-content" class="reading-content flex flex-col w-full h-full">
+                    <div class="word-container flex flex-col items-center justify-center min-h-[120px] mb-10">
+                        <div class="word text-7xl md:text-9xl font-black flex items-center justify-center flex-wrap max-w-[90vw]" id="wordDisplay" role="button" tabindex="0" aria-label="Прослушать слово"></div>
                     </div>
-                    <div class="word-progress" id="wordProgress">
-                        <span class="current-word" id="currentWord">1</span>
-                        <span class="progress-slash">/</span>
-                        <span class="total-words" id="totalWords">50</span>
+                    <div class="reading-completion flex flex-col items-center justify-center min-h-[120px] text-center hidden" id="readingCompletion">
+                        <div class="reading-completion-title font-black text-4xl md:text-5xl text-brand">Задание завершено!</div>
+                    </div>
+                    <div class="word-progress flex items-center justify-center text-2xl md:text-3xl font-bold mb-2" id="wordProgress">
+                        <span class="current-word text-gray-500" id="currentWord">1</span>
+                        <span class="progress-slash text-gray-500">/</span>
+                        <span class="total-words text-brand" id="totalWords">50</span>
+                    </div>
+                    <div class="progress-bar w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="progress-fill h-full" id="readingProgressFill" style="width: 0%;"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Feedback Message -->
-            <div class="feedback" id="feedback">
-                <div class="feedback-text" id="feedbackText"></div>
+            <div class="feedback flex items-center justify-center max-w-md rounded-2xl h-12 text-center my-6" id="feedback" role="status" aria-live="polite">
+                <div class="feedback-text font-bold text-lg md:text-xl" id="feedbackText"></div>
             </div>
 
             <!-- Task Navigation (only for reading) -->
-            <div class="task-nav" id="taskNav">
+            <div class="task-nav flex justify-center gap-6" id="taskNav">
                 <button class="btn-pre-wh btn-secondary" id="prevBtn">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
                     Назад
                 </button>
-                <button class="btn-pre" id="nextBtn">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button class="btn-pre-wh btn-secondary" id="nextBtn">
+                    <svg class="btn-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
                     Далее
                 </button>
             </div>
         </div>
-                
-        <!-- Stats - только 3 параметра -->
-        <div class="stats" id="stats">
-            <div class="stat-item">
-                <div class="stat-value" id="totalCount">0</div>
-                <div class="stat-label">Всего</div>
+
+        <!-- Stats -->
+        <div class="stats flex justify-center gap-8 py-6" id="stats">
+            <div class="stat-item text-center">
+                <div class="stat-value font-black text-3xl md:text-4xl text-brand" id="totalCount">0</div>
+                <div class="stat-label text-sm text-gray-500 font-medium uppercase tracking-wider">Всего</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="correctCount">0</div>
-                <div class="stat-label">Правильно</div>
+            <div class="stat-item text-center">
+                <div class="stat-value font-black text-3xl md:text-4xl text-correct" id="correctCount">0</div>
+                <div class="stat-label text-sm text-gray-500 font-medium uppercase tracking-wider">Правильно</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="wrongCount">0</div>
-                <div class="stat-label">Ошибок</div>
+            <div class="stat-item text-center">
+                <div class="stat-value font-black text-3xl md:text-4xl text-wrong" id="wrongCount">0</div>
+                <div class="stat-label text-sm text-gray-500 font-medium uppercase tracking-wider">Ошибок</div>
             </div>
         </div>
     </div>

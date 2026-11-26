@@ -1,0 +1,989 @@
+/* src/input.css — входной файл Tailwind CSS + бренд-тема + кастомные стили */
+@import "tailwindcss";
+
+/* ============ ШРИФТ (локальный, для офлайн-режима PWA) ============ */
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url('fonts/montserrat-cyrillic.woff2') format('woff2');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url('fonts/montserrat-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ============ ТЕМА ============ */
+@theme {
+    --font-sans: 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    /* Бренд — оранжевый (#EE9F21) */
+    --color-brand: #EE9F21;
+    --color-brand-dark: #D48E1D;
+    --color-brand-light: #F2B34F;
+
+    /* Состояния */
+    --color-correct: #2E8B57;
+    --color-correct-light: #E8F5F1;
+    --color-correct-dark: #2D5A4A;
+    --color-wrong: #E5484D;
+    --color-wrong-light: #FCE4EC;
+    --color-wrong-dark: #8B1538;
+}
+
+/* ============ БАЗА ============ */
+body {
+    font-family: var(--font-sans);
+    background: #FBFBFB;
+    min-height: 100vh;
+}
+
+/* ============ СТРАНИЦЫ (class active) ============ */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============ КАСТОМНЫЕ СТИЛИ ============ */
+
+/* Перемещение ручки переключателя в состоянии "on" (app.js переключает класс active) */
+.toggle-track.active .toggle-thumb {
+    transform: translateX(1.25rem);
+}
+
+/* Волна при нажатии (Material-style ripple) */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to { transform: scale(4); opacity: 0; }
+}
+
+/* Мигание логотипа на лоадере */
+@keyframes pulse {
+    0% { opacity: 0.3; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Баннер обновления — скрыт по умолчанию, JS тогглит style.display */
+#update-banner {
+    display: none;
+}
+
+/* Лоадер — скрыт по умолчанию, показывается JS при навигации (fade-in/fade-out) */
+#loader {
+    display: none;
+}
+
+/* Показ букв слова синхронно с озвучкой */
+.word-letter.filled,
+.test-char.filled {
+    color: var(--color-correct);
+}
+
+/* Заглушки в тесте на слух (до правильного ответа) */
+.test-char {
+    color: #9CA3AF;
+}
+
+.word-letter.vowel {
+    color: var(--color-brand);
+}
+
+.word-letter.consonant {
+    color: #9CA3AF;
+}
+
+.word-letter {
+    display: inline-block;
+    transition: color 0.3s ease;
+}
+
+.syllable-divider {
+    color: var(--color-brand);
+    font-weight: 900;
+}
+
+/* Плавность сложного уровня чтения */
+.word.hard-level {
+    font-size: 1.5rem;
+}
+
+.word.hard-level .word-letter {
+    margin-right: 2px;
+}
+
+/* Плавная заливка букв теста при правильном ответе */
+.test-char.revealing {
+    opacity: 0;
+    transform: scale(0.7);
+    transition: color 0.3s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+/* Классы, которые app.js добавляет/удаляет динамически */
+@source inline("space syllable-divider ripple word-letter test-char test-word-display");
+
+/* Скрытие слова теста при правильном ответе */
+.test-word-display.correct {
+    color: var(--color-correct);
+}
+
+.test-word-display.wrong {
+    color: var(--color-wrong);
+}
+
+/* Прогресс-бар (цвет заливки задаётся классом progress-fill) */
+.progress-fill {
+    background: var(--color-brand);
+    transition: width 0.5s ease;
+}
+
+/* Фидбэк-сообщение при проверке ответа */
+.feedback {
+    display: none;
+    background: var(--color-correct-light);
+}
+
+.feedback.wrong {
+    background: var(--color-wrong-light);
+}
+
+/* Классы состояния ответа (добавляются app.js) */
+.math-answer.text-correct {
+    color: var(--color-correct);
+}
+
+.math-answer.text-wrong {
+    color: var(--color-wrong);
+}
+
+/* Класс таймера на паузе (добавляется app.js) */
+.timer-value.timer-paused {
+    color: #6B7280;
+}
+
+/* Скрытие клавиатуры при завершении математики */
+.number-pad.disabled {
+    display: none;
+}
+
+/* Видимость панели статистики (добавляется app.js) */
+.stats.show {
+    display: flex;
+}
+
+/* Видимость заданий (добавляет app.js) */
+.task-nav.show {
+    display: flex;
+}
+
+/* Видимость завершения задания (добавляет app.js) */
+.completion-message.show,
+.reading-completion.show,
+.test-completion.show {
+    display: flex;
+}
+
+/* Состояния кнопок теста */
+.test-option.selected.correct {
+    border-color: var(--color-correct);
+    background: var(--color-correct-light);
+    color: var(--color-correct-dark);
+}
+
+.test-option.selected.wrong {
+    border-color: var(--color-wrong);
+    background: var(--color-wrong-light);
+    color: var(--color-wrong-dark);
+}
+
+.test-option.selected {
+    border-color: var(--color-brand);
+    background: #EE9F2110;
+}
+
+/* ============================================================
+   КОМПОНЕНТЫ ИНТЕРФЕЙСА
+   ============================================================ */
+
+/* ---------- Общие элементы ---------- */
+.page {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.logo {
+    color: var(--color-brand);
+}
+
+/* ---------- Главная страница ---------- */
+#home-page {
+    background:
+        radial-gradient(1100px 600px at 100% -10%, rgba(255, 255, 255, 0.28), transparent 60%),
+        linear-gradient(135deg, #EE9F21 0%, #F0A62F 55%, #F5BC5C 100%);
+}
+
+#home-page .logo {
+    color: #fff;
+}
+
+#home-page .logo span {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.menu-title {
+    color: #fff;
+}
+
+.global-toggle {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.toggle-label.active {
+    color: #fff;
+    font-weight: 700;
+}
+
+.toggle-track {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.toggle-thumb {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+}
+
+.toggle-track.active {
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.toggle-track.active .toggle-thumb {
+    transform: translateX(1.5rem);
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 4rem;
+    padding: 1.1rem 1.5rem;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(120, 72, 0, 0.16);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.menu-item:hover {
+    transform: translateY(-2px);
+    background: #FFFDF8;
+    box-shadow: 0 10px 24px rgba(120, 72, 0, 0.2);
+}
+
+.menu-item:active {
+    transform: scale(0.985);
+}
+
+.menu-item-disabled {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 4rem;
+    padding: 1.1rem 1.5rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.55);
+    cursor: not-allowed;
+}
+
+.settings-placeholder {
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Баннер обновления ---------- */
+#update-banner {
+    position: fixed;
+    left: 50%;
+    bottom: 1.25rem;
+    transform: translateX(-50%);
+    z-index: 10000;
+    width: max-content;
+    max-width: calc(100vw - 2rem);
+    background: #1F2937;
+    color: #fff;
+}
+
+#update-banner .btn {
+    min-height: 2.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    box-shadow: none;
+}
+
+/* ---------- Кнопки ---------- */
+.btn,
+.btn-pre-wh {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: 0.65rem 1.5rem;
+    border: 0;
+    border-radius: 9999px;
+    background: var(--color-brand);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 14px rgba(238, 159, 33, 0.28);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.btn:hover {
+    background: var(--color-brand-dark);
+}
+
+.btn:active,
+.btn-pre-wh:active {
+    transform: scale(0.97);
+}
+
+.btn:focus-visible,
+.btn-pre-wh:focus-visible,
+.test-option:focus-visible {
+    outline: 3px solid rgba(238, 159, 33, 0.45);
+    outline-offset: 2px;
+}
+
+.btn-secondary,
+.btn-pre-wh {
+    background: #F1F1F1;
+    color: #6B7280;
+    box-shadow: none;
+}
+
+.btn-secondary:hover,
+.btn-pre-wh:hover {
+    background: #E5E7EB;
+}
+
+.btn-cancel {
+    background: var(--color-wrong);
+    box-shadow: 0 4px 14px rgba(229, 72, 77, 0.24);
+}
+
+.btn-cancel:hover {
+    background: #D93A3F;
+}
+
+.btn-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* ---------- Панель управления уроком/тестом ---------- */
+.control-panel {
+    width: 100%;
+    max-width: 760px;
+    margin: 1.5rem auto 0;
+}
+
+.timer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.timer-label {
+    min-height: 1.1rem;
+}
+
+.timer-value {
+    white-space: nowrap;
+}
+
+.butt-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+/* ---------- Прогресс ---------- */
+.progress-container {
+    width: 100%;
+    max-width: 788px;
+    margin: 1rem auto 1.5rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 0.625rem;
+    background: #F1F1F1;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 9999px;
+}
+
+/* ---------- Контентная область ---------- */
+.content-area {
+    flex: 1;
+    width: 100%;
+}
+
+.task-area {
+    flex: 1;
+    justify-content: center;
+}
+
+.math-content,
+.reading-content {
+    width: 100%;
+}
+
+.math-problem {
+    min-height: 10rem;
+    margin-bottom: 1.5rem;
+}
+
+.math-answer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 7rem;
+}
+
+.input-label {
+    margin-top: 0.5rem;
+}
+
+.number-pad {
+    width: 100%;
+    max-width: 900px;
+    margin: 1.5rem auto 0;
+    justify-content: center;
+}
+
+.number-key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.number-key:hover {
+    background: #E5E7EB;
+}
+
+.number-key:active {
+    transform: scale(0.94);
+    background: var(--color-brand);
+    color: #fff;
+}
+
+.completion-message {
+    display: none;
+}
+
+/* ---------- Чтение ---------- */
+.word {
+    cursor: pointer;
+}
+
+.word.hard-level {
+    font-size: 2.75rem;
+    letter-spacing: 0;
+}
+
+.reading-completion {
+    display: none;
+}
+
+.word-progress {
+    gap: 0.35rem;
+}
+
+.progress-slash {
+    margin: 0 0.25rem;
+}
+
+/* ---------- Фидбэк ---------- */
+.feedback {
+    width: 100%;
+    max-width: 28rem;
+    height: auto;
+    min-height: 3rem;
+    padding: 0.5rem 1rem;
+}
+
+#testFeedback.show {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+
+.feedback-text {
+    color: var(--color-correct-dark);
+}
+
+.feedback.wrong .feedback-text {
+    color: var(--color-wrong-dark);
+}
+
+/* ---------- Навигация и статистика ---------- */
+.task-nav {
+    display: none;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    padding-bottom: 0.5rem;
+}
+
+.task-nav.show {
+    display: flex;
+}
+
+.stats {
+    display: none;
+    width: 100%;
+}
+
+.stats.show {
+    display: flex;
+}
+
+.stat-item {
+    position: relative;
+    padding: 0 1.5rem;
+}
+
+.stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 2px;
+    height: 2.5rem;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    background: rgba(136, 136, 136, 0.2);
+}
+
+/* ---------- Тест на слух ---------- */
+.test-content {
+    flex: 1;
+    justify-content: center;
+}
+
+.test-word-container {
+    width: 100%;
+}
+
+.test-word-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 100%;
+    min-height: 5.5rem;
+    color: #9CA3AF;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    overflow-wrap: anywhere;
+}
+
+.test-word-display .test-char {
+    margin: 0 2px;
+}
+
+.test-options {
+    width: 100%;
+    max-width: 48rem;
+    margin: 0 auto;
+}
+
+.test-option {
+    width: 100%;
+    background: #fff;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.test-option.correct-answer {
+    border-color: var(--color-correct);
+    background: var(--color-correct-light);
+}
+
+.test-completion {
+    display: none;
+}
+
+#testFeedback {
+    position: fixed;
+    left: 50%;
+    bottom: 1rem;
+    z-index: 50;
+    width: calc(100% - 2rem);
+    max-width: 28rem;
+    margin: 0;
+    transform: translateX(-50%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+}
+
+/* ---------- Лоадер ---------- */
+.pulse {
+    animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+/* ---------- Анимации ---------- */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.word.fade-out {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+.word.fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+/* ============================================================
+   АДАПТИВНОСТЬ
+   ============================================================ */
+
+@media (min-width: 768px) {
+    .number-pad {
+        gap: 0.75rem;
+    }
+
+    .number-key {
+        width: 100%;
+        max-width: 5rem;
+        height: auto;
+        aspect-ratio: 1;
+    }
+}
+
+@media (max-width: 640px) {
+    .control-panel {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.9rem;
+        margin-top: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .timer {
+        align-items: center;
+        width: 100%;
+    }
+
+    .butt-container {
+        width: 100%;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .butt-container .btn {
+        min-height: 2.5rem;
+        padding: 0.55rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .lesson-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .lesson-header .logo {
+        font-size: 1.25rem;
+    }
+
+    .lesson-info {
+        font-size: 1rem;
+    }
+
+    .progress-container {
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stats {
+        gap: 1.25rem;
+    }
+
+    .stat-item {
+        padding: 0 0.75rem;
+    }
+
+    .stat-item:not(:last-child)::after {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-top {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 1.25rem;
+    }
+
+    .home-top .logo {
+        font-size: 1.25rem;
+    }
+
+    .global-toggle {
+        gap: 0.4rem;
+        padding: 0.35rem 0.6rem;
+    }
+
+    .menu-section {
+        gap: 1.5rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .menu-item,
+    .menu-item-disabled {
+        min-height: 3.5rem;
+        padding: 0.9rem 1.1rem;
+    }
+
+    .number-pad {
+        gap: 0.375rem;
+    }
+
+    .number-key {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 0.75rem;
+        font-size: 1.25rem;
+    }
+
+    .math-problem {
+        min-height: 6rem;
+        margin-bottom: 1rem;
+    }
+
+    .math-answer {
+        min-height: 4rem;
+    }
+
+    .word {
+        font-size: 2.75rem;
+    }
+
+    .word.hard-level {
+        font-size: 2rem;
+    }
+
+    .test-word-display {
+        font-size: 2.5rem;
+        min-height: 4rem;
+    }
+
+    .feedback {
+        max-width: calc(100vw - 2rem);
+    }
+
+    .stats {
+        padding: 0.75rem 0;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 440px) {
+    .toggle-label {
+        display: none;
+    }
+
+    .global-toggle {
+        padding: 0.35rem 0.5rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .btn {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    /* Уравнение должно полностью помещаться даже на 320px */
+    .math-problem {
+        gap: 0.25rem;
+        font-size: 2.5rem;
+    }
+
+    .math-problem .number,
+    .math-problem .operator,
+    .math-problem .equals {
+        margin-left: 0.25rem;
+        margin-right: 0.25rem;
+    }
+
+    .math-answer {
+        min-width: 4rem;
+    }
+}
+
+/* Компактный режим для невысоких экранов (например, iPhone SE) */
+@media (max-width: 480px) and (max-height: 640px) {
+    .lesson-header {
+        gap: 0.1rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .lesson-header .logo {
+        font-size: 1.05rem;
+    }
+
+    .lesson-info {
+        font-size: 0.9rem;
+    }
+
+    .control-panel {
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .timer-value {
+        font-size: 1.5rem;
+    }
+
+    .content-area {
+        padding-top: 0.5rem;
+        padding-bottom: 1rem;
+    }
+
+    .progress-container {
+        margin-bottom: 0.75rem;
+    }
+
+    .math-problem {
+        min-height: 5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .input-label {
+        margin-top: 0.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .number-pad {
+        margin-top: 0.75rem;
+    }
+
+    .word-container {
+        min-height: 4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .word-progress {
+        margin-bottom: 0.5rem;
+    }
+
+    .stats {
+        padding: 0.5rem 0;
+    }
+
+    /* Тест на слух: компактные варианты, чтобы всё влезло на 568px */
+    .test-content {
+        gap: 1rem;
+    }
+
+    .test-word-container {
+        min-height: 3.5rem;
+    }
+
+    .test-word-display {
+        font-size: 3rem;
+        min-height: 3.5rem;
+    }
+
+    .test-options {
+        gap: 0.5rem;
+    }
+
+    .test-option {
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+
+    #testFeedback {
+        margin-top: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pulse,
+    .loader-spinner,
+    .ripple {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

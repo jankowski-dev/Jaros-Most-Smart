@@ -1,11 +1,13 @@
 {
     "name": "yarik-uroki-speech-proxy",
-    "version": "2.4.0",
+    "version": "2.6.0",
     "description": "Прокси-сервер для Yandex SpeechKit для обхода CORS ограничений",
     "main": "speech-proxy.js",
     "scripts": {
         "start": "node speech-proxy.js",
         "dev": "nodemon speech-proxy.js",
+        "build:css": "tailwindcss -i src/input.css -o styles.css --minify",
+        "watch:css": "tailwindcss -i src/input.css -o styles.css --watch",
         "test": "echo \"No tests specified\" && exit 0"
     },
     "keywords": [
@@ -19,14 +21,19 @@
     "author": "Yarik.Uroki",
     "license": "MIT",
     "dependencies": {
-        "express": "^4.21.0",
         "cors": "^2.8.5",
+        "express": "^4.21.0",
         "node-fetch": "^2.7.0"
     },
     "devDependencies": {
-        "nodemon": "^3.1.0"
+        "@tailwindcss/cli": "^4.3.5",
+        "nodemon": "^3.1.0",
+        "tailwindcss": "^4.3.5"
+    },
+    "overrides": {
+        "qs": "^6.16.2"
     },
     "engines": {
-        "node": ">=14.0.0"
+        "node": ">=20.0.0"
     }
 }

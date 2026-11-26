@@ -34,6 +34,17 @@ async function checkForUpdates() {
         hideUpdateBanner();
         return;
       }
+
+      // Первичный визит (ничего не записано) - запоминаем текущую версию без баннера,
+      // чтобы новые пользователи не видели старый текст обновления.
+      if (!lastUpdated) {
+        console.log('[UpdateNotifier] Первичный визит: фиксируем текущую версию, баннер не показываем');
+        try {
+          localStorage.setItem(STORAGE_KEY, data.version);
+        } catch (err) {}
+        hideUpdateBanner();
+        return;
+      }
       
       // Показываем баннер с новой версией
       console.log(`[UpdateNotifier] Доступна новая версия: ${data.version}`);

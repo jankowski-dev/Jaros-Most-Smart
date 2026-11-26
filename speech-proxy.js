@@ -1,5 +1,5 @@
 // speech-proxy.js - Упрощенный и надежный прокси-сервер для Yandex SpeechKit
-// Версия 2.4 - безопасность, rate limiting, валидация
+// Версия 2.6 - безопасность, rate limiting, валидация, format validation
 
 const express = require('express');
 const cors = require('cors');
@@ -34,7 +34,7 @@ app.use(cors({
 
 // CSP-заголовки
 app.use((req, res, next) => {
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://jms.up.railway.app; object-src 'none'; base-uri 'self'; form-action 'self'");
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -123,7 +123,7 @@ app.get('/health', (req, res) => {
 app.get('/api/info', (req, res) => {
     res.json({
         service: 'Yarik.Uroki Speech Proxy',
-        version: '2.4',
+        version: '2.6',
         endpoints: {
             tts: 'POST /api/tts',
             health: 'GET /health'
@@ -147,6 +147,7 @@ app.get('/api/version', (req, res) => {
 // Допустимые значения параметров
 const VALID_VOICES = ['alena', 'filipp', 'ermil'];
 const VALID_EMOTIONS = ['good', 'evil', 'neutral'];
+const VALID_FORMATS = ['oggopus', 'wav'];
 const MIN_SPEED = 0.1;
 const MAX_SPEED = 3.0;
 const MAX_TEXT_LENGTH = 500;
@@ -211,6 +212,14 @@ app.post('/api/tts', rateLimit, async (req, res) => {
         if (isNaN(numSpeed) || numSpeed < MIN_SPEED || numSpeed > MAX_SPEED) {
             return res.status(400).json({
                 error: `Invalid speed. Must be between ${MIN_SPEED} and ${MAX_SPEED}`,
+                requestId
+            });
+        }
+
+        // Валидация формата аудио
+        if (format && !VALID_FORMATS.includes(format)) {
+            return res.status(400).json({
+                error: `Invalid format. Allowed: ${VALID_FORMATS.join(', ')}`,
                 requestId
             });
         }
@@ -382,7 +391,7 @@ process.on('unhandledRejection', (reason, promise) => {
 app.listen(PORT, () => {
     console.log(`
 ===========================================
-🚀 Speech Proxy Server v2.4
+🚀 Speech Proxy Server v2.6
 ===========================================
 ✅ Server running on port: ${PORT}
 ✅ Health check: http://localhost:${PORT}/health

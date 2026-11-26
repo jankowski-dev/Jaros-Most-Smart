@@ -1,75 +1,80 @@
-# Ярик.Уроки с поддержкой Yandex SpeechKit
+# Ярик.Уроки
 
-Проект обновлен для поддержки опционального синтеза речи через Yandex SpeechKit с прокси-сервером на Railway для обхода CORS ограничений.
+Обучающая PWA для детей: математика, чтение и тест на слух. Поддерживает
+браузерный синтез речи и Yandex SpeechKit через прокси на Railway.
 
 ## Файлы проекта
 
-### Основные файлы (фронтенд):
-- `index.html` - главная страница
-- `app.js` - логика приложения (обновлен)
-- `data.js` - данные упражнений
-- `styles.css` - стили
-- `config.js` - конфигурация синтеза речи
-- `speech-service.js` - сервис синтеза речи
+### Фронтенд
+- `index.html` — разметка приложения
+- `app.js` — логика приложения
+- `data.js` — данные упражнений
+- `styles.css` — собранные стили (генерируется Tailwind CSS, не редактировать вручную)
+- `src/input.css` — исходник стилей Tailwind + компонентные стили
+- `config.js` — конфигурация синтеза речи
+- `speech-service.js` — сервис синтеза речи
+- `update-notifier.js` — проверка обновлений и регистрация Service Worker
+- `sw.js` — Service Worker (офлайн-кэш)
+- `manifest.json` — манифест PWA
+- `fonts/` — локальные файлы Montserrat (офлайн-режим)
 
-### Прокси-сервер (бэкенд):
-- `speech-proxy.js` - прокси для Yandex SpeechKit
-- `package.json` - зависимости Node.js
+### Бэкенд
+- `speech-proxy.js` — Express-сервер: статика + прокси Yandex SpeechKit
+- `package.json` — зависимости и npm-скрипты
 
-## Быстрая настройка
+## Быстрый старт
 
-### 1. Переменные среды в Railway:
+```bash
+npm install
+npm start
+```
+
+Приложение откроется на `http://localhost:3000`.
+
+### Сборка стилей
+
+```bash
+npm run build:css    # однократная сборка styles.css
+npm run watch:css    # пересборка при изменении src/input.css
+```
+
+## Переменные среды
 
 ```
-# Режим синтеза (обязательно)
-SPEECH_ENGINE=browser  # или yandex
-
-# Для Yandex SpeechKit:
-YANDEX_PROXY_URL=https://ваш-прокси.up.railway.app/api/tts
-YANDEX_SPEECH_API_KEY=ваш_api_ключ
-
-# Опционально:
+SPEECH_ENGINE=yandex        # или browser
+YANDEX_SPEECH_API_KEY=...   # обязателен для Yandex SpeechKit
+YANDEX_SPEECH_FOLDER_ID=... # опционально
 YANDEX_VOICE=alena
 YANDEX_EMOTION=good
 YANDEX_SPEED=1.0
 SPEECH_FALLBACK=true
+SPEECH_DEBUG=false
 ```
 
-### 2. Развертывание прокси:
+`config.js` по умолчанию использует относительный URL прокси `/api/tts`,
+поэтому фронтенд и прокси должны быть на одном origin (так работает
+`speech-proxy.js` на Railway). Если прокси вынесен на отдельный домен,
+укажите его в `window.appConfig.speech.yandex.proxyUrl` и добавьте домен
+в `connect-src` заголовка CSP в `speech-proxy.js`.
 
-Railway автоматически определит Node.js приложение по `package.json`. Убедитесь, что переменная `YANDEX_SPEECH_API_KEY` установлена.
+## Проверка
 
-### 3. Проверка:
+1. Прокси: `https://ваш-домен/health`
+2. API: `https://ваш-домен/api/info`
+3. Приложение: откройте корень сайта и проверьте озвучивание
 
-1. Прокси: `https://ваш-прокси.up.railway.app/health`
-2. Приложение: откройте и проверьте озвучивание
+## Режимы синтеза речи
 
-## Архитектура
+- **Браузерный** (`browser`) — Web Speech API, работает без настройки.
+- **Yandex SpeechKit** (`yandex`) — высокое качество голоса, требует API-ключ
+  и прокси. При ошибке автоматически переключается на браузерный синтез
+  (`SPEECH_FALLBACK=true`).
 
+## Обновление версии
+
+```bash
+node update-version.js 2.7
 ```
-Браузер → Railway (frontend) → Railway (прокси) → Yandex SpeechKit
-     ↑          ↑                   ↑                    ↑
-   Запрос   config.js         speech-proxy.js        API Яндекс
-```
 
-## Режимы работы
-
-### Браузерный синтез (по умолчанию):
-- Использует Web Speech API
-- Не требует настройки
-- Мгновенный запуск
-
-### Yandex SpeechKit:
-- Высокое качество голоса
-- Настройка голоса и эмоций
-- Требует API ключ и прокси
-
-## Устранение неполадок
-
-1. **CORS ошибка**: убедитесь, что прокси работает и URL правильный
-2. **API ключ не работает**: проверьте ключ в Yandex Cloud Console
-3. **Нет звука**: проверьте `SPEECH_ENABLED=true` и консоль браузера
-
-## Подробная инструкция
-
-См. `INSTRUCTIONS.md` для детальной настройки.
+Скрипт обновляет `config.js`, `sw.js` и версию в `speech-proxy.js`.
+Не забудьте также обновить версию в `package.json` и пересобрать стили.
