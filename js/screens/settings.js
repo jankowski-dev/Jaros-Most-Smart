@@ -54,6 +54,7 @@ export function renderSettings(container, ctx) {
                     ${sectionHeader('volume', 'Звук')}
                     ${switchRow('sound', 'Озвучка', 'Голос Байта и чтение слов', prefs.sound)}
                     ${switchRow('effects', 'Звуковые эффекты', 'Короткие сигналы правильно/ошибка', prefs.effects)}
+                    <button id="test-voice" class="btn btn-outline btn-sm mt-4" type="button">${icon('volume', { size: 16 })} Проверить озвучку</button>
                 </section>
 
                 <section class="settings-section">
@@ -122,6 +123,24 @@ export function renderSettings(container, ctx) {
             button.setAttribute('aria-checked', String(next));
             ctx.store.updateSettings({ settings: { [key]: next } });
         });
+    });
+
+    const testVoice = container.querySelector('#test-voice');
+    testVoice.addEventListener('click', async () => {
+        if (!ctx.speech.isEnabled()) {
+            ctx.showToast('Сначала включи озвучку', { type: 'warning' });
+            return;
+        }
+
+        testVoice.disabled = true;
+        try {
+            const name = ctx.store.getSettings().profile.name;
+            await ctx.speech.speak(`Привет, ${name}! Я Байт, твой робо-паук.`);
+        } catch (error) {
+            ctx.showToast('Не получилось озвучить. Попробуй ещё раз.', { type: 'error' });
+        } finally {
+            testVoice.disabled = false;
+        }
     });
 
     const difficultyCopy = container.querySelector('[data-difficulty-copy]');

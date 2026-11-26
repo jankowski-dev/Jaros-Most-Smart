@@ -6,6 +6,8 @@ import { applyTheme } from './theme.js';
 import { renderNav } from './ui/nav.js';
 import { showToast } from './ui/toast.js';
 import { confirmDialog } from './ui/dialog.js';
+import { createSpeech } from './speech.js';
+import { createEffects } from './effects.js';
 import { BADGES } from './badges.js';
 import { renderHome } from './screens/home.js';
 import { renderProgress } from './screens/progress.js';
@@ -33,6 +35,12 @@ try {
 }
 
 const store = createStore({ storage });
+const speech = createSpeech({
+    isSoundEnabled: () => store.getSettings().settings.sound
+});
+const effects = createEffects({
+    isEnabled: () => store.getSettings().settings.effects
+});
 const badgeMap = new Map(BADGES.map(badge => [badge.id, badge]));
 
 const router = createRouter({
@@ -57,7 +65,9 @@ const ctx = {
     navigate: (path, options) => router.navigate(path, options),
     startPlay,
     showToast,
-    confirmDialog
+    confirmDialog,
+    speech,
+    effects
 };
 
 function screenFor(route) {
@@ -74,6 +84,8 @@ function renderRoute(route, hash) {
     }
 
     if (route.name === 'play') allowedPlay = null;
+
+    speech.cancel();
 
     if (currentScreen && typeof currentScreen.destroy === 'function') {
         currentScreen.destroy();
@@ -169,6 +181,8 @@ function boot() {
             }
         });
     }
+
+    window.addEventListener('pointerdown', () => effects.unlock(), { once: true });
 
     router.start();
 }
