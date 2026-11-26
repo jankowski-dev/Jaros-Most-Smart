@@ -766,18 +766,21 @@ git commit -m "feat: add session timer, speech adapter and sound effects"
 ## Task 9: Math Lesson and Shared Result Screen
 
 **Files:**
-- Create: `js/screens/math.js`, `js/screens/result.js`
+- Create: `js/screens/math.js`, `js/screens/result.js`, `js/ui/app-bar.js`
 - Modify: `js/main.js` (route math to new screen)
 - Remove/stop using: `js/screens/play-placeholder.js` for math (keep for reading/test until their tasks)
 
 **Interfaces:**
-- Consumes: `generateMathProblems` (Task 1), `calculateGrade`/`calculateStars`/`formatTime` (Task 1), store (Task 2/3), timer (Task 8), speech (Task 8), UI primitives (Task 4).
+- Consumes: `generateMathProblems` (Task 1), `calculateGrade`/`calculateStars`/`formatTime` (Task 1), store (Task 2/3), timer (Task 8), speech/effects (Task 8), UI primitives (Task 4).
 - Produces:
   - `renderMath(container, ctx)` with `destroy`/`canLeave`
   - `renderResult(container, { ctx, type, correct, total, stars, grade, durationSec, xpEarned, bonusXp, badgeXp, startLevel, newBadges, onRestart, onHome })`
-  - local helpers `createMathSession` not exported.
+  - `renderAppBar({ title, subtitle = '', showBack = true, showSound = true }): string` — shared app bar markup with slots `[data-app-timer]`, `[data-app-sound]`, `[data-app-back]`
+  - `bindAppBar(container, { onBack, store, showToast }): () => void` — wires back and sound toggle (updates `settings.sound`, swaps icon); returns cleanup.
 
 **Behavior (spec §8.2, §8.5):**
+- Shared app bar from `js/ui/app-bar.js`: back, title, level chip, timer slot, sound toggle. Sound toggle updates `settings.sound` and swaps volume/volume-off icon.
+
 - 10 problems; explicit “Проверить”, no auto-submit.
 - Keypad 3×4; keyboard digits/Backspace/Enter.
 - Correct: +10 XP immediately via `store.recordAnswer`, `ctx.effects.correct()`, green feedback, Bait happy, next after 900 ms.
@@ -785,7 +788,7 @@ git commit -m "feat: add session timer, speech adapter and sound effects"
 - Timer chip small; flush time every 30 s and on exit; pause on hidden. If a flush returns `goalReached`, show toast “Цель дня выполнена! +20 XP”.
 - Back/`canLeave`: if answered > 0 and not complete → confirm; on confirm flush time, no session completion.
 - Completion: capture `startLevel` before the first answer; flush time; stars/grade; `const rewards = store.recordSession({ type:'math', correct, total:10, durationSec, stars, xpEarned })`; render result with `rewards.bonusXp`, `rewards.badgeXp`, `rewards.newBadges`, and `startLevel`.
-- Result: confetti (unless reduced motion), mascot party, stars, `9 из 10`, grade chip, time, total session XP (`xpEarned + bonusXp + badgeXp`), “Новый уровень!” if `store.getLevelInfo().level > startLevel`, badge cards, “Ещё раз”/“На главную”.
+- Result: confetti (unless reduced motion), mascot party, stars, `9 из 10`, grade chip, time, total session XP (`xpEarned + bonusXp + badgeXp`), “Новый уровень!” if `store.getLevelInfo().level > startLevel`, badge cards, “Ещё раз”/“На главную”. For `type === 'reading'`, title “Ты прочитал N карточек!”, no grade chip; for math/test, praise title and grade chip.
 - Double-tap guard: `isChecking` disables keypad/check until next problem; ignore repeated Enter.
 - Praise speech is fire-and-forget: catch rejection and never block the next problem.
 
@@ -814,7 +817,7 @@ Check on 800×1280 and 1280×800:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add js/screens/math.js js/screens/result.js js/main.js
+git add js/screens/math.js js/screens/result.js js/ui/app-bar.js js/main.js
 git commit -m "feat: build math lesson and result screen"
 ```
 
@@ -827,10 +830,11 @@ git commit -m "feat: build math lesson and result screen"
 - Modify: `js/main.js` (route reading to new screen)
 
 **Interfaces:**
-- Consumes: `readingEasy`/`readingHard` (Task 1), `calculateStars`/`formatTime` (Task 1), store `beginReadingSession`/`recordReadingCard`/`recordTime`/`recordSession` (Task 2/3), speech/timer (Task 8), result (Task 9), UI primitives.
+- Consumes: `readingEasy`/`readingHard` (Task 1), `calculateStars`/`formatTime` (Task 1), store `beginReadingSession`/`recordReadingCard`/`recordTime`/`recordSession` (Task 2/3), speech/timer (Task 8), result and `app-bar` (Task 9), UI primitives.
 - Produces: `renderReading(container, ctx)` with `destroy`/`canLeave`.
 
 **Behavior (spec §8.3):**
+- Shared app bar (back, title, level, timer, sound toggle) from `js/ui/app-bar.js`.
 - Pick 20 shuffled cards by difficulty; `store.beginReadingSession()` at start.
 - Render word/phrase with syllables; vowels amber, consonants ink; phrase spaces preserved; no hyphen-as-syllable text.
 - Auto-play on first display if sound; big “Послушать” button; replay; fill animation via `onProgress`; cancel previous speech on change.
@@ -874,10 +878,11 @@ git commit -m "feat: build reading screen with card progress"
 - Modify: `js/main.js` (route test to new screen)
 
 **Interfaces:**
-- Consumes: `testWords` (Task 1), `calculateStars`/`formatTime` (Task 1), store `recordAnswer`/`recordTime`/`recordSession` (Task 2/3), speech/timer (Task 8), result (Task 9), UI primitives, `createWordFill` (Task 10).
+- Consumes: `testWords` (Task 1), `calculateStars`/`formatTime` (Task 1), store `recordAnswer`/`recordTime`/`recordSession` (Task 2/3), speech/timer (Task 8), result and `app-bar` (Task 9), UI primitives, `createWordFill` (Task 10).
 - Produces: `renderTest(container, ctx)` with `destroy`/`canLeave`.
 
 **Behavior (spec §8.4):**
+- Shared app bar (back, title, timer, sound toggle) from `js/ui/app-bar.js`.
 - 10 questions from `testWords`; options shuffled.
 - Hidden word = `?` tiles by letter count; fill highlight during audio; reveal flip after correct.
 - Big “Послушать” button; unlimited replays before answer; auto-play first after 400 ms. On speech error: reset fill, show soft toast, keep the question playable.
@@ -944,7 +949,7 @@ app.get('/api/version', (req, res) => {
   - `/`, `/index.html`, `/styles.css`, `/manifest.json`
   - `/config.js`, `/speech-service.js`, `/update-notifier.js`
   - `/js/main.js`, `router.js`, `store.js`, `content.js`, `scoring.js`, `badges.js`, `timer.js`, `speech.js`, `effects.js`, `theme.js`, `theme-init.js`, `progress-utils.js`, `word-fill.js`
-  - `/js/ui/icons.js`, `mascot.js`, `toast.js`, `dialog.js`, `confetti.js`, `nav.js`
+  - `/js/ui/icons.js`, `mascot.js`, `toast.js`, `dialog.js`, `confetti.js`, `nav.js`, `app-bar.js`
   - `/js/screens/home.js`, `settings.js`, `progress.js`, `math.js`, `reading.js`, `test.js`, `result.js`
   - `/fonts/montserrat-cyrillic.woff2`, `/fonts/montserrat-latin.woff2`
   - `/icon.png`, `/icon-192.png`
