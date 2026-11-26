@@ -14,7 +14,7 @@ import { renderProgress } from './screens/progress.js';
 import { renderSettings } from './screens/settings.js';
 import { renderMath } from './screens/math.js';
 import { renderReading } from './screens/reading.js';
-import { renderPlayPlaceholder } from './screens/play-placeholder.js';
+import { renderTest } from './screens/test.js';
 
 const SCREENS = {
     home: renderHome,
@@ -25,7 +25,7 @@ const SCREENS = {
 const PLAY_SCREENS = {
     math: renderMath,
     reading: renderReading,
-    test: renderPlayPlaceholder
+    test: renderTest
 };
 
 let storage = null;
