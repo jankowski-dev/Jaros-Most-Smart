@@ -119,7 +119,7 @@ export function renderHome(container, ctx) {
                             ${streakChip}
                         </div>
                     </div>
-                    <div class="mascot self-center md:self-end">${mascot(hasSessions ? 'happy' : 'idle', { size: 190 })}</div>
+                    <div class="mascot home-mascot self-center md:self-end">${mascot(hasSessions ? 'happy' : 'idle', { size: 190 })}</div>
                 </div>
             </section>
 

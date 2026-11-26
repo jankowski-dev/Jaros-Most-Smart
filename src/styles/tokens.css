@@ -35,7 +35,8 @@
     --color-line: rgba(244, 246, 255, 0.10);
 
     --color-primary: #FBBF24;
-    --color-primary-strong: #F59E0B;
+    --color-primary-strong: #FBBF24;
+    --color-primary-hover: #F59E0B;
     --color-primary-soft: #3B2F12;
     --color-secondary: #818CF8;
     --color-secondary-soft: #262A56;

@@ -33,11 +33,12 @@
     --color-surface-2: #F6EFE4;
     --color-surface-3: #EFE6D8;
     --color-ink: #22242C;
-    --color-ink-muted: #6E7280;
+    --color-ink-muted: #5F6470;
     --color-line: rgba(34, 36, 44, 0.08);
 
     --color-primary: #F59E0B;
-    --color-primary-strong: #D97706;
+    --color-primary-strong: #92400E;
+    --color-primary-hover: #D97706;
     --color-primary-soft: #FEF3C7;
     --color-secondary: #5B5BD6;
     --color-secondary-soft: #E0E7FF;
