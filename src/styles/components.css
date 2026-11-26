@@ -759,6 +759,10 @@
 }
 
 .lesson-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: calc(100dvh - 4rem);
     width: 100%;
     max-width: 70rem;
     margin: 0 auto;
@@ -767,9 +771,11 @@
 
 .lesson-grid {
     display: grid;
+    flex: 1;
     grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
     align-items: center;
+    align-content: center;
 }
 
 @media (min-width: 1024px) and (orientation: landscape) {
@@ -820,6 +826,20 @@
     border-radius: 1.25rem;
     background: var(--color-primary-soft);
     color: var(--color-primary-strong);
+}
+
+.answer-slot.is-correct {
+    border-color: var(--color-success);
+    border-style: solid;
+    background: var(--color-success-soft);
+    color: var(--color-success);
+}
+
+.answer-slot.is-wrong {
+    border-color: var(--color-danger);
+    border-style: solid;
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
 }
 
 .keypad {
@@ -1030,6 +1050,30 @@
     margin: 0 auto;
     padding: clamp(1.5rem, 4vw, 2.5rem);
     text-align: center;
+}
+
+.result-mascot svg {
+    width: clamp(6rem, 15vh, 10rem);
+    height: auto;
+}
+
+@media (max-height: 850px) {
+    .result-card {
+        padding: 1rem;
+    }
+
+    .result-mascot svg {
+        width: 5rem;
+    }
+
+    .result-stars svg {
+        width: 2.4rem;
+    }
+
+    .result-card h1 {
+        font-size: 1.4rem;
+        line-height: 1.2;
+    }
 }
 
 .result-stars {

@@ -12,6 +12,7 @@ import { BADGES } from './badges.js';
 import { renderHome } from './screens/home.js';
 import { renderProgress } from './screens/progress.js';
 import { renderSettings } from './screens/settings.js';
+import { renderMath } from './screens/math.js';
 import { renderPlayPlaceholder } from './screens/play-placeholder.js';
 
 const SCREENS = {
@@ -21,7 +22,7 @@ const SCREENS = {
 };
 
 const PLAY_SCREENS = {
-    math: renderPlayPlaceholder,
+    math: renderMath,
     reading: renderPlayPlaceholder,
     test: renderPlayPlaceholder
 };
