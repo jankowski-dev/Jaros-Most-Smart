@@ -198,6 +198,7 @@ npm test
 ## 8. Документация
 
 - Дизайн 3.0: `docs/superpowers/specs/2026-11-26-robot-spider-redesign-design.md`
+- План реализации 3.0: `docs/superpowers/plans/2026-11-26-robot-spider-redesign.md`
 - Предыдущее изменение: `docs/superpowers/specs/2026-09-15-word-fill-animation-design.md`
 - README: обзор проекта и запуск.
 

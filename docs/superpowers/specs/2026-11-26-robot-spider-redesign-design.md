@@ -1,7 +1,7 @@
 # Ярик.Уроки 3.0 — редизайн «Робо-паук Байт»
 
 **Дата:** 2026-11-26  
-**Статус:** draft — ждёт утверждения  
+**Статус:** утверждён 2026-11-26  
 **Заказчик:** папа Ярика  
 **Исполнитель:** AI-агент  
 **Связанные документы:** `AGENTS.md`, `README.md`  
@@ -609,7 +609,8 @@ sw.js                       — обновить список кэша и вер
     date: '2026-11-26',
     seconds: 420,
     goalSeconds: 600,
-    goalBonusGiven: false
+    goalBonusGiven: false,
+    sessions: 1
   },
   subjects: {
     math:    { sessions: 4, correct: 31, total: 40, bestStars: 3, lastPlayed: '...', totalSeconds: 500 },
@@ -627,9 +628,11 @@ sw.js                       — обновить список кэша и вер
 
 - `loadSettings()`, `loadProgress()`, `getSettings()`, `getProgress()`, `updateSettings(partial)`.
 - `recordAnswer({ type, correct })` — сразу пишет XP, `subjects[type].correct/total`, возвращает `{ xpGained, levelUp }`. Вызывается на каждый ответ математики/теста.
-- `recordReadingCard(cardId)` — начисляет +2 XP и `cardsRead` только за уникальную карточку; набор уникальных ID ведёт экран сессии.
+- `beginReadingSession()` — очищает набор карточек, уже засчитанных в текущей сессии.
+- `recordReadingCard(cardId)` — начисляет +2 XP и `cardsRead` только за уникальную карточку в рамках сессии (store хранит `readingSeen` в памяти).
 - `recordTime(seconds)` — добавляет секунды к цели дня; вызывается каждые 30 секунд и при выходе.
-- `recordSession({ type, correct, total, durationSec, stars })` — завершение: +5 XP, первая сессия дня +10, идеальная +20 (только математика/тест), обновляет `sessions`, `bestStars`, `history`, `streak`, проверяет бейджи. Возвращает `{ bonusXp, levelUp, newBadges, dailyGoalReached, streak }`.
+- `recordSession({ type, correct, total, durationSec, stars, xpEarned })` — завершение: +5 XP, первая сессия дня +10, идеальная +20 (только математика/тест), обновляет `sessions`, `bestStars`, `history`, `streak`, проверяет бейджи. `xpEarned` — сумма XP, уже начисленная за ответы/карточки, нужна для истории. Возвращает `{ bonusXp, badgeXp, levelUp, newBadges, dailyGoalReached, streak }`.
+- `checkBadges()` — проверяет условия бейджей, начисляет +25 XP за новый и возвращает `{ newBadges, badgeXp, levelUp }`.
 - `resetProgress()` — удаляет только `yarik.uroki.progress.v1`.
 - `getLevelInfo()` — уровень, XP внутри уровня, сколько до следующего.
 
@@ -665,7 +668,7 @@ sw.js                       — обновить список кэша и вер
 
 - Tailwind 4 + CSS-переменные. Тёмная тема через класс `.dark` на `<html>` и `@custom-variant dark`.
 - `src/input.css` импортирует `tokens.css`, `base.css`, `components.css`, `animations.css`.
-- `@source` явно указывает `./js/**/*.js`, чтобы Tailwind видел классы в шаблонных строках.
+- `@source` явно указывает `../js/**/*.js`, `../dev/**/*.html` и `../dev/**/*.js` (пути относительно `src/input.css`), чтобы Tailwind видел классы в шаблонных строках.
 - Компонентные классы: `.btn`, `.btn-primary`, `.btn-tonal`, `.card`, `.chip`, `.segmented`, `.field`, `.dialog`, `.toast`, `.stat-tile`, `.subject-card`, `.star`.
 - Утилитарные классы Tailwind — для раскладки; сложные повторяемые вещи — в компонентах.
 - `styles.css` генерируется `npm run build:css`; никогда не редактируется вручную.
