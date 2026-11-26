@@ -4,9 +4,9 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
+const pkg = require('./package.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,7 +17,8 @@ const PORT = process.env.PORT || 3000;
 const ALLOWED_ORIGINS = [
     'https://jms.up.railway.app',
     'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    'http://yarik.localhost:3000'
 ];
 
 app.use(cors({
@@ -97,7 +98,7 @@ app.use((req, res, next) => {
 
 // Обслуживание статических файлов (безопасная настройка)
 const staticDir = path.join(__dirname);
-const HIDDEN_FILES = ['.gitignore', '.env', 'data copy.js', 'package.json', 'package-lock.json', 'railway.json', 'update-version.js', 'README.md', 'speech-proxy.js'];
+const HIDDEN_FILES = ['.gitignore', '.env', 'data copy.js', 'package.json', 'package-lock.json', 'railway.json', 'update-version.js', 'README.md', 'AGENTS.md', 'speech-proxy.js'];
 
 app.use((req, res, next) => {
     const requestedFile = path.basename(req.path);
@@ -123,7 +124,7 @@ app.get('/health', (req, res) => {
 app.get('/api/info', (req, res) => {
     res.json({
         service: 'Yarik.Uroki Speech Proxy',
-        version: '2.6',
+        version: '3.0.0',
         endpoints: {
             tts: 'POST /api/tts',
             health: 'GET /health'
@@ -132,15 +133,11 @@ app.get('/api/info', (req, res) => {
 });
 
 // Version endpoint для PWA update checking.
-// Версия = время последнего изменения app.js. Меняется только при деплое,
-// а не каждый день, поэтому баннер обновления появляется по делу.
+// Версия берётся из package.json и меняется только при релизе.
 app.get('/api/version', (req, res) => {
-    fs.stat(path.join(__dirname, 'app.js'), (err, stats) => {
-        const version = err ? 'unknown' : String(Math.floor(stats.mtimeMs));
-        res.json({
-            version: version,
-            buildTime: new Date().toISOString()
-        });
+    res.json({
+        version: pkg.version,
+        buildTime: new Date().toISOString()
     });
 });
 

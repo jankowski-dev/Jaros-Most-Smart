@@ -1,11 +1,11 @@
 {
-  "name": "Ярик.Уроки",
+  "name": "Ярик.Уроки — уроки с Байтом",
   "short_name": "Ярик",
-  "description": "Обучающая платформа для детей",
+  "description": "Математика, чтение и тест на слух с робо-пауком Байтом",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#EE9F21",
-  "theme_color": "#EE9F21",
+  "background_color": "#FFF8EE",
+  "theme_color": "#F59E0B",
   "orientation": "any",
   "icons": [
     {

@@ -1,6 +1,6 @@
 {
     "name": "yarik-uroki-speech-proxy",
-    "version": "2.6.0",
+    "version": "3.0.0",
     "description": "Прокси-сервер для Yandex SpeechKit для обхода CORS ограничений",
     "main": "speech-proxy.js",
     "scripts": {
