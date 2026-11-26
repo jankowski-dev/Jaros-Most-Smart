@@ -1,0 +1,75 @@
+/* Тёмная тема и нецветовые токены. Светлые цвета объявлены в @theme (src/input.css). */
+
+:root {
+    color-scheme: light;
+
+    --subject-math-from: #FFF1D6;
+    --subject-math-to: #FFE0B2;
+    --subject-reading-from: #DFF7F1;
+    --subject-reading-to: #C7F0E6;
+    --subject-test-from: #E7E9FF;
+    --subject-test-to: #D9DDFF;
+
+    --hero-glow: rgba(245, 158, 11, 0.18);
+    --grid-dot: rgba(34, 36, 44, 0.055);
+
+    --mascot-body: #5B5BD6;
+    --mascot-body-dark: #4338CA;
+    --mascot-face: #111827;
+    --mascot-eye: #F8FAFC;
+    --mascot-accent: #22D3EE;
+
+    --nav-height: 4.5rem;
+    --rail-width: 15.5rem;
+}
+
+.dark {
+    color-scheme: dark;
+
+    --color-bg: #0E1120;
+    --color-surface: #171B2E;
+    --color-surface-2: #1F243B;
+    --color-surface-3: #2A3050;
+    --color-ink: #F4F6FF;
+    --color-ink-muted: #A6ADCC;
+    --color-line: rgba(244, 246, 255, 0.10);
+
+    --color-primary: #FBBF24;
+    --color-primary-strong: #F59E0B;
+    --color-primary-soft: #3B2F12;
+    --color-secondary: #818CF8;
+    --color-secondary-soft: #262A56;
+    --color-teal: #2DD4BF;
+    --color-teal-soft: #0F3D38;
+    --color-success: #4ADE80;
+    --color-success-soft: #14351F;
+    --color-danger: #F87171;
+    --color-danger-soft: #3B1717;
+    --color-focus: #93C5FD;
+
+    --color-brand: #FBBF24;
+    --color-brand-dark: #F59E0B;
+    --color-brand-light: #FDE68A;
+    --color-correct: #4ADE80;
+    --color-correct-light: #14351F;
+    --color-correct-dark: #BBF7D0;
+    --color-wrong: #F87171;
+    --color-wrong-light: #3B1717;
+    --color-wrong-dark: #FECACA;
+
+    --subject-math-from: #3A2A12;
+    --subject-math-to: #4A3214;
+    --subject-reading-from: #123A35;
+    --subject-reading-to: #16453F;
+    --subject-test-from: #22264E;
+    --subject-test-to: #2B2F5E;
+
+    --hero-glow: rgba(251, 191, 36, 0.12);
+    --grid-dot: rgba(244, 246, 255, 0.06);
+
+    --mascot-body: #818CF8;
+    --mascot-body-dark: #6366F1;
+    --mascot-face: #0B1020;
+    --mascot-eye: #F8FAFC;
+    --mascot-accent: #67E8F9;
+}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ярик.Уроки 3.0 — UI kit</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="min-h-screen">
+    <main class="mx-auto max-w-6xl px-4 py-8 space-y-12 md:px-8">
+        <header class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <p class="text-caption uppercase tracking-[0.22em] text-ink-muted">Ярик.Уроки 3.0</p>
+                <h1 class="text-title mt-1">Дизайн-система Байта</h1>
+                <p class="muted mt-2 max-w-xl">Проверка токенов, компонентов, маскота и состояний. Страница только для разработки, в PWA-кэш не попадает.</p>
+            </div>
+            <button id="theme-toggle" class="btn btn-tonal" type="button">Тёмная тема</button>
+        </header>
+
+        <section class="space-y-4">
+            <div class="flex items-end justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-extrabold">Палитра</h2>
+                    <p class="muted text-sm">Светлая и тёмная темы используют одни и те же семантические токены.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+                <div class="rounded-2xl border border-line p-3"><div class="h-12 rounded-xl" style="background: var(--color-bg)"></div><p class="text-caption mt-2">bg</p></div>
+                <div class="rounded-2xl border border-line p-3"><div class="h-12 rounded-xl" style="background: var(--color-surface)"></div><p class="text-caption mt-2">surface</p></div>
+                <div class="rounded-2xl border border-line p-3"><div class="h-12 rounded-xl" style="background: var(--color-primary)"></div><p class="text-caption mt-2">primary</p></div>
+                <div class="rounded-2xl border border-line p-3"><div class="h-12 rounded-xl" style="background: var(--color-secondary)"></div><p class="text-caption mt-2">secondary</p></div>
+                <div class="rounded-2xl border border-line p-3"><div class="h-12 rounded-xl" style="background: var(--color-teal)"></div><p class="text-caption mt-2">teal</p></div>
+                <div class="rounded-2xl border border-line p-3"><div class="h-12 rounded-xl" style="background: var(--color-danger)"></div><p class="text-caption mt-2">danger</p></div>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="text-xl font-extrabold">Типографика</h2>
+            <div class="card p-5 space-y-3">
+                <p class="text-display">10 + 7</p>
+                <h3 class="text-title">Привет, Ярик!</h3>
+                <p class="text-lg font-semibold">Сегодня потренируем лапки?</p>
+                <p class="muted">Обычный текст. Ошибка — не катастрофа, даже роботы учатся.</p>
+                <p class="text-label uppercase tracking-[0.16em] text-ink-muted">Подпись / label</p>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="text-xl font-extrabold">Кнопки и чипы</h2>
+            <div class="card p-5 flex flex-wrap items-center gap-3">
+                <button class="btn btn-primary" type="button">Начать</button>
+                <button class="btn btn-tonal" type="button">Ещё раз</button>
+                <button class="btn btn-outline" type="button">На главную</button>
+                <button class="btn btn-ghost" type="button">Отмена</button>
+                <button class="btn btn-danger" type="button">Сбросить</button>
+                <button class="btn btn-primary btn-lg" type="button">Большая кнопка</button>
+                <button class="icon-button" type="button" data-icon="volume" aria-label="Звук"></button>
+                <span class="chip chip-primary">Ур. 4</span>
+                <span class="chip">🔥 3 дня</span>
+                <span class="chip chip-success">Цель дня</span>
+            </div>
+            <div class="card p-5 flex flex-wrap items-center gap-4">
+                <div class="segmented" role="group" aria-label="Сложность">
+                    <button type="button" aria-pressed="true">Лёгкий</button>
+                    <button type="button" aria-pressed="false">Сложный</button>
+                </div>
+                <label class="field max-w-xs">
+                    <span class="field-label">Имя</span>
+                    <input class="field-input" value="Ярик">
+                </label>
+                <button class="switch" type="button" role="switch" aria-checked="true" aria-label="Звук"><span class="switch-thumb"></span></button>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="text-xl font-extrabold">Предметы</h2>
+            <div class="subject-grid">
+                <button class="subject-card subject-card--math" type="button">
+                    <span class="subject-card-icon" data-icon="plus"></span>
+                    <span>
+                        <span class="block text-lg font-extrabold">Математика</span>
+                        <span class="muted mt-1 block text-sm">Сложение до 10</span>
+                    </span>
+                    <span class="subject-card-arrow" data-icon="arrowRight"></span>
+                </button>
+                <button class="subject-card subject-card--reading" type="button">
+                    <span class="subject-card-icon" data-icon="book"></span>
+                    <span>
+                        <span class="block text-lg font-extrabold">Чтение</span>
+                        <span class="muted mt-1 block text-sm">Слоги и слова</span>
+                    </span>
+                    <span class="subject-card-arrow" data-icon="arrowRight"></span>
+                </button>
+                <button class="subject-card subject-card--test" type="button">
+                    <span class="subject-card-icon" data-icon="headphones"></span>
+                    <span>
+                        <span class="block text-lg font-extrabold">Тест на слух</span>
+                        <span class="muted mt-1 block text-sm">10 слов</span>
+                    </span>
+                    <span class="subject-card-arrow" data-icon="arrowRight"></span>
+                </button>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="text-xl font-extrabold">Прогресс и награды</h2>
+            <div class="grid gap-3 sm:grid-cols-3">
+                <div class="stat-tile"><span class="stat-label">Всего</span><span class="stat-value">10</span><span class="muted text-sm">заданий</span></div>
+                <div class="stat-tile"><span class="stat-label">Правильно</span><span class="stat-value text-success">8</span><span class="muted text-sm">из 10</span></div>
+                <div class="stat-tile"><span class="stat-label">Серия</span><span class="stat-value">3</span><span class="muted text-sm">дня подряд</span></div>
+            </div>
+            <div class="card p-5 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="ring" style="--value: 70%"><span class="ring-label">7/10</span></div>
+                        <div>
+                            <p class="font-extrabold">Цель дня</p>
+                            <p class="muted text-sm">Ещё 3 минуты</p>
+                        </div>
+                    </div>
+                    <div class="stars" id="stars-demo" aria-label="3 звезды"></div>
+                </div>
+                <div class="progress-track"><div class="progress-fill" style="width: 70%"></div></div>
+                <div class="progress-segments" aria-label="Прогресс 4 из 10">
+                    <span class="progress-segment is-done"></span><span class="progress-segment is-done"></span><span class="progress-segment is-done"></span><span class="progress-segment is-done"></span>
+                    <span class="progress-segment"></span><span class="progress-segment"></span><span class="progress-segment"></span><span class="progress-segment"></span><span class="progress-segment"></span><span class="progress-segment"></span>
+                </div>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div class="badge-card"><span class="badge-icon" data-icon="award"></span><span class="font-bold">Первый шаг</span><span class="muted text-xs">Первая сессия</span></div>
+                <div class="badge-card is-locked"><span class="badge-icon" data-icon="lock"></span><span class="font-bold">Неделя с Байтом</span><span class="muted text-xs">Серия 7 дней</span></div>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="text-xl font-extrabold">Байт</h2>
+            <div id="mascot-grid" class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6"></div>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="text-xl font-extrabold">Иконки</h2>
+            <div id="icon-grid" class="card grid grid-cols-4 gap-3 p-5 sm:grid-cols-8 lg:grid-cols-12"></div>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="text-xl font-extrabold">Обратная связь</h2>
+            <div class="card p-5 flex flex-wrap gap-3">
+                <button class="btn btn-primary" type="button" data-toast="success">Тост: успех</button>
+                <button class="btn btn-tonal" type="button" data-toast="info">Тост: инфо</button>
+                <button class="btn btn-danger" type="button" data-confirm>Диалог</button>
+                <button class="btn btn-outline" type="button" data-confetti>Конфетти</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast-root" class="toast-stack" aria-live="polite"></div>
+    <div id="overlay-root"></div>
+    <script type="module" src="./ui.js"></script>
+</body>
+</html>
