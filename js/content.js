@@ -145,7 +145,7 @@ function shuffle(array, rng) {
 function additionPool(limit) {
     const pool = [];
     for (let a = 0; a <= limit; a++) {
-        for (let b = 0; b <= limit; b++) {
+        for (let b = 0; b <= limit - a; b++) {
             pool.push({ num1: a, num2: b, operator: '+', answer: a + b });
         }
     }

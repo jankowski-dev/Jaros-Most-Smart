@@ -34,6 +34,7 @@ test('easy math stays within 10 and uses addition', () => {
             assert.equal(problem.operator, '+');
             assert.ok(problem.num1 >= 0 && problem.num1 <= 10);
             assert.ok(problem.num2 >= 0 && problem.num2 <= 10);
+            assert.ok(problem.answer >= 0 && problem.answer <= 10);
             assert.equal(problem.answer, problem.num1 + problem.num2);
         }
     }
@@ -45,7 +46,7 @@ test('hard math stays within 20 and never goes negative', () => {
             assert.ok(['+', '-'].includes(problem.operator));
             assert.ok(problem.num1 >= 0 && problem.num1 <= 20);
             assert.ok(problem.num2 >= 0 && problem.num2 <= 20);
-            assert.ok(problem.answer >= 0);
+            assert.ok(problem.answer >= 0 && problem.answer <= 20);
             assert.equal(
                 problem.answer,
                 problem.operator === '+' ? problem.num1 + problem.num2 : problem.num1 - problem.num2
