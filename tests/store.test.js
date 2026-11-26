@@ -198,3 +198,128 @@ test('throwing storage keeps app usable', () => {
     assert.equal(store.getProgress().subjects.math.total, 1);
     assert.equal(store.getProgress().xp, 10);
 });
+
+test('recordSession awards completion, first-session and perfect bonuses', () => {
+    const store = createStore({ storage: memoryStorage(), now: fixedClock('2026-11-26T10:00:00').now });
+
+    for (let i = 0; i < 10; i++) store.recordAnswer({ type: 'math', correct: true });
+
+    const result = store.recordSession({
+        type: 'math',
+        correct: 10,
+        total: 10,
+        durationSec: 120,
+        stars: 3,
+        xpEarned: 100
+    });
+
+    assert.equal(result.bonusXp, 35);
+    assert.equal(result.badgeXp, 50);
+    assert.deepEqual(result.newBadges.sort(), ['first-step', 'perfect-math']);
+    assert.equal(result.streak.current, 1);
+
+    const progress = store.getProgress();
+    assert.equal(progress.daily.sessions, 1);
+    assert.equal(progress.history[0].xp, 135);
+    assert.equal(progress.xp, 185);
+    assert.equal(progress.level, 2);
+    assert.equal(progress.subjects.math.sessions, 1);
+    assert.equal(progress.subjects.math.bestStars, 3);
+});
+
+test('same day second session skips first-session bonus', () => {
+    const store = createStore({ storage: memoryStorage(), now: fixedClock('2026-11-26T10:00:00').now });
+
+    store.recordSession({ type: 'math', correct: 5, total: 10, durationSec: 60, stars: 2, xpEarned: 50 });
+    const second = store.recordSession({ type: 'math', correct: 8, total: 10, durationSec: 60, stars: 2, xpEarned: 80 });
+
+    assert.equal(second.bonusXp, 5);
+    assert.equal(second.badgeXp, 0);
+    assert.equal(second.streak.current, 1);
+});
+
+test('perfect bonus is only for math and test', () => {
+    const store = createStore({ storage: memoryStorage(), now: fixedClock('2026-11-26T10:00:00').now });
+
+    store.beginReadingSession();
+    for (let i = 0; i < 20; i++) store.recordReadingCard(`reading-${i}`);
+
+    const result = store.recordSession({
+        type: 'reading',
+        correct: 20,
+        total: 20,
+        durationSec: 300,
+        stars: 3,
+        xpEarned: 40
+    });
+
+    assert.equal(result.bonusXp, 15);
+    assert.equal(result.badgeXp, 25);
+    assert.deepEqual(result.newBadges, ['first-step']);
+});
+
+test('streak increments next day and resets after a gap', () => {
+    const clock = fixedClock('2026-11-26T10:00:00');
+    const store = createStore({ storage: memoryStorage(), now: clock.now });
+
+    store.recordSession({ type: 'test', correct: 8, total: 10, durationSec: 60, stars: 2, xpEarned: 80 });
+    assert.equal(store.getProgress().streak.current, 1);
+
+    clock.set('2026-11-27T10:00:00');
+    store.recordSession({ type: 'test', correct: 8, total: 10, durationSec: 60, stars: 2, xpEarned: 80 });
+    assert.equal(store.getProgress().streak.current, 2);
+
+    clock.set('2026-11-30T10:00:00');
+    store.recordSession({ type: 'test', correct: 8, total: 10, durationSec: 60, stars: 2, xpEarned: 80 });
+    assert.equal(store.getProgress().streak.current, 1);
+    assert.equal(store.getProgress().streak.best, 2);
+});
+
+test('history caps at 30 entries', () => {
+    const store = createStore({ storage: memoryStorage(), now: fixedClock('2026-11-26T10:00:00').now });
+
+    for (let i = 0; i < 31; i++) {
+        store.recordSession({ type: 'math', correct: 5, total: 10, durationSec: 60, stars: 1, xpEarned: 50 });
+    }
+
+    assert.equal(store.getProgress().history.length, 30);
+});
+
+test('badges unlock once and award 25 xp each', () => {
+    const store = createStore({ storage: memoryStorage(), now: fixedClock('2026-11-26T10:00:00').now });
+
+    const first = store.recordSession({ type: 'math', correct: 5, total: 10, durationSec: 60, stars: 1, xpEarned: 50 });
+    assert.deepEqual(first.newBadges, ['first-step']);
+    assert.equal(first.badgeXp, 25);
+
+    const second = store.recordSession({ type: 'math', correct: 5, total: 10, durationSec: 60, stars: 1, xpEarned: 50 });
+    assert.deepEqual(second.newBadges, []);
+    assert.equal(second.badgeXp, 0);
+
+    assert.deepEqual(store.checkBadges(), { newBadges: [], badgeXp: 0, levelUp: false });
+});
+
+test('checkBadges on load awards pending badges', () => {
+    const pending = {
+        version: 1,
+        xp: 0,
+        subjects: {
+            math: { correct: 50, total: 50 },
+            test: {},
+            reading: {}
+        },
+        streak: { current: 0, best: 0, lastActiveDate: null, activeDays: [] },
+        daily: { date: '2026-11-26', seconds: 0, goalSeconds: 600, goalBonusGiven: false, sessions: 0 },
+        badges: {},
+        history: []
+    };
+    const storage = memoryStorage({ [PROGRESS_KEY]: JSON.stringify(pending) });
+    const store = createStore({ storage, now: fixedClock('2026-11-26T10:00:00').now });
+
+    const result = store.checkBadges();
+
+    assert.deepEqual(result.newBadges, ['math-50']);
+    assert.equal(result.badgeXp, 25);
+    assert.equal(store.getProgress().xp, 25);
+    assert.deepEqual(store.checkBadges(), { newBadges: [], badgeXp: 0, levelUp: false });
+});

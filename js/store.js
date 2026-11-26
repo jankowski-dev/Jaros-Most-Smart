@@ -2,6 +2,8 @@
 // Настройки и прогресс лежат под разными ключами, чтобы сброс прогресса
 // не стирал имя, тему, звук и сложность.
 
+import { BADGES, evaluateBadges } from './badges.js';
+
 export const SETTINGS_KEY = 'yarik.uroki.settings.v1';
 export const PROGRESS_KEY = 'yarik.uroki.progress.v1';
 
@@ -74,6 +76,12 @@ export function normalizeName(value) {
 function localDateKey(date) {
     const pad = (number) => String(number).padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function previousDateKey(date) {
+    const previous = new Date(date);
+    previous.setDate(previous.getDate() - 1);
+    return localDateKey(previous);
 }
 
 function levelFromXp(xp) {
@@ -220,6 +228,45 @@ export function createStore({ storage = null, now = () => new Date() } = {}) {
         return { xpGained, levelUp: progress.level > levelBefore };
     }
 
+    function markActiveDay() {
+        const todayKey = today();
+        const lastActive = progress.streak.lastActiveDate;
+
+        if (lastActive !== todayKey) {
+            if (lastActive === previousDateKey(now())) {
+                progress.streak.current += 1;
+            } else {
+                progress.streak.current = 1;
+            }
+            progress.streak.lastActiveDate = todayKey;
+            progress.streak.best = Math.max(progress.streak.best, progress.streak.current);
+        }
+
+        if (!progress.streak.activeDays.includes(todayKey)) {
+            progress.streak.activeDays.push(todayKey);
+            if (progress.streak.activeDays.length > 30) {
+                progress.streak.activeDays = progress.streak.activeDays.slice(-30);
+            }
+        }
+    }
+
+    function checkBadges() {
+        const newBadges = evaluateBadges(progress);
+        let badgeXp = 0;
+        let levelUp = false;
+
+        for (const id of newBadges) {
+            progress.badges[id] = today();
+            const result = addXp(25);
+            badgeXp += 25;
+            levelUp = levelUp || result.levelUp;
+        }
+
+        if (newBadges.length > 0) saveProgress();
+
+        return { newBadges, badgeXp, levelUp };
+    }
+
     ensureDaily();
 
     return {
@@ -302,6 +349,78 @@ export function createStore({ storage = null, now = () => new Date() } = {}) {
 
             saveProgress();
             return { goalReached: false, bonusXp: 0, levelUp: false };
+        },
+
+        recordSession({ type, correct = 0, total = 0, durationSec = 0, stars = 0, xpEarned = 0 } = {}) {
+            if (!['math', 'reading', 'test'].includes(type)) {
+                return {
+                    bonusXp: 0,
+                    badgeXp: 0,
+                    levelUp: false,
+                    newBadges: [],
+                    dailyGoalReached: progress.daily.goalBonusGiven,
+                    streak: clone(progress.streak)
+                };
+            }
+
+            ensureDaily();
+
+            const firstOfDay = progress.daily.sessions === 0;
+            const perfect = type !== 'reading' && total > 0 && correct === total;
+            const bonusXp = 5 + (firstOfDay ? 10 : 0) + (perfect ? 20 : 0);
+
+            const levelBefore = progress.level;
+            addXp(bonusXp);
+
+            const subject = progress.subjects[type];
+            if (subject) {
+                subject.sessions += 1;
+                subject.lastPlayed = now().toISOString();
+                subject.totalSeconds += toNonNegativeInt(durationSec, 0);
+                subject.bestStars = Math.max(
+                    subject.bestStars || 0,
+                    Math.min(3, toNonNegativeInt(stars, 0))
+                );
+            }
+
+            progress.daily.sessions += 1;
+            markActiveDay();
+
+            const safeCorrect = toNonNegativeInt(correct, 0);
+            const safeTotal = toNonNegativeInt(total, 0);
+            const safeStars = Math.min(3, toNonNegativeInt(stars, 0));
+            const safeDuration = toNonNegativeInt(durationSec, 0);
+
+            progress.history.unshift({
+                type,
+                date: now().toISOString(),
+                correct: safeCorrect,
+                total: safeTotal,
+                stars: safeStars,
+                durationSec: safeDuration,
+                xp: toNonNegativeInt(xpEarned, 0) + bonusXp
+            });
+            if (progress.history.length > 30) progress.history.length = 30;
+
+            const badgeResult = checkBadges();
+            saveProgress();
+
+            return {
+                bonusXp,
+                badgeXp: badgeResult.badgeXp,
+                levelUp: progress.level > levelBefore,
+                newBadges: badgeResult.newBadges,
+                dailyGoalReached: progress.daily.goalBonusGiven,
+                streak: clone(progress.streak)
+            };
+        },
+
+        checkBadges() {
+            return checkBadges();
+        },
+
+        getBadgeDefinitions() {
+            return clone(BADGES);
         },
 
         resetProgress() {
