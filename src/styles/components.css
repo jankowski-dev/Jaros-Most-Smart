@@ -424,6 +424,8 @@
 
 .segmented {
     display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 0.25rem;
     padding: 0.25rem;
     border-radius: 9999px;
@@ -432,6 +434,10 @@
 }
 
 .segmented button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
     min-height: 2.5rem;
     padding: 0.35rem 0.9rem;
     border: 0;
