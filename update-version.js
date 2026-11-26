@@ -2,7 +2,7 @@
 /**
  * update-version.js
  * Скрипт для обновления версии приложения
- * Запуск: node update-version.js 2.4
+ * Запуск: node update-version.js 3.0.0
  */
 
 const fs = require('fs');
@@ -21,6 +21,11 @@ const files = [
     path: path.join(__dirname, 'config.js'),
     pattern: /window\.APP_VERSION = '[^']+';/,
     replacement: `window.APP_VERSION = '${newVersion}';`
+  },
+  {
+    path: path.join(__dirname, 'package.json'),
+    pattern: /"version": "[\d.]+"/,
+    replacement: `"version": "${newVersion}"`
   },
   {
     path: path.join(__dirname, 'sw.js'),

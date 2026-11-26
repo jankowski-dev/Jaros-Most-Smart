@@ -1,12 +1,12 @@
 // speech-proxy.js - Упрощенный и надежный прокси-сервер для Yandex SpeechKit
-// Версия 2.4 - безопасность, rate limiting, валидация
+// Версия 2.6 - безопасность, rate limiting, валидация, format validation
 
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
+const pkg = require('./package.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,7 +17,8 @@ const PORT = process.env.PORT || 3000;
 const ALLOWED_ORIGINS = [
     'https://jms.up.railway.app',
     'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    'http://yarik.localhost:3000'
 ];
 
 app.use(cors({
@@ -34,7 +35,7 @@ app.use(cors({
 
 // CSP-заголовки
 app.use((req, res, next) => {
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://jms.up.railway.app; object-src 'none'; base-uri 'self'; form-action 'self'");
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -97,7 +98,7 @@ app.use((req, res, next) => {
 
 // Обслуживание статических файлов (безопасная настройка)
 const staticDir = path.join(__dirname);
-const HIDDEN_FILES = ['.gitignore', '.env', 'data copy.js', 'package.json', 'package-lock.json', 'railway.json', 'update-version.js', 'README.md', 'speech-proxy.js'];
+const HIDDEN_FILES = ['.gitignore', '.env', 'data copy.js', 'package.json', 'package-lock.json', 'railway.json', 'update-version.js', 'README.md', 'AGENTS.md', 'speech-proxy.js'];
 
 app.use((req, res, next) => {
     const requestedFile = path.basename(req.path);
@@ -123,7 +124,7 @@ app.get('/health', (req, res) => {
 app.get('/api/info', (req, res) => {
     res.json({
         service: 'Yarik.Uroki Speech Proxy',
-        version: '2.4',
+        version: '3.0.0',
         endpoints: {
             tts: 'POST /api/tts',
             health: 'GET /health'
@@ -132,21 +133,18 @@ app.get('/api/info', (req, res) => {
 });
 
 // Version endpoint для PWA update checking.
-// Версия = время последнего изменения app.js. Меняется только при деплое,
-// а не каждый день, поэтому баннер обновления появляется по делу.
+// Версия берётся из package.json и меняется только при релизе.
 app.get('/api/version', (req, res) => {
-    fs.stat(path.join(__dirname, 'app.js'), (err, stats) => {
-        const version = err ? 'unknown' : String(Math.floor(stats.mtimeMs));
-        res.json({
-            version: version,
-            buildTime: new Date().toISOString()
-        });
+    res.json({
+        version: pkg.version,
+        buildTime: new Date().toISOString()
     });
 });
 
 // Допустимые значения параметров
 const VALID_VOICES = ['alena', 'filipp', 'ermil'];
 const VALID_EMOTIONS = ['good', 'evil', 'neutral'];
+const VALID_FORMATS = ['oggopus', 'wav'];
 const MIN_SPEED = 0.1;
 const MAX_SPEED = 3.0;
 const MAX_TEXT_LENGTH = 500;
@@ -211,6 +209,14 @@ app.post('/api/tts', rateLimit, async (req, res) => {
         if (isNaN(numSpeed) || numSpeed < MIN_SPEED || numSpeed > MAX_SPEED) {
             return res.status(400).json({
                 error: `Invalid speed. Must be between ${MIN_SPEED} and ${MAX_SPEED}`,
+                requestId
+            });
+        }
+
+        // Валидация формата аудио
+        if (format && !VALID_FORMATS.includes(format)) {
+            return res.status(400).json({
+                error: `Invalid format. Allowed: ${VALID_FORMATS.join(', ')}`,
                 requestId
             });
         }
@@ -382,7 +388,7 @@ process.on('unhandledRejection', (reason, promise) => {
 app.listen(PORT, () => {
     console.log(`
 ===========================================
-🚀 Speech Proxy Server v2.4
+🚀 Speech Proxy Server v2.6
 ===========================================
 ✅ Server running on port: ${PORT}
 ✅ Health check: http://localhost:${PORT}/health

@@ -1,0 +1,122 @@
+/* База: фон, типографика, фокус, общие помощники. */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background-color: var(--color-bg);
+    background-image:
+        radial-gradient(circle at 100% 0%, var(--hero-glow), transparent 34rem),
+        radial-gradient(circle at 0% 100%, rgba(91, 91, 214, 0.08), transparent 30rem),
+        radial-gradient(var(--grid-dot) 1px, transparent 1px);
+    background-size: auto, auto, 24px 24px;
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+#app,
+.app-shell {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+}
+
+::selection {
+    background: var(--color-primary-soft);
+    color: var(--color-ink);
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.text-display {
+    font-size: clamp(3rem, 8vw, 5rem);
+    line-height: 1.05;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+}
+
+.text-title {
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.text-label {
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.text-caption {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    font-weight: 500;
+}
+
+.tabular {
+    font-variant-numeric: tabular-nums;
+}
+
+.safe-bottom {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+.safe-top {
+    padding-top: env(safe-area-inset-top);
+}
+
+.hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

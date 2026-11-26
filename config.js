@@ -2,7 +2,7 @@
 // Настройки загружаются из переменных среды Railway
 
 // ВЕРСИЯ ПРИЛОЖЕНИЯ - измени здесь одну строку при выкладке новой версии
-window.APP_VERSION = '2.4';
+window.APP_VERSION = '3.0.0';
 
 window.appConfig = {
     speech: {
@@ -11,9 +11,10 @@ window.appConfig = {
 
         // Настройки Yandex SpeechKit
         yandex: {
-            // URL прокси-сервера на Railway (обязательно для режима yandex)
-            // Формат: https://your-app-name.up.railway.app/api/tts
-            proxyUrl: 'https://jms.up.railway.app/api/tts',
+            // URL прокси-сервера. По умолчанию — относительный путь, потому что
+            // speech-proxy.js раздаёт и фронтенд, и /api/tts с одного origin.
+            // Это также снимает проблему CSP connect-src.
+            proxyUrl: '/api/tts',
 
             // Голос: 'alena' (женский), 'filipp' (мужской), 'ermil' (мужской)
             voice: 'alena',

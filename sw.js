@@ -1,16 +1,50 @@
-const CACHE_NAME = 'yarik-uroki-v2.5';
+const CACHE_NAME = 'yarik-uroki-v3.0.0';
 
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/styles.css',
-  '/app.js',
-  '/data.js',
+  '/manifest.json',
+
   '/config.js',
   '/speech-service.js',
   '/update-notifier.js',
-  '/manifest.json',
-  '/icon.png'
+
+  '/js/main.js',
+  '/js/router.js',
+  '/js/store.js',
+  '/js/content.js',
+  '/js/scoring.js',
+  '/js/badges.js',
+  '/js/timer.js',
+  '/js/speech.js',
+  '/js/effects.js',
+  '/js/theme.js',
+  '/js/theme-init.js',
+  '/js/progress-utils.js',
+  '/js/word-fill.js',
+
+  '/js/ui/icons.js',
+  '/js/ui/mascot.js',
+  '/js/ui/toast.js',
+  '/js/ui/dialog.js',
+  '/js/ui/confetti.js',
+  '/js/ui/nav.js',
+  '/js/ui/app-bar.js',
+  '/js/ui/html.js',
+
+  '/js/screens/home.js',
+  '/js/screens/settings.js',
+  '/js/screens/progress.js',
+  '/js/screens/math.js',
+  '/js/screens/reading.js',
+  '/js/screens/test.js',
+  '/js/screens/result.js',
+
+  '/fonts/montserrat-cyrillic.woff2',
+  '/fonts/montserrat-latin.woff2',
+  '/icon.png',
+  '/icon-192.png'
 ];
 
 // Установка: кладём свежие версии файлов в кэш.
@@ -34,7 +68,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Активация: удаляем все старые кэши
+// Активация: удаляем все старые кэши.
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -49,21 +83,18 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: сеть в приоритете, кэш — только как fallback для офлайна.
-// Так изменения на сервере подхватываются сразу, без ожидания нового SW.
+// Fetch: сеть в приоритете, кэш — fallback для офлайна.
 self.addEventListener('fetch', (event) => {
   const request = event.request;
 
-  // Пропускаем не-GET и запросы к API
   if (request.method !== 'GET' || request.url.includes('/api/')) {
     return;
   }
 
-  // Работаем только со своим origin
   let sameOrigin = false;
   try {
     sameOrigin = new URL(request.url).origin === self.location.origin;
-  } catch (e) {
+  } catch (error) {
     sameOrigin = false;
   }
   if (!sameOrigin) {
@@ -78,29 +109,39 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME)
             .then((cache) => cache.put(request, copy))
             .catch(() => {});
+          return response;
         }
+
+        // Если сервер ответил 5xx (или прокси вернул 502), отдаём кэш.
+        if (response && response.status >= 500) {
+          return caches.match(request, { ignoreVary: true }).then((cached) => cached || response);
+        }
+
         return response;
       })
       .catch(() => {
-        return caches.match(request).then((cached) => cached || offlineFallback(request));
+        return caches.match(request, { ignoreVary: true }).then((cached) => cached || offlineFallback(request));
       })
   );
 });
 
 function offlineFallback(request) {
+  if (request.mode === 'navigate') {
+    return caches.match('/index.html', { ignoreVary: true }).then((cached) => cached || new Response('Offline', { status: 503, statusText: 'Service Unavailable' }));
+  }
+
   if (request.destination === 'image') {
     return new Response(
       '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#ddd" width="100" height="100"/><text fill="#999" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="14">Offline</text></svg>',
       { headers: { 'Content-Type': 'image/svg+xml' } }
     );
   }
+
   return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
 }
 
-// Слушаем сообщения от клиента
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] Получена команда SKIP_WAITING');
     self.skipWaiting();
     self.clients.claim();
   }
